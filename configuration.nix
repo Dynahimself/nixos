@@ -132,6 +132,7 @@
     wireguard-tools
     zsh
     oh-my-zsh
+    fastfetch
 
     # --- bspwm stack ---
     bspwm
