@@ -1,0 +1,213 @@
+# Edit this configuration file to define what should be installed on
+# your system.  Help is available in the configuration.nix(5) man page
+# and in the NixOS manual (accessible by running 'nixos-help').
+
+{ config, pkgs, ... }:
+{
+  imports =
+    [ # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+    ];
+
+  # Bootloader.
+  boot.loader.systemd-boot.enable = false;
+  boot.loader.grub = {
+    enable = true;
+    efiSupport = true;
+    device = "nodev";
+    useOSProber = true;
+  };
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  # Catppuccin
+  catppuccin.enable = true;
+  catppuccin.cursors.enable = true;
+
+  # Enable OpenGL
+  hardware.graphics = {
+    enable = true;
+  };
+
+  # Load nvidia driver for Xorg and Wayland
+  services.xserver.videoDrivers = ["nvidia"];
+  hardware.nvidia = {
+    # Modesetting is required.
+    modesetting.enable = true;
+
+    # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
+    powerManagement.enable = false;
+
+    # Fine-grained power management. Turns off GPU when not in use.
+    powerManagement.finegrained = false;
+
+    # Use the NVidia open source kernel module
+    open = false;
+
+    # Enable the Nvidia settings menu
+    nvidiaSettings = true;
+
+    # Driver version
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+  };
+
+  networking.hostName = "nixos";
+  services.tailscale.enable = true;
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  networking.networkmanager.enable = true;
+
+  time.timeZone = "America/New_York";
+
+  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "en_US.UTF-8";
+    LC_IDENTIFICATION = "en_US.UTF-8";
+    LC_MEASUREMENT = "en_US.UTF-8";
+    LC_MONETARY = "en_US.UTF-8";
+    LC_NAME = "en_US.UTF-8";
+    LC_NUMERIC = "en_US.UTF-8";
+    LC_PAPER = "en_US.UTF-8";
+    LC_TELEPHONE = "en_US.UTF-8";
+    LC_TIME = "en_US.UTF-8";
+  };
+
+  # Enable X11
+  services.xserver.enable = true;
+
+  # Display Manager - SDDM with session selection at login
+  services.displayManager.sddm.enable = true;
+
+  # KDE Plasma as fallback session
+  services.desktopManager.plasma6.enable = true;
+
+  # bspwm - primary tiling WM
+  services.xserver.windowManager.bspwm.enable = true;
+
+  # Configure keymap in X11
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
+
+  services.printing.enable = true;
+
+  # Sound with pipewire
+  services.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  # User account
+  users.users.dyna = {
+    isNormalUser = true;
+    description = "Dyna";
+    shell = pkgs.zsh;
+    extraGroups = [ "networkmanager" "wheel" ];
+    packages = with pkgs; [
+      kdePackages.kate
+    ];
+  };
+
+  programs.firefox.enable = true;
+
+  nixpkgs.config.allowUnfree = true;
+
+  environment.systemPackages = with pkgs; [
+    wget
+    curl
+    htop
+    tree
+    unzip
+    zip
+    dbeaver-bin
+    picom-pijulius
+    tailscale
+    starship
+    protonvpn-gui
+    wireguard-tools
+    zsh
+    oh-my-zsh
+
+    # --- bspwm stack ---
+    bspwm
+    sxhkd
+    rofi
+    polybar
+    feh                # wallpaper setter
+    alacritty          # terminal (or swap for kitty/wezterm)
+    dunst              # notification daemon
+    maim               # screenshots
+    xclip              # clipboard access
+    pamixer            # pulseaudio volume control
+    brightnessctl      # backlight control
+    playerctl          # media player MPRIS control
+    xdg-utils          # xdg-open for default apps
+    polkit_gnome       # authentication agent (critical for GUI prompts)
+    jq                 # useful for polybar scripts
+    # ==========================================
+  # 1. LSP SERVERS (Replaces Mason LSP installs)
+  # ==========================================
+  gcc
+  clang-tools          # nvim-jdtls, clangd_extensions.nvim
+  gopls                # neotest-golang
+  rust-analyzer        # rustaceanvim
+  jdt-language-server  # nvim-jdtls
+  omnisharp-roslyn     # omnisharp-extended-lsp.nvim
+
+  # ==========================================
+  # 2. DEBUG ADAPTERS (Replaces Mason DAP installs)
+  # ==========================================
+  delve                # nvim-dap-go (Go debugger)
+
+  # ==========================================
+  # 3. TEST RUNNERS (Required by neotest adapters)
+  # ==========================================
+  go                   # neotest-golang
+  zig                  # neotest-zig
+  dotnet-sdk_8         # neotest-vstest (.NET testing)
+  php                  # neotest-pest, neotest-phpunit
+  php.packages.composer # To actually install pest/phpunit globally if needed
+  luajitPackages.luarocks
+
+
+  # ==========================================
+  # 4. CLI TOOLS (Shelled out to by plugins)
+  # ==========================================
+  ripgrep              # grug-far.nvim, Telescope/LazyVim default
+  fd                   # grug-far.nvim, Telescope/LazyVim default
+  gh                   # CopilotChat.nvim (GitHub CLI)
+  cmake                # cmake-tools.nvim
+  cargo                # crates.nvim, rustaceanvim
+  rustc                # rustaceanvim
+  nodejs               # markdown-preview.nvim (uses a local node server)
+
+  # ==========================================
+  # 5. LANGUAGES / MISC (Native dependencies)
+  # ==========================================
+  jdk                  # nvim-jdtls (Java runtime)
+  typst                # typst-preview.nvim
+  lua
+  python315
+  fzf
+  lazygit
+  tmux
+  copilot-language-server
+  ];
+
+  environment.shells = with pkgs; [ zsh bash ];
+
+  fonts.packages = with pkgs; [
+    nerd-fonts.jetbrains-mono
+  ];
+
+  fonts.fontconfig.defaultFonts = {
+    monospace = [ "JetBrainsMono Nerd Font" ];
+  };
+
+  system.stateVersion = "25.11";
+}

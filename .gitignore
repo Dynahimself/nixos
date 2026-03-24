@@ -1,0 +1,7 @@
+# Ignore all hardware configs by default
+*/hardware-configuration.nix
+hardware-configuration.nix
+
+# Explicitly track specific hosts if needed
+!laptop/hardware-configuration.nix
+!server/hardware-configuration.nix
