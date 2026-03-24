@@ -42,50 +42,16 @@
     enable = true;
   };
 
-  programs.starship = {
+programs.starship = {
   enable = true;
   enableBashIntegration = true;
   enableZshIntegration = true;
-
-  settings = {
-    # These get merged with catppuccin's palette injection
-    format = "$directory$git_branch$git_status$rust$nodejs$python$nix_shell$cmd_duration$line_break$character";
-
-    character = {
-      success_symbol = "[❯](bold green)";
-      error_symbol = "[❯](bold red)";
-    };
-
-    directory = {
-      style = "bold lavender";
-      truncation_length = 3;
-      truncate_to_repo = true;
-    };
-
-    git_branch = {
-      format = "[$symbol$branch]($style) ";
-      style = "bold mauve";
-    };
-
-    git_status = {
-      format = "[$all_status$ahead_behind]($style) ";
-      style = "bold red";
-    };
-
-    nix_shell = {
-      format = "[$symbol$state]($style) ";
-      style = "bold blue";
-    };
-
-    cmd_duration = {
-      format = "[$duration]($style) ";
-      style = "bold yellow";
-    };
-
-    # Add more modules as needed—rust, nodejs, python, etc.
-    # Each styled with catppuccin color names: rose, flamingo, pink, mauve, red, maroon, peach, yellow, teal, green, sapphire, blue, sky, lavender, text, subtext1, subtext0, overlay2, overlay1, overlay0, surface2, surface1, surface0, base, mantle, crust
-  };
+  settings = builtins.fromTOML (builtins.readFile (pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/starship/starship/refs/heads/master/docs/public/presets/toml/catppuccin-powerline.toml";
+    sha256 = "0bd8zx0bpri63rnb9dva0rav75d3i2wrzw44h63m75hq5220r26g";
+  }));
 };
+
 
 catppuccin.starship.enable = true;  # keeps feeding the palette
 

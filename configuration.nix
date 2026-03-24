@@ -102,6 +102,10 @@
     pulse.enable = true;
   };
 
+    programs.zsh = {
+    enable = true;
+    };
+
   # User account
   users.users.dyna = {
     isNormalUser = true;
