@@ -89,7 +89,7 @@
   # NEOVIM CONFIG SYMLINK
   # ──────────────────────────────────────────────
   # This symlinks your local /etc/nixos/nvim folder into ~/.config/nvim
-  xdg.configFile."nvim".source = ./nvim;
+  xdg.configFile."nvim".source = /nvim;
 
   # ──────────────────────────────────────────────
   # KITTY
