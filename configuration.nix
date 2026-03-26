@@ -4,10 +4,6 @@
 
 { config, pkgs, ... }:
 {
-  imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
-  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = false;
