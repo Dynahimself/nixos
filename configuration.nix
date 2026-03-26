@@ -4,10 +4,10 @@
 
 { config, pkgs, ... }:
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = false;
@@ -50,7 +50,6 @@
     # Driver version
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
-
     #STUFF FOR LAPTOP, TEMP.
 
   };
@@ -58,7 +57,10 @@
   networking.hostName = "nixos";
   services.tailscale.enable = true;
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   networking.networkmanager.enable = true;
 
@@ -93,7 +95,6 @@
 
   services.envfs.enable = true;
 
-
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -112,16 +113,19 @@
     pulse.enable = true;
   };
 
-    programs.zsh = {
+  programs.zsh = {
     enable = true;
-    };
+  };
 
   # User account
   users.users.dyna = {
     isNormalUser = true;
     description = "Dyna";
     shell = pkgs.zsh;
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     packages = with pkgs; [
       kdePackages.kate
     ];
@@ -129,7 +133,7 @@
 
   programs.firefox.enable = true;
 
-    programs.steam = {
+  programs.steam = {
     enable = true;
     remotePlay.openFirewall = true; # Open ports for Steam Remote Play
     dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server
@@ -143,7 +147,6 @@
 
   # Optimize system performance for gaming on demand
   programs.gamemode.enable = true;
-
 
   nixpkgs.config.allowUnfree = true;
 
@@ -188,79 +191,79 @@
     glow
     pay-respects
 
-
     # --- bspwm stack ---
     bspwm
     sxhkd
     rofi
     polybar
-    feh                # wallpaper setter
-    alacritty          # terminal (or swap for kitty/wezterm)
-    dunst              # notification daemon
-    maim               # screenshots
-    xclip              # clipboard access
-    pamixer            # pulseaudio volume control
-    brightnessctl      # backlight control
-    playerctl          # media player MPRIS control
-    xdg-utils          # xdg-open for default apps
-    polkit_gnome       # authentication agent (critical for GUI prompts)
-    jq                 # useful for polybar scripts
+    feh # wallpaper setter
+    alacritty # terminal (or swap for kitty/wezterm)
+    dunst # notification daemon
+    maim # screenshots
+    xclip # clipboard access
+    pamixer # pulseaudio volume control
+    brightnessctl # backlight control
+    playerctl # media player MPRIS control
+    xdg-utils # xdg-open for default apps
+    polkit_gnome # authentication agent (critical for GUI prompts)
+    jq # useful for polybar scripts
     # ==========================================
-  # 1. LSP SERVERS (Replaces Mason LSP installs)
-  # ==========================================
-  gcc
-  clang-tools          # nvim-jdtls, clangd_extensions.nvim
-  gopls                # neotest-golang
-  rust-analyzer        # rustaceanvim
-  jdt-language-server  # nvim-jdtls
-  omnisharp-roslyn     # omnisharp-extended-lsp.nvim
+    # 1. LSP SERVERS (Replaces Mason LSP installs)
+    # ==========================================
+    gcc
+    clang-tools # nvim-jdtls, clangd_extensions.nvim
+    gopls # neotest-golang
+    rust-analyzer # rustaceanvim
+    jdt-language-server # nvim-jdtls
+    omnisharp-roslyn # omnisharp-extended-lsp.nvim
 
-  # ==========================================
-  # 2. DEBUG ADAPTERS (Replaces Mason DAP installs)
-  # ==========================================
-  delve                # nvim-dap-go (Go debugger)
-  netcoredbg
+    # ==========================================
+    # 2. DEBUG ADAPTERS (Replaces Mason DAP installs)
+    # ==========================================
+    delve # nvim-dap-go (Go debugger)
+    netcoredbg
 
-  # ==========================================
-  # 3. TEST RUNNERS (Required by neotest adapters)
-  # ==========================================
-  go                   # neotest-golang
-  zig                  # neotest-zig
-  dotnet-sdk_8         # neotest-vstest (.NET testing)
-  php                  # neotest-pest, neotest-phpunit
-  php.packages.composer # To actually install pest/phpunit globally if needed
-  luajitPackages.luarocks
+    # ==========================================
+    # 3. TEST RUNNERS (Required by neotest adapters)
+    # ==========================================
+    go # neotest-golang
+    zig # neotest-zig
+    dotnet-sdk_8 # neotest-vstest (.NET testing)
+    php # neotest-pest, neotest-phpunit
+    php.packages.composer # To actually install pest/phpunit globally if needed
+    luajitPackages.luarocks
 
+    # ==========================================
+    # 4. CLI TOOLS (Shelled out to by plugins)
+    # ==========================================
+    ripgrep # grug-far.nvim, Telescope/LazyVim default
+    fd # grug-far.nvim, Telescope/LazyVim default
+    gh # CopilotChat.nvim (GitHub CLI)
+    cmake # cmake-tools.nvim
+    cargo # crates.nvim, rustaceanvim
+    rustc # rustaceanvim
+    nodejs # markdown-preview.nvim (uses a local node server)
 
-
-  # ==========================================
-  # 4. CLI TOOLS (Shelled out to by plugins)
-  # ==========================================
-  ripgrep              # grug-far.nvim, Telescope/LazyVim default
-  fd                   # grug-far.nvim, Telescope/LazyVim default
-  gh                   # CopilotChat.nvim (GitHub CLI)
-  cmake                # cmake-tools.nvim
-  cargo                # crates.nvim, rustaceanvim
-  rustc                # rustaceanvim
-  nodejs               # markdown-preview.nvim (uses a local node server)
-
-  # ==========================================
-  # 5. LANGUAGES / MISC (Native dependencies)
-  # ==========================================
-  jdk                  # nvim-jdtls (Java runtime)
-  typst                # typst-preview.nvim
-  lua
-  python315
-  fzf
-  lazygit
-  zellij
-  copilot-language-server
-  oracle-instantclient
-  glibc
-  libaio
+    # ==========================================
+    # 5. LANGUAGES / MISC (Native dependencies)
+    # ==========================================
+    jdk # nvim-jdtls (Java runtime)
+    typst # typst-preview.nvim
+    lua
+    python315
+    fzf
+    lazygit
+    zellij
+    copilot-language-server
+    oracle-instantclient
+    glibc
+    libaio
   ];
 
-  environment.shells = with pkgs; [ zsh bash ];
+  environment.shells = with pkgs; [
+    zsh
+    bash
+  ];
 
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono

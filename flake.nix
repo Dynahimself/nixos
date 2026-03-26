@@ -3,8 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-    # 1. Added Neovim Nightly Overlay Input
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
     zen-browser = {
@@ -36,29 +34,18 @@
     {
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
+        # THIS IS THE KEY: Pass 'inputs' to all modules (NixOS and Home Manager)
+        specialArgs = { inherit inputs; };
         modules = [
           ./configuration.nix
-
-          # 2. Apply the overlay globally
-          {
-            nixpkgs.overlays = [
-              neovim-nightly-overlay.overlays.default
-            ];
-          }
-
-          {
-            environment.systemPackages = [
-              zen-browser.packages.${system}.default
-            ];
-          }
-
           catppuccin.nixosModules.catppuccin
           home-manager.nixosModules.home-manager
-
           {
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
+              backupFileExtension = "backup"; # <-- HERE
+              extraSpecialArgs = { inherit inputs; };
               users.dyna = {
                 imports = [
                   ./home.nix
@@ -66,6 +53,12 @@
                 ];
               };
             };
+            nixpkgs.overlays = [ neovim-nightly-overlay.overlays.default ];
+          }
+          {
+            environment.systemPackages = [
+              zen-browser.packages.${system}.default
+            ];
           }
         ];
       };

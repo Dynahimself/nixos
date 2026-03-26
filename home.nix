@@ -2,7 +2,7 @@
   config,
   pkgs,
   lib,
-  neovim-nightly,
+  inputs,
   ...
 }:
 
@@ -15,7 +15,9 @@
   # Configure Neovim
   programs.neovim = {
     enable = true;
-    package = pkgs.neovim-nightly;
+    # Directly use the package from the flake input
+    # This bypasses the "attribute missing" error entirely
+    package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
   };
 
   # ──────────────────────────────────────────────
