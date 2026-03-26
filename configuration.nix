@@ -257,6 +257,8 @@
     oracle-instantclient
     glibc
     libaio
+    nodePackages.typescript-language-server  # For JS/TS
+  nodePackages.vscode-langservers-extracted # For CSS
   ];
 
   environment.shells = with pkgs; [
