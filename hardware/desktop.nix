@@ -6,7 +6,9 @@
 }:
 
 {
-  imports = [ ./hardware-configuration.nix ]; # You need to generate this on the desktop
+  imports = [
+    ./desktop-hardware-configuration.nix
+  ];
 
   # Desktop specific hostname
   networking.hostName = "desktop";

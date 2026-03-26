@@ -7,7 +7,9 @@
 }:
 
 {
-  imports = [ ./hardware-configuration.nix ]; # You need to generate this on the laptop
+  imports = [
+    ./laptop-hardware-configuration.nix
+  ];
 
   # Laptop specific hostname
   networking.hostName = "laptop";
