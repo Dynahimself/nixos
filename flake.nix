@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
     zen-browser = {
@@ -22,45 +23,63 @@
     {
       self,
       nixpkgs,
-      zen-browser,
       catppuccin,
       home-manager,
+      zen-browser,
       neovim-nightly-overlay,
       ...
     }@inputs:
     let
       system = "x86_64-linux";
+
+      # Defining common modules to avoid repetition
+      commonModules = [
+        ./configuration.nix
+        catppuccin.nixosModules.catppuccin
+        home-manager.nixosModules.home-manager
+        {
+          # Apply the Neovim Nightly Overlay
+          nixpkgs.overlays = [ neovim-nightly-overlay.overlays.default ];
+
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            backupFileExtension = "backup";
+            extraSpecialArgs = { inherit inputs; };
+            users.dyna = {
+              imports = [
+                ./home.nix
+                catppuccin.homeModules.catppuccin
+              ];
+            };
+          };
+
+          # Install Zen Browser via the flake package
+          environment.systemPackages = [
+            zen-browser.packages.${system}.default
+          ];
+        }
+      ];
     in
     {
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        inherit system;
-        # THIS IS THE KEY: Pass 'inputs' to all modules (NixOS and Home Manager)
-        specialArgs = { inherit inputs; };
-        modules = [
-          ./configuration.nix
-          catppuccin.nixosModules.catppuccin
-          home-manager.nixosModules.home-manager
-          {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              backupFileExtension = "backup"; # <-- HERE
-              extraSpecialArgs = { inherit inputs; };
-              users.dyna = {
-                imports = [
-                  ./home.nix
-                  catppuccin.homeModules.catppuccin
-                ];
-              };
-            };
-            nixpkgs.overlays = [ neovim-nightly-overlay.overlays.default ];
-          }
-          {
-            environment.systemPackages = [
-              zen-browser.packages.${system}.default
-            ];
-          }
-        ];
+      nixosConfigurations = {
+        laptop = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs; };
+          modules = commonModules ++ [
+            ./hardware/laptop.nix
+            ./hardware/laptop-hardware-configuration.nix
+          ];
+        };
+
+        desktop = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs; };
+          modules = commonModules ++ [
+            ./hardware/desktop.nix
+            ./hardware/desktop-hardware-configuration.nix
+          ];
+        };
       };
     };
 }

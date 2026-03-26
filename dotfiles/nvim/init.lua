@@ -7,6 +7,7 @@ vim.api.nvim_create_autocmd("FileType", {
       local col = vim.api.nvim_win_get_cursor(0)[2]
       local line = vim.api.nvim_get_current_line()
 
+      -- Template for web, it's just a lazy template.
       -- Modified logic: Check if the line is empty/whitespace UP TO the cursor.
       -- If it is, then pressing '!' should trigger the template.
       if line:sub(1, col):match("^%s*$") then
@@ -53,12 +54,14 @@ vim.api.nvim_create_autocmd("FileType", {
     end, { buffer = true, desc = "HTML template" })
   end,
 })
--- :Crun for K&R C exercises
+
+-- :Crun for K&R and CS:APP exercises
+-- Bad practices if you're actually writing a project, just for single files.
 vim.api.nvim_create_user_command("Crun", function()
   local src = vim.fn.expand("%:p") -- /path/to/file.c
   local bin = vim.fn.expand("%:p:r") -- /path/to/file (no extension)
 
-  -- Save first (K&R doesn't forgive forgotten saves)
+  -- Save first (I kept forgetting while doing exercises lmao)
   vim.cmd("write")
 
   -- Vertical split terminal: compile then run
@@ -76,7 +79,9 @@ vim.api.nvim_create_user_command("Crun", function()
   vim.cmd("startinsert")
 end, { desc = "Compile & run C (gcc)" })
 
--- Create :Csrun command
+-- Csrun command
+-- If you copy this you need the SDK and something to make
+-- .cs files run without a project (like dotnet-script or something)
 vim.api.nvim_create_user_command("Csrun", function()
   local file = vim.fn.expand("%:p")
   vim.cmd("terminal dotnet run " .. vim.fn.shellescape(file))
@@ -87,8 +92,6 @@ vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "*",
   command = "startinsert",
 })
-
--- SQL formatter configuration for conform.nvim
 
 -- SQL formatter configuration for conform.nvim
 -- This forces sql-formatter with the Oracle dialect

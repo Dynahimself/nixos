@@ -31,28 +31,6 @@
 
   # Load nvidia driver for Xorg and Wayland
   services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia = {
-    # Modesetting is required.
-    modesetting.enable = true;
-
-    # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
-    powerManagement.enable = false;
-
-    # Fine-grained power management. Turns off GPU when not in use.
-    powerManagement.finegrained = false;
-
-    # Use the NVidia open source kernel module
-    open = false;
-
-    # Enable the Nvidia settings menu
-    nvidiaSettings = true;
-
-    # Driver version
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-
-    #STUFF FOR LAPTOP, TEMP.
-
-  };
 
   networking.hostName = "nixos";
   services.tailscale.enable = true;
@@ -257,8 +235,8 @@
     oracle-instantclient
     glibc
     libaio
-    nodePackages.typescript-language-server  # For JS/TS
-  nodePackages.vscode-langservers-extracted # For CSS
+    nodePackages.typescript-language-server # For JS/TS
+    nodePackages.vscode-langservers-extracted # For CSS
   ];
 
   environment.shells = with pkgs; [
