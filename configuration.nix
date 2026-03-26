@@ -166,7 +166,6 @@
     zsh
     oh-my-zsh
     fastfetch
-    neovim
     lutris
     wineWowPackages.yabridge
     winetricks

@@ -10,7 +10,7 @@
   # 2. EVERYTHING ELSE lives inside this main attribute set
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
-  home.stateVersion = "24.11";
+  home.stateVersion = "25.11";
 
   # Configure Neovim
   programs.neovim = {
