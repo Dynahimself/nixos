@@ -26,10 +26,11 @@
   # Enable OpenGL
   hardware.graphics = {
     enable = true;
+    enable32Bit = true; # Crucial for running 32-bit games (like Wine/Proton)
   };
 
   # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
     # Modesetting is required.
     modesetting.enable = true;
@@ -48,6 +49,10 @@
 
     # Driver version
     package = config.boot.kernelPackages.nvidiaPackages.stable;
+
+
+    #STUFF FOR LAPTOP, TEMP.
+
   };
 
   networking.hostName = "nixos";
@@ -84,6 +89,11 @@
   # bspwm - primary tiling WM
   services.xserver.windowManager.bspwm.enable = true;
 
+  programs.nix-ld.enable = true;
+
+  services.envfs.enable = true;
+
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -119,6 +129,22 @@
 
   programs.firefox.enable = true;
 
+    programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true; # Open ports for Steam Remote Play
+    dedicatedServer.openFirewall = true; # Open ports for Source Dedicated Server
+    extraCompatPackages = [
+      pkgs.proton-ge-bin
+    ];
+
+    # Enable Gamescope (the micro-compositor used on the Steam Deck)
+    gamescopeSession.enable = true;
+  };
+
+  # Optimize system performance for gaming on demand
+  programs.gamemode.enable = true;
+
+
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
@@ -137,6 +163,31 @@
     zsh
     oh-my-zsh
     fastfetch
+    neovim
+    lutris
+    wineWowPackages.yabridge
+    winetricks
+    nix-output-monitor
+    catppuccin-cursors.mochaDark
+    spotify
+    zoxide
+    broot
+    eza
+    dust
+    duf
+    sd
+    delta
+    gh
+    asdf
+    github-copilot-cli
+    aichat
+    mods
+    lazydocker
+    k9s
+    fx
+    glow
+    pay-respects
+
 
     # --- bspwm stack ---
     bspwm
@@ -168,6 +219,7 @@
   # 2. DEBUG ADAPTERS (Replaces Mason DAP installs)
   # ==========================================
   delve                # nvim-dap-go (Go debugger)
+  netcoredbg
 
   # ==========================================
   # 3. TEST RUNNERS (Required by neotest adapters)
@@ -178,6 +230,7 @@
   php                  # neotest-pest, neotest-phpunit
   php.packages.composer # To actually install pest/phpunit globally if needed
   luajitPackages.luarocks
+
 
 
   # ==========================================
@@ -200,8 +253,11 @@
   python315
   fzf
   lazygit
-  tmux
+  zellij
   copilot-language-server
+  oracle-instantclient
+  glibc
+  libaio
   ];
 
   environment.shells = with pkgs; [ zsh bash ];
