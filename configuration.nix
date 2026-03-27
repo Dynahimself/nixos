@@ -63,7 +63,7 @@
 
   # bspwm - primary tiling WM
   services.xserver.windowManager.bspwm.enable = true;
-  services.xserver.windowManager.hyprland.enable = true;
+  services.xserver.windowManager.hypr.enable = true;
 
   programs.nix-ld.enable = true;
 
