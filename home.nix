@@ -6,17 +6,42 @@
   ...
 }:
 
+let
+  # Fetch the Catppuccin CSS for Zen (uses Firefox theme since Zen is Firefox-based)
+  catppuccin-zen = pkgs.fetchFromGitHub {
+    owner = "catppuccin";
+    repo = " firefox"; # Zen uses standard Firefox CSS theming
+    rev = "v1.0.0"; # Pin to a specific release
+    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Replace with real hash (use lib.fakeSha256 first run)
+  };
+
+  # Match your existing mocha flavor
+  flavor = config.catppuccin.flavor or "mocha";
+in
 {
   # 2. EVERYTHING ELSE lives inside this main attribute set
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
   home.stateVersion = "25.11";
 
+  # ──────────────────────────────────────────────
+  # ZEN BROWSER CATPPUCCIN THEME
+  # ──────────────────────────────────────────────
+  # REPLACE xxxxxxxx.default-default with your actual profile folder from ~/.zen/
+  # Launch Zen once to generate the profile, then check the folder name
+  home.file.".zen/d43yraaj.default-default/chrome/userChrome.css".source =
+    "${catppuccin-zen}/themes/${flavor}.css";
+
+  # Enable userChrome.css support in Zen
+  home.file.".zen/d34yraaj.default-default/user.js".text = ''
+    user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+    user_pref("browser.tabs.drawInTitlebar", true);
+    user_pref("browser.compactmode.show", true);
+  '';
+
   # Configure Neovim
   programs.neovim = {
     enable = true;
-    # Directly use the package from the flake input
-    # This bypasses the "attribute missing" error entirely
     package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
   };
 
@@ -67,7 +92,6 @@
   # ──────────────────────────────────────────────
   catppuccin.enable = true;
   catppuccin.flavor = "mocha";
-
   programs.bat.enable = true;
 
   programs.starship = {
@@ -88,7 +112,6 @@
   # ──────────────────────────────────────────────
   # NEOVIM CONFIG SYMLINK
   # ──────────────────────────────────────────────
-  # This symlinks your local /etc/nixos/nvim folder into ~/.config/nvim
   xdg.configFile."nvim".source = ./dotfiles/nvim;
   xdg.configFile."hypr".source = ./dotfiles/hypr;
 

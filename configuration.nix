@@ -147,6 +147,7 @@
     protonvpn-gui
     wireguard-tools
     zsh
+    gnumake
     oh-my-zsh
     fastfetch
     lutris
