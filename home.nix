@@ -76,10 +76,6 @@ in
       name = "Catppuccin-Mocha-Mauve"; # or "Catppuccin-Mocha-Mauve-Dark" if menus look off
       package = pkgs.magnetic-catppuccin-gtk;
     };
-    iconTheme = {
-      name = "Papirus";
-      package = pkgs.papirus-icon-theme;
-    };
     font = {
       name = "JetBrains Mono";
       size = 11;
