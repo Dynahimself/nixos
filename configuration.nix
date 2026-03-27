@@ -56,14 +56,6 @@
   # Enable X11
   services.xserver.enable = true;
 
-  #DKMS
-  services.dkms.modules = [
-    {
-      name = "nvidia";
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
-    }
-  ];
-
   # Display Manager - SDDM with session selection at login
   services.displayManager.sddm.enable = true;
 
@@ -72,7 +64,7 @@
 
   # bspwm - primary tiling WM
   services.xserver.windowManager.bspwm.enable = true;
-  services.xserver.windowManager.hypr.enable = true;
+  programs.hyprland.enable = true;
 
   programs.nix-ld.enable = true;
 
