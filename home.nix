@@ -81,10 +81,6 @@ in
         tweaks = [ ]; # add "black" for #000000 backgrounds, "rimless" for no borders
       };
     };
-    iconTheme = {
-      name = "Papirus";
-      package = pkgs.papirus-icon-theme;
-    };
     font = {
       name = "JetBrains Mono";
       size = 11;
