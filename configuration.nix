@@ -64,7 +64,15 @@
 
   # bspwm - primary tiling WM
   services.xserver.windowManager.bspwm.enable = true;
+
+  #Hyprland
   programs.hyprland.enable = true;
+
+  # xdg-portal for screen sharing, file pickers, etc.
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
 
   programs.nix-ld.enable = true;
 
