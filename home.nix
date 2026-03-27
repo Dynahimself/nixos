@@ -30,17 +30,17 @@ in
   # ZEN BROWSER CATPPUCCIN THEMING
   # ──────────────────────────────────────────────
   # TODO: Replace xxxxxxxx.default-default with your actual profile name from ~/.zen/
-  home.file.".zen/d43yraaj.default-default/chrome/userChrome.css".source =
+  home.file.".zen/yn4ft1cd.default-default/chrome/userChrome.css".source =
     "${themePath}/userChrome.css";
 
-  home.file.".zen/d43yraaj.default-default/chrome/userContent.css".source =
+  home.file.".zen/yn4ft1cd.default-default/chrome/userContent.css".source =
     "${themePath}/userContent.css";
 
-  home.file.".zen/d43yraaj.default-default/chrome/zen-logo-mocha.svg".source =
+  home.file.".zen/yn4ft1cd.default-default/chrome/zen-logo-mocha.svg".source =
     "${themePath}/zen-logo-mocha.svg";
 
   # Enable userChrome support and compact mode optional tweaks
-  home.file.".zen/d43yraaj.default-default/user.js".text = ''
+  home.file.".zen/yn4ft1cd.default-default/user.js".text = ''
     user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
     user_pref("browser.tabs.drawInTitlebar", true);
     user_pref("browser.compactmode.show", true);
