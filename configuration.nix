@@ -14,6 +14,7 @@
     useOSProber = true;
   };
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelPackages = pkgs.linuxPackages_zen;
 
   # Catppuccin
   catppuccin.enable = true;
@@ -54,6 +55,15 @@
 
   # Enable X11
   services.xserver.enable = true;
+
+  #DKMS
+  services.dkms.enable = true;
+  services.dkms.modules = [
+    {
+      name = "nvidia";
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
+    }
+  ];
 
   # Display Manager - SDDM with session selection at login
   services.displayManager.sddm.enable = true;
@@ -172,6 +182,7 @@
     flameshot
     brightnessctl
     wireplumber
+    linuxKernel.packages.linux_zen.system76
 
     # --- bspwm stack ---
     bspwm
