@@ -170,7 +170,6 @@
     hyprlock
     xdg-desktop-portal-hyprland
     flameshot
-    haskellPackages.qt
     brightnessctl
     wireplumber
 
