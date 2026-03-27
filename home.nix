@@ -32,11 +32,17 @@ in
   # TODO: Replace xxxxxxxx.default-default with your actual profile name from ~/.zen/
   home.file.".zen/yn4ft1cd.default-default/chrome/userChrome.css".source =
     "${themePath}/userChrome.css";
+  home.file.".zen/yn4ft1cd.Default Profile/chrome/userChrome.css".source =
+    "${themePath}/userChrome.css";
 
   home.file.".zen/yn4ft1cd.default-default/chrome/userContent.css".source =
     "${themePath}/userContent.css";
+  home.file.".zen/yn4ft1cd.Default Profile/chrome/userContent.css".source =
+    "${themePath}/userContent.css";
 
   home.file.".zen/yn4ft1cd.default-default/chrome/zen-logo-mocha.svg".source =
+    "${themePath}/zen-logo-mocha.svg";
+  home.file.".zen/yn4ft1cd.Default Profile/chrome/zen-logo-mocha.svg".source =
     "${themePath}/zen-logo-mocha.svg";
 
   # Enable userChrome support and compact mode optional tweaks
