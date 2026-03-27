@@ -27,7 +27,6 @@ in
   home.stateVersion = "25.11";
 
   # 1. THE SOURCE OF TRUTH: profiles.ini
-  # This tells Zen: "Ignore your random generators, use THIS folder."
   home.file.".zen/profiles.ini".text = ''
     [General]
     StartWithLastProfile=1
@@ -141,6 +140,7 @@ in
   xdg.configFile."nvim".source = ./dotfiles/nvim;
   xdg.configFile."hypr".source = ./dotfiles/hypr;
   xdg.configFile."waybar".source = ./dotfiles/waybar;
+  xdg.configFile."rofi".source = ./dotfiles/rofi;
 
   # ──────────────────────────────────────────────
   # KITTY

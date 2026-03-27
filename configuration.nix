@@ -136,7 +136,8 @@
   environment.systemPackages = with pkgs; [
     wget
     curl
-    htop
+    btop
+    hyprpanel
     tree
     unzip
     zip
@@ -181,6 +182,7 @@
     xdg-desktop-portal-hyprland
     flameshot
     brightnessctl
+    hypridle
     wireplumber
     linuxKernel.packages.linux_zen.system76
 
