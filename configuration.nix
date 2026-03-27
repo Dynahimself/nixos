@@ -57,7 +57,6 @@
   services.xserver.enable = true;
 
   #DKMS
-  services.dkms.enable = true;
   services.dkms.modules = [
     {
       name = "nvidia";
