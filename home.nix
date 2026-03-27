@@ -11,53 +11,53 @@ let
   catppuccin-zen = pkgs.fetchFromGitHub {
     owner = "catppuccin";
     repo = "zen-browser";
-    rev = "main"; # Pin to a commit hash for reproducibility
+    rev = "main";
     sha256 = "5A57Lyctq497SSph7B+ucuEyF1gGVTsuI3zuBItGfg4=";
   };
 
-  # Configure these to match your preference
-  flavor = "Mocha"; # Mocha, Latte, Frappe, Macchiato
-  accent = "Mauve"; # Mauve, Blue, Green, etc.
-
+  flavor = "Mocha";
+  accent = "Mauve";
   themePath = "${catppuccin-zen}/themes/${flavor}/${accent}";
+
+  profileName = "dynas";
 in
 {
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
   home.stateVersion = "25.11";
 
-  # ──────────────────────────────────────────────
-  # ZEN BROWSER CATPPUCCIN THEMING
-  # ──────────────────────────────────────────────
-  # TODO: Replace xxxxxxxx.default-default with your actual profile name from ~/.zen/
-  home.file.".zen/yn4ft1cd.default-default/chrome/userChrome.css".source =
-    "${themePath}/userChrome.css";
-  home.file.".zen/yn4ft1cd.Default Profile/chrome/userChrome.css".source =
-    "${themePath}/userChrome.css";
+  # 1. THE SOURCE OF TRUTH: profiles.ini
+  # This tells Zen: "Ignore your random generators, use THIS folder."
+  home.file.".zen/profiles.ini".text = ''
+    [General]
+    StartWithLastProfile=1
+    Version=2
 
-  home.file.".zen/yn4ft1cd.default-default/chrome/userContent.css".source =
-    "${themePath}/userContent.css";
-  home.file.".zen/yn4ft1cd.Default Profile/chrome/userContent.css".source =
-    "${themePath}/userContent.css";
+    [Profile0]
+    Name=default
+    IsRelative=1
+    Path=${profileName}
+    Default=1
+  '';
 
-  home.file.".zen/yn4ft1cd.default-default/chrome/zen-logo-mocha.svg".source =
+  # 2. THE THEME FILES
+  home.file.".zen/${profileName}/chrome/userChrome.css".source = "${themePath}/userChrome.css";
+
+  home.file.".zen/${profileName}/chrome/userContent.css".source = "${themePath}/userContent.css";
+
+  home.file.".zen/${profileName}/chrome/zen-logo-mocha.svg".source =
     "${themePath}/zen-logo-mocha.svg";
-  home.file.".zen/yn4ft1cd.Default Profile/chrome/zen-logo-mocha.svg".source =
-    "${themePath}/zen-logo-mocha.svg";
 
-  # Enable userChrome support and compact mode optional tweaks
-  home.file.".zen/yn4ft1cd.default-default/user.js".text = ''
+  # 3. SETTINGS & TWEAKS
+  home.file.".zen/${profileName}/user.js".text = ''
     user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
     user_pref("browser.tabs.drawInTitlebar", true);
     user_pref("browser.compactmode.show", true);
-    user_pref("zen.view.compact", false);  # Set true if you want compact mode by default
+    user_pref("zen.view.compact", false);
   '';
-  home.file.".zen/yn4ft1cd.Default Profile/user.js".text = ''
-    user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-    user_pref("browser.tabs.drawInTitlebar", true);
-    user_pref("browser.compactmode.show", true);
-    user_pref("zen.view.compact", false);  # Set true if you want compact mode by default
-  '';
+
+  #Zen mods
+  home.file.".zen/${profileName}/zen.themes.json".source = ./dotfiles/zen.themes.json;
 
   programs.neovim = {
     enable = true;
