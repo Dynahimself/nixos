@@ -13,7 +13,6 @@
   # Desktop specific hostname
   networking.hostName = "desktop";
   hardware.nvidia = {
-    enabled = true;
     modesetting.enable = true;
     # Enable the Nvidia settings menu
     nvidiaSettings = true;
