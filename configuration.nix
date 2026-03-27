@@ -252,6 +252,7 @@
     libaio
     nodePackages.typescript-language-server # For JS/TS
     nodePackages.vscode-langservers-extracted # For CSS
+    vscode
   ];
 
   environment.shells = with pkgs; [
