@@ -164,8 +164,6 @@
     glow
     pay-respects
     hyprland
-    nvidia-utils
-    lib32-nvidia-utils
     egl-wayland
     hyprpaper
     waybar
