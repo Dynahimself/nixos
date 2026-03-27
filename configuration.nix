@@ -164,7 +164,6 @@
     glow
     pay-respects
     hyprland
-    rofi-wayland
     hyprpaper
     waybar
     hyprlock
