@@ -52,8 +52,12 @@ in
     user_pref("browser.compactmode.show", true);
     user_pref("zen.view.compact", false);  # Set true if you want compact mode by default
   '';
-
-  # ... rest of your config (Neovim, Git, ZSH, etc.) remains identical ...
+  home.file.".zen/yn4ft1cd.Default Profile/user.js".text = ''
+    user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+    user_pref("browser.tabs.drawInTitlebar", true);
+    user_pref("browser.compactmode.show", true);
+    user_pref("zen.view.compact", false);  # Set true if you want compact mode by default
+  '';
 
   programs.neovim = {
     enable = true;
