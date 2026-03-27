@@ -73,13 +73,12 @@ in
   gtk = {
     enable = true;
     theme = {
-      name = "Catppuccin-Mocha-Standard-Mauve-Dark";
-      package = pkgs.magnetic-catppuccin-gtk {
-        variant = "mocha";
-        accents = [ "mauve" ];
-        size = "standard"; # or "compact"
-        tweaks = [ ]; # add "black" for #000000 backgrounds, "rimless" for no borders
-      };
+      name = "Catppuccin-Mocha-Mauve"; # or "Catppuccin-Mocha-Mauve-Dark" if menus look off
+      package = pkgs.magnetic-catppuccin-gtk;
+    };
+    iconTheme = {
+      name = "Papirus";
+      package = pkgs.papirus-icon-theme;
     };
     font = {
       name = "JetBrains Mono";
