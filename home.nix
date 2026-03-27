@@ -7,44 +7,52 @@
 }:
 
 let
-  # Fetch the Catppuccin CSS for Zen (uses Firefox theme since Zen is Firefox-based)
+  # Pin the Zen-specific Catppuccin theme
   catppuccin-zen = pkgs.fetchFromGitHub {
     owner = "catppuccin";
-    repo = " firefox"; # Zen uses standard Firefox CSS theming
-    rev = "v1.0.0"; # Pin to a specific release
-    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Replace with real hash (use lib.fakeSha256 first run)
+    repo = "zen-browser";
+    rev = "main"; # Pin to a commit hash for reproducibility
+    sha256 = lib.fakeSha256; # Change to real hash after first build failure
   };
 
-  # Match your existing mocha flavor
-  flavor = config.catppuccin.flavor or "mocha";
+  # Configure these to match your preference
+  flavor = "Mocha"; # Mocha, Latte, Frappe, Macchiato
+  accent = "Mauve"; # Mauve, Blue, Green, etc.
+
+  themePath = "${catppuccin-zen}/themes/${flavor}/${accent}";
 in
 {
-  # 2. EVERYTHING ELSE lives inside this main attribute set
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
   home.stateVersion = "25.11";
 
   # ──────────────────────────────────────────────
-  # ZEN BROWSER CATPPUCCIN THEME
+  # ZEN BROWSER CATPPUCCIN THEMING
   # ──────────────────────────────────────────────
-  # REPLACE xxxxxxxx.default-default with your actual profile folder from ~/.zen/
-  # Launch Zen once to generate the profile, then check the folder name
+  # TODO: Replace xxxxxxxx.default-default with your actual profile name from ~/.zen/
   home.file.".zen/d43yraaj.default-default/chrome/userChrome.css".source =
-    "${catppuccin-zen}/themes/${flavor}.css";
+    "${themePath}/userChrome.css";
 
-  # Enable userChrome.css support in Zen
-  home.file.".zen/d34yraaj.default-default/user.js".text = ''
+  home.file.".zen/d43yraaj.default-default/chrome/userContent.css".source =
+    "${themePath}/userContent.css";
+
+  home.file.".zen/d43yraaj.default-default/chrome/zen-logo-mocha.svg".source =
+    "${themePath}/zen-logo-mocha.svg";
+
+  # Enable userChrome support and compact mode optional tweaks
+  home.file.".zen/d43yraaj.default-default/user.js".text = ''
     user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
     user_pref("browser.tabs.drawInTitlebar", true);
     user_pref("browser.compactmode.show", true);
+    user_pref("zen.view.compact", false);  # Set true if you want compact mode by default
   '';
 
-  # Configure Neovim
+  # ... rest of your config (Neovim, Git, ZSH, etc.) remains identical ...
+
   programs.neovim = {
     enable = true;
     package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
   };
-
   # ──────────────────────────────────────────────
   # GIT
   # ──────────────────────────────────────────────
