@@ -168,11 +168,6 @@
     waybar
     hyprlock
     xdg-desktop-portal-hyprland
-    qt5-wayland
-    qt6-wayland
-    ttf-font-awesome
-    ttf-fira-code
-    ttf-fira-sans
     flameshot
     brightnessctl
     wireplumber
