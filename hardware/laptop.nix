@@ -19,13 +19,11 @@
     modesetting.enable = true;
     # Enable the Nvidia settings menu
     nvidiaSettings = true;
+    open = false;
 
     # Driver version
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
-    prime = {
-      offload.enable = true;
-    };
   };
 
   # Power management

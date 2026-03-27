@@ -28,7 +28,6 @@
   # Load nvidia driver for Xorg and Wayland
   services.xserver.videoDrivers = [ "nvidia" ];
 
-  networking.hostName = "nixos";
   services.tailscale.enable = true;
 
   nix.settings.experimental-features = [
@@ -64,6 +63,7 @@
 
   # bspwm - primary tiling WM
   services.xserver.windowManager.bspwm.enable = true;
+  services.xserver.windowManager.hyprland.enable = true;
 
   programs.nix-ld.enable = true;
 
@@ -163,6 +163,20 @@
     fx
     glow
     pay-respects
+    hyprland
+    rofi-wayland
+    hyprpaper
+    waybar
+    hyprlock
+    xdg-desktop-portal-hyprland
+    qt5-wayland
+    qt6-wayland
+    ttf-font-awesome
+    ttf-fira-code
+    ttf-fira-sans
+    flameshot
+    brightnessctl
+    wireplumber
 
     # --- bspwm stack ---
     bspwm
@@ -175,7 +189,6 @@
     maim # screenshots
     xclip # clipboard access
     pamixer # pulseaudio volume control
-    brightnessctl # backlight control
     playerctl # media player MPRIS control
     xdg-utils # xdg-open for default apps
     polkit_gnome # authentication agent (critical for GUI prompts)

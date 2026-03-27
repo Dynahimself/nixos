@@ -90,6 +90,7 @@
   # ──────────────────────────────────────────────
   # This symlinks your local /etc/nixos/nvim folder into ~/.config/nvim
   xdg.configFile."nvim".source = ./dotfiles/nvim;
+  xdg.configFile."hypr".source = ./dotfiles/hypr;
 
   # ──────────────────────────────────────────────
   # KITTY
@@ -114,7 +115,7 @@
       font-thicken = true;
       window-padding-x = 8;
       window-padding-y = 8;
-      background-opacity = 0.95;
+      background-opacity = 0.65;
       mouse-hide-while-typing = true;
       clipboard-read = "allow";
       clipboard-write = "allow";
