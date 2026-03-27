@@ -57,7 +57,7 @@ in
   '';
 
   #Zen mods
-  home.file.".zen/${profileName}/zen.themes.json".source = ./dotfiles/zen.themes.json;
+  home.file.".zen/${profileName}/zen-themes.json".source = ./dotfiles/zen-themes.json;
 
   programs.neovim = {
     enable = true;
