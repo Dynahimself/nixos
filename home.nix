@@ -72,11 +72,29 @@ in
 
   gtk = {
     enable = true;
-    cursorTheme = {
-      name = "Catppuccin-Mocha-Dark-Cursors";
-      package = pkgs.catppuccin-cursors.mochaDark;
+    theme = {
+      name = "Catppuccin-Mocha-Standard-Mauve-Dark";
+      package = pkgs.magnetic-catppuccin-gtk {
+        variant = "mocha";
+        accents = [ "mauve" ];
+        size = "standard"; # or "compact"
+        tweaks = [ ]; # add "black" for #000000 backgrounds, "rimless" for no borders
+      };
+    };
+    iconTheme = {
+      name = "Papirus";
+      package = pkgs.papirus-icon-theme;
+    };
+    font = {
+      name = "JetBrains Mono";
+      size = 11;
     };
   };
+
+  # War casualties
+  home.file.".gtkrc-2.0".force = true;
+  xdg.configFile."gtk-3.0/settings.ini".force = true;
+  xdg.configFile."gtk-4.0/settings.ini".force = true;
 
   # ──────────────────────────────────────────────
   # ZSH
