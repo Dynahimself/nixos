@@ -12,7 +12,7 @@ let
     owner = "catppuccin";
     repo = "zen-browser";
     rev = "main"; # Pin to a commit hash for reproducibility
-    sha256 = lib.fakeSha256; # Change to real hash after first build failure
+    sha256 = "5A57Lyctq497SSph7B+ucuEyF1gGVTsuI3zuBItGfg4=";
   };
 
   # Configure these to match your preference
