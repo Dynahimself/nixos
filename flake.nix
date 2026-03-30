@@ -52,6 +52,7 @@
               imports = [
                 ./home.nix
                 catppuccin.homeModules.catppuccin
+                spicetify-nix.homeManagerModules.default
               ];
             };
           };
