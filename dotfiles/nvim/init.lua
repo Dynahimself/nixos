@@ -106,9 +106,3 @@ require("conform").setup({
     },
   },
 })
-vim.g.dbs = {
-  {
-    name = "Oracle Class",
-    url = "oracle://C##FOURNIEO:Lycia@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=205.237.244.252)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)))",
-  },
-}
