@@ -85,6 +85,7 @@
   };
 
   services.printing.enable = true;
+  hardware.keyboard.zsa.enable = true;
 
   # Sound with pipewire
   services.pulseaudio.enable = false;
@@ -157,6 +158,7 @@
     winetricks
     nix-output-monitor
     catppuccin-cursors.mochaDark
+    keymapp
     spotify
     zoxide
     broot
