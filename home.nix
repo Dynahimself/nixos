@@ -195,7 +195,7 @@ in
         showStartupLaunchMessage = false;
 
         # Auto save to this path
-        savePath = "${config.home.homeDirectory}/Pictures/screenshots";
+        savePath = "$HOME/Pictures/Screenshots";
         savePathFixed = true;
         saveAsFileExtension = ".jpg";
         filenamePattern = "%F_%H-%M";
