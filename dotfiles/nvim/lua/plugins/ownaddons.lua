@@ -33,7 +33,7 @@ return {
 
       -- Replace YOUR_USER and YOUR_PASS with your actual Oracle credentials
       vim.g.dbs = {
-        { name = "Oracle Class", url = "oracle://YOUR_USER:YOUR_PASS@205.237.244.252:1521/ORCL" },
+        { name = "Oracle Class", url = "oracle://C##FOURNIEO:Lycia@205.237.244.252:1521/ORCL" },
       }
     end,
   },
