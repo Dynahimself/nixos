@@ -159,7 +159,6 @@
     nix-output-monitor
     catppuccin-cursors.mochaDark
     keymapp
-    spotify
     zoxide
     broot
     eza

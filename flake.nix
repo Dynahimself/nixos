@@ -12,6 +12,7 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
+    spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -26,6 +27,7 @@
       catppuccin,
       home-manager,
       zen-browser,
+      spicetify-nix,
       neovim-nightly-overlay,
       ...
     }@inputs:

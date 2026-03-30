@@ -19,6 +19,7 @@ let
   accent = "Mauve";
   themePath = "${catppuccin-zen}/themes/${flavor}/${accent}";
 
+  spicePkgs = inputs.spicetify-nix.packages.${pkgs.system};
   profileName = "dynas";
 in
 {
@@ -162,6 +163,20 @@ in
       font_size = "12";
       enable_audio_bell = false;
     };
+  };
+
+  # ──────────────────────────────────────────────
+  # Spicetify
+  # ──────────────────────────────────────────────
+  programs.spicetify = {
+    enable = true;
+    enabledExtensions = with spicePkgs.extensions; [
+      adblockify
+      hidePodcasts
+      shuffle
+    ];
+    theme = spicePkgs.themes.catppuccin;
+    colorScheme = "mocha";
   };
 
   # ──────────────────────────────────────────────
