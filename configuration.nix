@@ -75,6 +75,15 @@
   };
 
   programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    glibc
+    libaio
+    stdenv.cc.cc
+    zlib
+    openssl
+    libxml2
+    curl
+  ];
 
   services.envfs.enable = true;
 
@@ -172,6 +181,7 @@
     aichat
     mods
     lazydocker
+    nixfmt-rfc-style
     k9s
     fx
     glow
@@ -253,8 +263,6 @@
     copilot-language-server
     oracle-instantclient
     python313Packages.oracledb
-    glibc
-    libaio
     nodePackages.typescript-language-server # For JS/TS
     nodePackages.vscode-langservers-extracted # For CSS
     vscode
