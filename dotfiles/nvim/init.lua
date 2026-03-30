@@ -106,6 +106,7 @@ require("conform").setup({
     },
   },
 })
+vim.g.db_adapter_oracle = "oracledb"
 vim.g.dbs = {
   {
     name = "Oracle Class",

@@ -142,6 +142,7 @@
     unzip
     zip
     dbeaver-bin
+    python313Packages.influxdb-client
     picom-pijulius
     tailscale
     starship
@@ -250,6 +251,7 @@
     zellij
     copilot-language-server
     oracle-instantclient
+    python313Packages.oracledb
     glibc
     libaio
     nodePackages.typescript-language-server # For JS/TS
