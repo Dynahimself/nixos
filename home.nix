@@ -19,7 +19,7 @@ let
   accent = "Mauve";
   themePath = "${catppuccin-zen}/themes/${flavor}/${accent}";
 
-  spicePkgs = inputs.spicetify-nix.packages.${pkgs.system};
+  spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
   profileName = "dynas";
 in
 {
