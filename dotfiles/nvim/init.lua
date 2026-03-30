@@ -106,3 +106,6 @@ require("conform").setup({
     },
   },
 })
+vim.g.dbs = {
+  { name = "class_oracle", url = "oracle://C##FOURNIEO:Lycia@205.237.244.252:1521/ORCL" },
+}
