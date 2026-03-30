@@ -149,7 +149,7 @@ in
   # ──────────────────────────────────────────────
   # NEOVIM CONFIG SYMLINK
   # ──────────────────────────────────────────────
-  xdg.configFile."nvim".source = ./dotfiles/nvim;
+  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/nvim";
   xdg.configFile."hypr".source = ./dotfiles/hypr;
   xdg.configFile."waybar".source = ./dotfiles/waybar;
   xdg.configFile."rofi".source = ./dotfiles/rofi;
