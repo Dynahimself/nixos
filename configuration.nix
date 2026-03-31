@@ -150,6 +150,7 @@
     picom-pijulius
     tailscale
     starship
+    zathura
     protonvpn-gui
     wireguard-tools
     zsh
