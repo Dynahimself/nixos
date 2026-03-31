@@ -63,8 +63,8 @@ in
 
 home.packages = [
   inputs.neovim-nightly-overlay.packages.${pkgs.system}.default
-};
 ];
+};
   # ──────────────────────────────────────────────
   # GIT
   # ──────────────────────────────────────────────
