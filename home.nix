@@ -64,7 +64,7 @@ in
 home.packages = [
   inputs.neovim-nightly-overlay.packages.${pkgs.system}.default
 ];
-};
+
   # ──────────────────────────────────────────────
   # GIT
   # ──────────────────────────────────────────────
@@ -83,7 +83,6 @@ home.packages = [
         user = "git";
       };
     };
-  };
 
   home.pointerCursor = {
     gtk.enable = true;
