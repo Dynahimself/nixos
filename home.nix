@@ -68,7 +68,7 @@ home.packages = [
   # ──────────────────────────────────────────────
   # GIT
   # ──────────────────────────────────────────────
-  programs.git = {
+    programs.git = {
     enable = true;
     userName = "Dynahimself";
     userEmail = "Dynasti.video@gmail.com";
@@ -78,11 +78,13 @@ home.packages = [
   programs.ssh = {
     enable = true;
     matchBlocks = {
-      "github.com" =         hostname = "ssh.github.com";
+      "github.com" = {
+        hostname = "ssh.github.com";
         port = 443;
         user = "git";
       };
     };
+  };
 
   home.pointerCursor = {
     gtk.enable = true;
