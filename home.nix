@@ -60,7 +60,6 @@ in
   home.file.".zen/${profileName}/zen-themes.json".source = ./dotfiles/zen-themes.json;
 
   programs.neovim = {
-    enable = true;
     package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
   };
   # ──────────────────────────────────────────────
@@ -152,7 +151,6 @@ in
   xdg.configFile."hypr".source = ./dotfiles/hypr;
   xdg.configFile."waybar".source = ./dotfiles/waybar;
   xdg.configFile."rofi".source = ./dotfiles/rofi;
-  xdg.configFile."nvim".enable = false;
   home.file."backgrounds".source = ./dotfiles/backgrounds;
 
   # ──────────────────────────────────────────────
