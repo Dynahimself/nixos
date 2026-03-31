@@ -152,6 +152,7 @@ in
   xdg.configFile."hypr".source = ./dotfiles/hypr;
   xdg.configFile."waybar".source = ./dotfiles/waybar;
   xdg.configFile."rofi".source = ./dotfiles/rofi;
+  home.file."backgrounds".source = ./dotfiles/backgrounds;
 
   # ──────────────────────────────────────────────
   # KITTY

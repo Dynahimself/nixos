@@ -87,12 +87,6 @@
 
   services.envfs.enable = true;
 
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
   services.printing.enable = true;
   hardware.keyboard.zsa.enable = true;
 

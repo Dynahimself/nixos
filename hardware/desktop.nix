@@ -25,4 +25,9 @@
     monitor = DP-1, 1920x1080@144, 0x0, 1
     monitor = HDMI-A-1, 1920x1080@75, 1920x0, 1
   '';
+  # Configure keymap in X11
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
 }
