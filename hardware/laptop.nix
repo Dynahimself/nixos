@@ -26,17 +26,11 @@
 
   };
 
-  
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "colemak_dh";
   };
   console.useXkbConfig = true;
-  environment.etc."hypr/hyprland.conf".text = ''
-    input {
-      kb_layout = us
-      kb_variant = colemak_dh
-    }
-  '';
+
 }
