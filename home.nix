@@ -59,13 +59,11 @@ in
   #Zen mods
   home.file.".zen/${profileName}/zen-themes.json".source = ./dotfiles/zen-themes.json;
 
-  programs.neovim = {
-enable = true;
-    package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
-configure = {
-    customRC = "";
-  };
-  };
+ programs.neovim.enable = false;
+
+home.packages = [
+  inputs.neovim-nightly-overlay.packages.${pkgs.system}.default
+];
   # ──────────────────────────────────────────────
   # GIT
   # ──────────────────────────────────────────────
@@ -79,8 +77,7 @@ configure = {
   programs.ssh = {
     enable = true;
     matchBlocks = {
-      "github.com" = {
-        hostname = "ssh.github.com";
+      "github.com" =         hostname = "ssh.github.com";
         port = 443;
         user = "git";
       };
