@@ -60,7 +60,11 @@ in
   home.file.".zen/${profileName}/zen-themes.json".source = ./dotfiles/zen-themes.json;
 
   programs.neovim = {
+enable = true;
     package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
+configure = {
+    customRC = "";
+  };
   };
   # ──────────────────────────────────────────────
   # GIT
