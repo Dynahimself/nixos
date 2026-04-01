@@ -154,6 +154,7 @@
     protonvpn-gui
     wireguard-tools
     zsh
+    filezilla
     gnumake
     oh-my-zsh
     wl-clipboard
