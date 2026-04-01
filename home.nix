@@ -43,7 +43,7 @@ in
   # 2. THE THEME FILES
   home.file.".zen/${profileName}/chrome/userChrome.css".source = "${themePath}/userChrome.css";
 
-  home.file.".zen/${profileName}/chrome/userContent.css".source = "${themePath}/userContent.css";
+  home.file.".zen/${profileName}/chrome/userContent.css".source = "./dotfiles/userContent.css";
 
   home.file.".zen/${profileName}/chrome/zen-logo-mocha.svg".source =
     "${themePath}/zen-logo-mocha.svg";
