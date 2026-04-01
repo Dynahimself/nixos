@@ -156,6 +156,7 @@
     zsh
     gnumake
     oh-my-zsh
+    wl-clipboard
     fastfetch
     lutris
     wineWowPackages.yabridge

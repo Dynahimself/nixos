@@ -8,11 +8,11 @@
 
 let
   # Pin the Zen-specific Catppuccin theme
-  catppuccin-zen = pkgs.fetchFromGitHub {
+  catppuccin-zen = pkgs.fetchfromgithub {
     owner = "catppuccin";
     repo = "zen-browser";
     rev = "main";
-    sha256 = "5A57Lyctq497SSph7B+ucuEyF1gGVTsuI3zuBItGfg4=";
+    sha256 = "5a57lyctq497ssph7b+ucueyf1ggvtsui3zubitgfg4=";
   };
 
   flavor = "Mocha";
@@ -59,16 +59,16 @@ in
   #Zen mods
   home.file.".zen/${profileName}/zen-themes.json".source = ./dotfiles/zen-themes.json;
 
- programs.neovim.enable = false;
+  programs.neovim.enable = false;
 
-home.packages = [
-  inputs.neovim-nightly-overlay.packages.${pkgs.system}.default
-];
+  home.packages = [
+    inputs.neovim-nightly-overlay.packages.${pkgs.system}.default
+  ];
 
   # ──────────────────────────────────────────────
   # GIT
   # ──────────────────────────────────────────────
-    programs.git = {
+  programs.git = {
     enable = true;
     userName = "Dynahimself";
     userEmail = "Dynasti.video@gmail.com";
