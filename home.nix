@@ -12,7 +12,7 @@ let
     owner = "catppuccin";
     repo = "zen-browser";
     rev = "main";
-    sha256 = "5a57lyctq497ssph7b+ucueyf1ggvtsui3zubitgfg4=";
+    sha256 = "5A57Lyctq497SSph7B+ucuEyF1gGVTsuI3zuBItGfg4=";
   };
 
   flavor = "Mocha";
