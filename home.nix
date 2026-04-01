@@ -8,7 +8,7 @@
 
 let
   # Pin the Zen-specific Catppuccin theme
-  catppuccin-zen = pkgs.fetchfromgithub {
+  catppuccin-zen = pkgs.fetchFromGitHub {
     owner = "catppuccin";
     repo = "zen-browser";
     rev = "main";
