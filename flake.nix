@@ -34,7 +34,6 @@
     let
       system = "x86_64-linux";
 
-      pkgs = nixpkgs.legacyPackages.${system};
       # Defining common modules to avoid repetition
       commonModules = [
         ./configuration.nix
@@ -84,13 +83,6 @@
             ./hardware/desktop-hardware-configuration.nix
           ];
         };
-      };
-      devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs; [
-          gcc
-          clang-tools
-          glibc.dev
-        ];
       };
     };
 }
