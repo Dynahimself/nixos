@@ -156,6 +156,7 @@
     zsh
     filezilla
     gnumake
+    discord
     oh-my-zsh
     wl-clipboard
     fastfetch
