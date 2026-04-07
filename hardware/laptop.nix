@@ -5,38 +5,44 @@
   pkgs,
   ...
 }:
-
 {
   imports = [
     ./laptop-hardware-configuration.nix
   ];
 
-  # Laptop specific hostname
   networking.hostName = "laptop";
+
+  # Lid switch behavior
+  services.logind = {
+    lidSwitch = "suspend";
+    lidSwitchDocked = "ignore";
+  };
+
+  powerManagement.enable = true;
 
   # NVIDIA Optimus Setup
   hardware.nvidia = {
     modesetting.enable = true;
-    # Enable the Nvidia settings menu
     nvidiaSettings = true;
     open = false;
-
-    # Driver version
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
+    # This is the critical bit for suspend/resume on Nvidia laptops
+    powerManagement.enable = true;
+    # finegrained = true;  # uncomment if you want runtime power management (turns off GPU when unused)
   };
+
   environment.etc."hypr/monitor.conf".text = ''
-        input {
+    input {
       kb_layout = us
       kb_variant = colemak_dh
     }
   '';
 
-  # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "colemak_dh";
   };
-  console.useXkbConfig = true;
 
+  console.useXkbConfig = true;
 }
