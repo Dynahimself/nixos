@@ -10,6 +10,15 @@
     ./laptop-hardware-configuration.nix
   ];
 
+  fileSystems."/boot/efi-windows" = {
+    device = "/dev/disk/by-uuid/68BD-86BC";
+    fsType = "vfat";
+    options = [
+      "nofail"
+      "ro"
+    ]; # Read-only so Linux doesn't fuck with it
+  };
+
   # Bootloader.
   boot.loader.systemd-boot.enable = false;
   boot.loader.grub = {
@@ -17,16 +26,8 @@
     efiSupport = true;
     device = "nodev";
     useOSProber = true;
-    extraEntries = ''
-      menuentry "Windows" --class windows {
-        insmod part_gpt
-        insmod fat
-        insmod chain
-        set root='hd0,gpt1'
-        chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-      }
-    '';
   };
+
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
