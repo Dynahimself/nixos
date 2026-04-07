@@ -18,12 +18,11 @@
     device = "nodev";
     useOSProber = true;
     extraEntries = ''
-      menuentry "Windows" {
+      menuentry "Windows" --class windows {
         insmod part_gpt
         insmod fat
-        insmod search_fs_uuid
         insmod chain
-        search --fs-uuid --set=root 68BD-86BC
+        set root='hd0,gpt1'
         chainloader /EFI/Microsoft/Boot/bootmgfw.efi
       }
     '';
