@@ -5,17 +5,6 @@
 { config, pkgs, ... }:
 {
 
-  # Bootloader.
-  boot.loader.systemd-boot.enable = false;
-  boot.loader.grub = {
-    enable = true;
-    efiSupport = true;
-    device = "nodev";
-    useOSProber = true;
-  };
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_zen;
-
   # Catppuccin
   catppuccin.enable = true;
   catppuccin.cursors.enable = true;
