@@ -16,7 +16,16 @@
     enable = true;
     efiSupport = true;
     device = "nodev";
-    useOSProber = true;
+    extraEntries = ''
+      menuentry "Windows" {
+        insmod part_gpt
+        insmod fat
+        insmod search_fs_uuid
+        insmod chain
+        search --no-floppy --fs-uuid --set=root 68BD-86BC
+        chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+      }
+    '';
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
