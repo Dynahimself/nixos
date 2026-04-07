@@ -182,6 +182,7 @@
     xdg-desktop-portal-hyprland
     flameshot
     brightnessctl
+    ntfs3g
     hypridle
     wireplumber
     linuxKernel.packages.linux_zen.system76
