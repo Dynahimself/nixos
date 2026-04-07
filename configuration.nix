@@ -158,6 +158,7 @@
     gnumake
     discord
     oh-my-zsh
+    sioyek
     wl-clipboard
     fastfetch
     lutris

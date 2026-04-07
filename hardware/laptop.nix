@@ -25,6 +25,12 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
   };
+  environment.etc."hypr/monitor.conf".text = ''
+        input {
+      kb_layout = us
+      kb_variant = colemak_dh
+    }
+  '';
 
   # Configure keymap in X11
   services.xserver.xkb = {
