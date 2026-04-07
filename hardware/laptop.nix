@@ -16,17 +16,7 @@
     enable = true;
     efiSupport = true;
     device = "nodev";
-    useOSProber = false;
-    extraEntries = ''
-      menuentry "Windows" --class windows --class os {
-        insmod part_gpt
-        insmod fat
-        insmod search_fs_uuid
-        insmod chain
-        search --fs-uuid --set=root 68BD-86BC
-        chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-      }
-    '';
+    useOSProber = true;
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
