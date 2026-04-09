@@ -159,6 +159,7 @@
     zoxide
     broot
     eza
+    anki
     dust
     duf
     sd
