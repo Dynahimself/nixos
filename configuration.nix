@@ -160,6 +160,9 @@
     broot
     eza
     anki
+    rofi-calc
+    rofi-systemd
+    rofi-network-manager
     dust
     duf
     sd
