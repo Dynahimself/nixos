@@ -163,6 +163,7 @@
     rofi-calc
     rofi-systemd
     rofi-network-manager
+    unrar
     dust
     duf
     sd
