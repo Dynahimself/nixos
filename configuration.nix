@@ -165,6 +165,7 @@
     rofi-network-manager
     unrar
     dust
+    prismlauncher
     duf
     sd
     delta
