@@ -26,6 +26,7 @@
   ];
 
   networking.networkmanager.enable = true;
+  networking.networkmanager.wifi.backend = "iwd";
 
   time.timeZone = "America/New_York";
 
@@ -182,6 +183,7 @@
     pay-respects
     hyprland
     egl-wayland
+    nm-applet
     hyprpaper
     waybar
     hyprlock
