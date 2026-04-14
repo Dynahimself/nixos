@@ -183,7 +183,6 @@
     pay-respects
     hyprland
     egl-wayland
-    nm-applet
     hyprpaper
     waybar
     hyprlock
