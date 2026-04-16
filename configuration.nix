@@ -139,6 +139,7 @@
     python313Packages.influxdb-client
     picom-pijulius
     tailscale
+    avalonia
     starship
     zathura
     protonvpn-gui
