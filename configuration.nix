@@ -255,6 +255,8 @@
     lua
     python315
     fzf
+    sqlcl
+    luajitPackages.plenary-nvim
     lazygit
     zellij
     copilot-language-server
