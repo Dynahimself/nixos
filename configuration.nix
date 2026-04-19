@@ -147,6 +147,8 @@
     protonvpn-gui
     wireguard-tools
     zsh
+    wlogout
+    pavucontrol
     filezilla
     gnumake
     discord
