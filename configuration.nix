@@ -159,6 +159,7 @@
     nix-output-monitor
     catppuccin-cursors.mochaDark
     keymapp
+    openrazer-daemon
     zoxide
     broot
     eza
