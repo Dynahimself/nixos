@@ -152,8 +152,8 @@
     razergenie
     piper
     input-remapper
-    ventoy-full-qt
     filezilla
+    usbimager
     gnumake
     discord
     oh-my-zsh
