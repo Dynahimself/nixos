@@ -150,6 +150,8 @@
     wlogout
     pavucontrol
     razergenie
+    piper
+    input-remapper
     filezilla
     gnumake
     discord
