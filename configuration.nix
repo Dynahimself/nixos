@@ -152,6 +152,7 @@
     razergenie
     piper
     input-remapper
+    ventoy-full-qt
     filezilla
     gnumake
     discord
