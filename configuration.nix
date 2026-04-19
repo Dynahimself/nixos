@@ -149,6 +149,7 @@
     zsh
     wlogout
     pavucontrol
+    razergenie
     filezilla
     gnumake
     discord
