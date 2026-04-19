@@ -263,8 +263,8 @@
     copilot-language-server
     oracle-instantclient
     python313Packages.oracledb
-    nodePackages.typescript-language-server # For JS/TS
-    nodePackages.vscode-langservers-extracted # For CSS
+    typescript-language-server # For JS/TS
+    vscode-langservers-extracted # For CSS
     vscode
   ];
 
