@@ -155,6 +155,7 @@
     lutris
     wineWowPackages.yabridge
     winetricks
+    polychromatic
     nix-output-monitor
     catppuccin-cursors.mochaDark
     keymapp
