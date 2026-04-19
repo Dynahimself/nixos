@@ -79,6 +79,8 @@
 
   services.printing.enable = true;
   hardware.keyboard.zsa.enable = true;
+  hardware.openrazer.enable = true;
+  hardware.openrazer.users = [ "dyna" ];
 
   # Sound with pipewire
   services.pulseaudio.enable = false;
@@ -159,7 +161,6 @@
     nix-output-monitor
     catppuccin-cursors.mochaDark
     keymapp
-    openrazer-daemon
     zoxide
     broot
     eza
