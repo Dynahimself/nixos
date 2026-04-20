@@ -128,6 +128,9 @@
   programs.gamemode.enable = true;
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [
+    "ventoy-qt5-1.1.10"
+  ];
 
   environment.systemPackages = with pkgs; [
     wget
