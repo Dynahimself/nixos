@@ -154,6 +154,7 @@
     input-remapper
     filezilla
     usbimager
+    snipaste
     gnumake
     discord
     oh-my-zsh
