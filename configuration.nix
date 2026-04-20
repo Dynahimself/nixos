@@ -155,6 +155,7 @@
     filezilla
     usbimager
     snipaste
+    hyprshot
     gnumake
     discord
     oh-my-zsh
