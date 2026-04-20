@@ -157,6 +157,7 @@
     snipaste
     hyprshot
     parted
+    ventoy-full-qt
     gnumake
     discord
     oh-my-zsh
