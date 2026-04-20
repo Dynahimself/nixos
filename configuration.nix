@@ -156,6 +156,7 @@
     usbimager
     snipaste
     hyprshot
+    parted
     gnumake
     discord
     oh-my-zsh
