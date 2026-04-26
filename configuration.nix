@@ -141,6 +141,11 @@
     })
   ];
 
+  nix.settings = {
+    max-jobs = 6;
+    cores = 0;
+  };
+
   environment.systemPackages = with pkgs; [
     wget
     curl
