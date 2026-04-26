@@ -147,7 +147,7 @@
     avalonia
     starship
     zathura
-    protonvpn-gui
+    protonvpn
     wireguard-tools
     zsh
     wlogout
@@ -199,6 +199,7 @@
     glow
     pay-respects
     hyprland
+    openldap
     egl-wayland
     hyprpaper
     waybar
