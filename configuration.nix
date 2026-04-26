@@ -147,7 +147,7 @@
     avalonia
     starship
     zathura
-    protonvpn
+    proton-vpn
     wireguard-tools
     zsh
     wlogout
