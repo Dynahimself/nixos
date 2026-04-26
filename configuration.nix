@@ -132,6 +132,15 @@
     "ventoy-qt5-1.1.10"
   ];
 
+  #OpenlDAP quick fix
+  nixpkgs.overlays = [
+    (final: prev: {
+      openldap = prev.openldap.overrideAttrs (oldAttrs: {
+        doCheck = false;
+      });
+    })
+  ];
+
   environment.systemPackages = with pkgs; [
     wget
     curl
