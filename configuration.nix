@@ -150,6 +150,7 @@
     wget
     curl
     btop
+    cloudflared
     hyprpanel
     tree
     unzip
