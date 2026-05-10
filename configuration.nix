@@ -151,6 +151,7 @@
     curl
     btop
     cloudflared
+    gimp
     hyprpanel
     tree
     unzip
