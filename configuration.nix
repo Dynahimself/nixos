@@ -152,7 +152,7 @@
     btop
     cloudflared
     gimp
-    deluge
+    deluge-gtk
     hyprpanel
     tree
     unzip
