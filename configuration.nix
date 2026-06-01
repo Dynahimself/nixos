@@ -153,6 +153,7 @@
     cloudflared
     gimp
     deluge-gtk
+    blueberry
     hyprpanel
     tree
     unzip
