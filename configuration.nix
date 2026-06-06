@@ -288,7 +288,7 @@
     jdk # nvim-jdtls (Java runtime)
     typst # typst-preview.nvim
     lua
-    python315
+    python311
     fzf
     sqlcl
     luajitPackages.plenary-nvim
