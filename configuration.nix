@@ -19,6 +19,7 @@
   services.xserver.videoDrivers = [ "nvidia" ];
 
   services.tailscale.enable = true;
+  documentation.doc.enable = false;
 
   nix.settings.experimental-features = [
     "nix-command"
