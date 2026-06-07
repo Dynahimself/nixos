@@ -119,6 +119,7 @@ in
     syntaxHighlighting.enable = true;
     initExtra = ''
       fastfetch
+      export PATH="$HOME/.local/bin:$PATH"
     '';
     shellAliases = {
       ll = "ls -la";
