@@ -179,6 +179,7 @@
     snipaste
     hyprshot
     parted
+    activitywatch
     ventoy-full-qt
     gnumake
     discord
