@@ -187,7 +187,7 @@
     php
     php.packages.composer
     luajitPackages.luarocks
-    jdk
+    temurin-bin-25
 
     # =====================================================
     # Neovim — CLI tools (shelled out to by plugins)
