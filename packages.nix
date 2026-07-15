@@ -135,7 +135,7 @@
     blueman
     razergenie
     piper
-    input-remapper
+    # input-remapper
     keymapp
     polychromatic
 
