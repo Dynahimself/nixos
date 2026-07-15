@@ -3,6 +3,8 @@
 { pkgs, ... }:
 
 {
+  nixpkgs.config.permittedInsecurePackages = [ "ventoy-qt5-1.1.12" ];
+
   environment.systemPackages = with pkgs; [
     # =====================================================
     # Core CLI
