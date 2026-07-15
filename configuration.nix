@@ -3,7 +3,11 @@
 # and in the NixOS manual (accessible by running 'nixos-help').
 
 { config, pkgs, ... }:
+
 {
+  imports = [
+    ./packages.nix
+  ];
 
   # Catppuccin
   catppuccin.enable = true;
@@ -106,9 +110,6 @@
       "networkmanager"
       "wheel"
     ];
-    packages = with pkgs; [
-      kdePackages.kate
-    ];
   };
 
   programs.firefox.enable = true;
@@ -145,176 +146,6 @@
   nix.settings = {
     max-jobs = 6;
     cores = 0;
-  };
-
-  environment.systemPackages = with pkgs; [
-    wget
-    curl
-    btop
-    cloudflared
-    gimp
-    deluge-gtk
-    blueman
-    hyprpanel
-    tree
-    unzip
-    zip
-    dbeaver-bin
-    python313Packages.influxdb-client
-    picom-pijulius
-    tailscale
-    avalonia
-    starship
-    zathura
-    proton-vpn
-    wireguard-tools
-    zsh
-    wlogout
-    pavucontrol
-    razergenie
-    piper
-    input-remapper
-    filezilla
-    usbimager
-    snipaste
-    hyprshot
-    parted
-    activitywatch
-    ventoy-full-qt
-    gnumake
-    discord
-    oh-my-zsh
-    sioyek
-    wl-clipboard
-    fastfetch
-    lutris
-    wineWowPackages.yabridge
-    winetricks
-    polychromatic
-    nix-output-monitor
-    catppuccin-cursors.mochaDark
-    keymapp
-    zoxide
-    broot
-    eza
-    anki
-    rofi-calc
-    rofi-systemd
-    rofi-network-manager
-    unrar
-    dust
-    prismlauncher
-    duf
-    sd
-    delta
-    gh
-    asdf
-    github-copilot-cli
-    aichat
-    mods
-    lazydocker
-    nixfmt-rfc-style
-    k9s
-    fx
-    glow
-    pay-respects
-    hyprland
-    openldap
-    egl-wayland
-    hyprpaper
-    waybar
-    hyprlock
-    xdg-desktop-portal-hyprland
-    flameshot
-    brightnessctl
-    ntfs3g
-    hypridle
-    wireplumber
-    linuxKernel.packages.linux_zen.system76
-
-    # --- bspwm stack ---
-    bspwm
-    sxhkd
-    rofi
-    polybar
-    feh # wallpaper setter
-    alacritty # terminal (or swap for kitty/wezterm)
-    dunst # notification daemon
-    maim # screenshots
-    xclip # clipboard access
-    pamixer # pulseaudio volume control
-    playerctl # media player MPRIS control
-    xdg-utils # xdg-open for default apps
-    polkit_gnome # authentication agent (critical for GUI prompts)
-    jq # useful for polybar scripts
-    # ==========================================
-    # 1. LSP SERVERS (Replaces Mason LSP installs)
-    # ==========================================
-    gcc
-    clang-tools # nvim-jdtls, clangd_extensions.nvim
-    gopls # neotest-golang
-    rust-analyzer # rustaceanvim
-    jdt-language-server # nvim-jdtls
-    omnisharp-roslyn # omnisharp-extended-lsp.nvim
-
-    # ==========================================
-    # 2. DEBUG ADAPTERS (Replaces Mason DAP installs)
-    # ==========================================
-    delve # nvim-dap-go (Go debugger)
-    netcoredbg
-
-    # ==========================================
-    # 3. TEST RUNNERS (Required by neotest adapters)
-    # ==========================================
-    go # neotest-golang
-    zig # neotest-zig
-    dotnet-sdk_8 # neotest-vstest (.NET testing)
-    php # neotest-pest, neotest-phpunit
-    php.packages.composer # To actually install pest/phpunit globally if needed
-    luajitPackages.luarocks
-
-    # ==========================================
-    # 4. CLI TOOLS (Shelled out to by plugins)
-    # ==========================================
-    ripgrep # grug-far.nvim, Telescope/LazyVim default
-    fd # grug-far.nvim, Telescope/LazyVim default
-    gh # CopilotChat.nvim (GitHub CLI)
-    cmake # cmake-tools.nvim
-    cargo # crates.nvim, rustaceanvim
-    rustc # rustaceanvim
-    nodejs # markdown-preview.nvim (uses a local node server)
-
-    # ==========================================
-    # 5. LANGUAGES / MISC (Native dependencies)
-    # ==========================================
-    jdk # nvim-jdtls (Java runtime)
-    typst # typst-preview.nvim
-    lua
-    python311
-    fzf
-    sqlcl
-    luajitPackages.plenary-nvim
-    lazygit
-    zellij
-    copilot-language-server
-    oracle-instantclient
-    python313Packages.oracledb
-    typescript-language-server # For JS/TS
-    vscode-langservers-extracted # For CSS
-    vscode
-  ];
-
-  environment.shells = with pkgs; [
-    zsh
-    bash
-  ];
-
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
-  ];
-
-  fonts.fontconfig.defaultFonts = {
-    monospace = [ "JetBrainsMono Nerd Font" ];
   };
 
   system.stateVersion = "25.11";
