@@ -32,6 +32,11 @@
 
   networking.networkmanager.enable = true;
   networking.networkmanager.wifi.backend = "iwd";
+  networking.wireless.iwd.settings = {
+    settings = {
+      EnablePowerSaving = false;
+    };
+  };
 
   time.timeZone = "America/New_York";
 
