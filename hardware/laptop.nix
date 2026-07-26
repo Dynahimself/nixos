@@ -29,7 +29,11 @@
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = pkgs.linuxPackages_6_6;
+  boot.kernelParams = [
+    "iwlwifi.enable_ini=0"
+    "iwlwifi.11ax_disable=1"
+  ];
 
   networking.hostName = "laptop";
 
