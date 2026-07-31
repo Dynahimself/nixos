@@ -33,6 +33,7 @@
   boot.kernelParams = [
     "pcie_aspm=off"
   ];
+  iwlwifi.power_save = 0;
 
   networking.hostName = "laptop";
 
