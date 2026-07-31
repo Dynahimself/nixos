@@ -29,7 +29,7 @@
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_6_6;
+  boot.kernelPackages = pkgs.linuxPackages_zen;
   boot.kernelParams = [
     "iwlwifi.enable_ini=0"
     "iwlwifi.disable_11ax=1"
