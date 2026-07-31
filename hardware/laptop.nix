@@ -31,10 +31,6 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages_zen;
   boot.kernelParams = [
-    "iwlwifi.enable_ini=0"
-    "iwlwifi.disable_11ax=1"
-    "iwlwifi.disable_11ac=1"
-    "iwlwifi.power_save=0"
     "pcie_aspm=off"
   ];
 
