@@ -32,7 +32,10 @@
   boot.kernelPackages = pkgs.linuxPackages_6_6;
   boot.kernelParams = [
     "iwlwifi.enable_ini=0"
-    "iwlwifi.11ax_disable=1"
+    "iwlwifi.disable_11ax=1"
+    "iwlwifi.disable_11ac=1"
+    "iwlwifi.power_save=0"
+    "pcie_aspm=off"
   ];
 
   networking.hostName = "laptop";
