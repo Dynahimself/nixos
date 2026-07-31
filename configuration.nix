@@ -30,6 +30,7 @@
     "flakes"
   ];
 
+  services.openssh.enable = true;
   networking.networkmanager.enable = true;
   networking.networkmanager.wifi.backend = "iwd";
   networking.wireless.iwd.settings = {
