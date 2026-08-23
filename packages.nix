@@ -83,7 +83,6 @@
     # Hyprland ecosystem
     # =====================================================
     hyprland
-    hyprpanel
     hyprpaper
     hyprlock
     hypridle
