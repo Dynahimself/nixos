@@ -1,0 +1,71 @@
+# hosts/laptop/configuration.nix
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
+  imports = [
+    ./laptop-hardware-configuration.nix
+  ];
+
+  # Bootloader.
+  boot.loader.systemd-boot.enable = false;
+  boot.loader.grub = {
+    enable = true;
+    efiSupport = true;
+    device = "nodev";
+    extraEntries = ''
+      menuentry "Windows" {
+        insmod part_gpt
+        insmod fat
+        insmod search_fs_uuid
+        insmod chain
+        search --no-floppy --fs-uuid --set=root 68BD-86BC
+        chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+      }
+    '';
+  };
+
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelPackages = pkgs.linuxPackages_zen;
+
+  networking.hostName = "laptop";
+
+  # Lid switch behavior
+  services.logind = {
+    lidSwitch = "suspend";
+    lidSwitchDocked = "ignore";
+  };
+
+  powerManagement.enable = true;
+  # Load nvidia driver for Xorg and Wayland
+  services.xserver.videoDrivers = [ "nvidia" ];
+
+  # NVIDIA Optimus Setup
+  hardware.nvidia = {
+    modesetting.enable = true;
+    nvidiaSettings = true;
+    open = false;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+
+    # This is the critical bit for suspend/resume on Nvidia laptops
+    powerManagement.enable = true;
+    # finegrained = true;  # uncomment if you want runtime power management (turns off GPU when unused)
+  };
+
+  environment.etc."hypr/monitor.conf".text = ''
+    input {
+      kb_layout = us
+      kb_variant = colemak_dh
+    }
+  '';
+
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "colemak_dh";
+  };
+
+  console.useXkbConfig = true;
+}
