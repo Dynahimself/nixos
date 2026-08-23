@@ -3,7 +3,7 @@
 { pkgs, ... }:
 
 {
-  nixpkgs.config.permittedInsecurePackages = [ "ventoy-qt5-1.1.12" ];
+  nixpkgs.config.permittedInsecurePackages = [ "ventoy-full-qt" ];
 
   environment.systemPackages = with pkgs; [
     # =====================================================
@@ -44,7 +44,6 @@
     pay-respects
     busybox
     openldap
-    ventoy-full-qt
 
     # =====================================================
     # Shell
