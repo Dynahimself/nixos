@@ -6,6 +6,11 @@
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     zen-browser = {
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -29,6 +34,7 @@
       zen-browser,
       spicetify-nix,
       neovim-nightly-overlay,
+      nixvim,
       ...
     }@inputs:
     let
@@ -51,6 +57,8 @@
             users.dyna = {
               imports = [
                 ./home.nix
+                ./nixvim.nix
+                nixvim.homeModules.nixvim
                 catppuccin.homeModules.catppuccin
                 spicetify-nix.homeManagerModules.default
               ];

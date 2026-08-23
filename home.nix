@@ -23,6 +23,9 @@ let
   profileName = "dynas";
 in
 {
+  # Nixvim switch — old LazyVim parked at ~/.config/nvim-lazyvim-backup
+  dyna.nixvim.enable = true;
+
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
   home.stateVersion = "25.11";
