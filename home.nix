@@ -26,6 +26,9 @@ in
   # Nixvim switch — old LazyVim parked at ~/.config/nvim-lazyvim-backup
   dyna.nixvim.enable = true;
 
+  # nixvim plugin tree evaluates with its own pkgs config in some paths
+  nixpkgs.config.allowUnfree = true;
+
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
   home.stateVersion = "25.11";
@@ -64,9 +67,8 @@ in
 
   programs.neovim.enable = false;
 
-  home.packages = [
-    inputs.neovim-nightly-overlay.packages.${pkgs.system}.default
-  ];
+  # neovim binary now comes from nixvim's wrapper (wraps nightly via the
+  # global overlay) — direct nightly install collided in buildEnv
 
   # ──────────────────────────────────────────────
   # GIT

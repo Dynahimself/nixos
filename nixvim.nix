@@ -235,16 +235,9 @@ let cfg = config.dyna.nixvim; in
       };
 
       # ================== AI ==================
-      copilot-lua = {
-        enable = true;
-        settings = {
-          suggestion = { auto_trigger = true; };
-        };
-      };
-      copilot-chat = {
-        enable = true;
-        # ai.copilot-chat
-      };
+      # copilot-lua/copilot-chat DISABLED: vimplugin-copilot.lua hard-requires the
+      # unfree copilot-language-server inside nixpkgs' plugin packaging (postInstall
+      # shim) — no allowUnfree path reaches it. Re-add as extraPlugin when wanted.
       # ai.sidekick → extraPlugins (module too new; see maybeSidekick)
 
       # ================== TREESITTER ==================
@@ -290,12 +283,17 @@ let cfg = config.dyna.nixvim; in
           zls.enable = true; # lang.zig
           ts_ls.enable = true; # lang.typescript
           vtsls.enable = true; # lang.typescript (LazyVim uses vtsls)
-          intelephense.enable = true; # lang.php
+          intelephense.enable = false; # unfree LSP; PHP not in rotation — re-enable if ever needed
           # typst LSP: nixvim main now ships tinymist under lsp.servers.tinymist;
           # if missing in this nixpkgs pin, it is provided via typst-preview-nvim plugin instead
-          sqlls.enable = true; # lang.sql
+          # sqlls dropped from nixpkgs — enable with null pkg (uses PATH) or re-enable when back
+          sqlls = {
+            enable = true;
+            package = null;
+          }; # lang.sql
           omnisharp.enable = true; # lang.dotnet
           # rust via rustaceanvim below (lang.rust)
+          copilot.package = null; # unfree copilot-language-server — node shim on PATH instead
         };
       };
 
@@ -320,14 +318,7 @@ let cfg = config.dyna.nixvim; in
             markdown = [ "prettier" ];
             # formatting.black (python)
             python = [ "black" ];
-            # personal: sql-formatter with Oracle dialect (was in init.lua)
-            sql = [ "sql_formatter" ];
-          };
-          formatters = {
-            sql_formatter = {
-              command = lib.getExe pkgs.nodePackages.sql-formatter;
-              args = [ "-l" "plsql" ];
-            };
+            # sql: sql-formatter was dropped from nixpkgs — re-add when available
           };
         };
       };
@@ -389,10 +380,10 @@ let cfg = config.dyna.nixvim; in
 
     # tools the plugins shell out to
     extraPackages = with pkgs; [
-      nodePackages.prettier # formatting.prettier
-      python311Packages.black # formatting.black
-      nodePackages.sql-formatter # personal conform sql config (belt+braces)
-      nodePackages.eslint # nvim-lint eslint
+      prettier # formatting.prettier (top-level since nodePackages removal)
+      black # formatting.black (top-level pkg — python311 pin pulls sphinx9/py311 breakage)
+      # sql-formatter: dropped from nixpkgs (nodePackages removal) — Oracle SQL formatting via prettier or re-add later
+      eslint # nvim-lint eslint (top-level)
     ];
   };
   };
