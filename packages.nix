@@ -213,6 +213,7 @@
     sqlcl
     luajitPackages.plenary-nvim
     waydroid
+    sqlite
     android-studio
     oracle-instantclient
     python313Packages.oracledb
