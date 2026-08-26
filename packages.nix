@@ -13,6 +13,8 @@
     curl
     tree
     unzip
+    tldr
+    eg
     zip
     fastfetch
     unrar
