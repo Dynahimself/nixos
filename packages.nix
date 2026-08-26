@@ -186,7 +186,7 @@
     # =====================================================
     go
     zig
-    dotnet-sdk_8
+    dotnet-sdk_10
     php
     php.packages.composer
     luajitPackages.luarocks

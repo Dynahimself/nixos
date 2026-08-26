@@ -29,18 +29,52 @@ let cfg = config.dyna.nixvim; in
     enable = true;
 
     # ================== OPTIONS / GLOBALS ==================
+    # mapleader MUST be set before plugins load (which-key, leader maps)
+    globals.mapleader = " ";
+    globals.maplocalleader = " ";
+
     colorschemes.catppuccin = {
       enable = true;
       settings.flavour = "mocha"; # whole system is Mocha
     };
 
-    # lazyvim-style defaults worth keeping
+    # LazyVim distro defaults (ported 2026-08-26 — these lived in the distro, not user config)
     opts = {
       clipboard = "unnamedplus"; # was set in init.lua
       updatetime = 200; # LazyVim default (snappier)
       termguicolors = true;
       undofile = true;
       signcolumn = "yes";
+      # --- LazyVim defaults that were silently missing after the port ---
+      number = true; # line numbers
+      relativenumber = true; # hybrid line numbers (LazyVim style)
+      cursorline = true; # highlight current line
+      expandtab = true; # spaces, not tabs
+      tabstop = 2;
+      shiftwidth = 2;
+      shiftround = true;
+      smartindent = true;
+      ignorecase = true; # + smartcase = case-insensitive unless capitals
+      smartcase = true;
+      splitbelow = true;
+      splitright = true;
+      showmode = false; # mode shown by lualine/noice
+      wrap = false; # LazyVim default: no soft wrap
+      mouse = "a";
+      scrolloff = 8;
+      sidescrolloff = 8;
+      completeopt = [ "menu" "menuone" "noselect" ];
+      # LazyVim fillchars — kills the "~" wall beyond EOF
+      # (fold glyphs must be exactly 1 char; LazyVim uses nerdfont  that
+      #  render invisibly over ssh — using visible equivalents)
+      fillchars = {
+        eob = " ";
+        foldopen = "▾";
+        foldclose = "▸";
+        fold = " ";
+        foldsep = " ";
+        diff = "╱";
+      };
     };
 
     # ================== KEYMAPS (colemak home-row, verbatim) ==================
@@ -193,7 +227,45 @@ let cfg = config.dyna.nixvim; in
 
     # ================== EDITOR CORE ==================
     plugins = {
-      which-key.enable = true;
+      # which-key — LazyVim spec (groups + icons, modern bottom-right preset)
+      which-key = {
+        enable = true;
+        settings = {
+          preset = "modern";
+          icons = {
+            group = {
+              enabled = true;
+              icon = " ";
+            };
+            rules = false;
+          };
+          spec = [
+            {
+              __unkeyed = true;
+              mode = [ "n" "x" ];
+              entries = [
+                { __unkeyed = "<leader><tab>"; group = "tabs"; }
+                { __unkeyed = "<leader>c"; group = "code"; }
+                { __unkeyed = "<leader>d"; group = "debug"; }
+                { __unkeyed = "<leader>dp"; group = "profiler"; }
+                { __unkeyed = "<leader>f"; group = "file/find"; }
+                { __unkeyed = "<leader>g"; group = "git"; }
+                { __unkeyed = "<leader>gh"; group = "hunks"; }
+                { __unkeyed = "<leader>q"; group = "quit/session"; }
+                { __unkeyed = "<leader>s"; group = "search"; }
+                { __unkeyed = "<leader>u"; group = "ui"; }
+                { __unkeyed = "<leader>x"; group = "diagnostics/quickfix"; }
+                { __unkeyed = "["; group = "prev"; }
+                { __unkeyed = "]"; group = "next"; }
+                { __unkeyed = "g"; group = "goto"; }
+                { __unkeyed = "gs"; group = "surround"; }
+                { __unkeyed = "z"; group = "fold"; }
+                { __unkeyed = "gx"; desc = "Open with system app"; }
+              ];
+            }
+          ];
+        };
+      };
       lualine.enable = true;
       bufferline.enable = true;
       noice.enable = true;
@@ -207,10 +279,39 @@ let cfg = config.dyna.nixvim; in
       indent-blankline.enable = true; # ui.indent-blankline
       lazydev.enable = true; # lua dev for config editing
 
-      # snacks: picker/explorer/dashboard/etc (LazyVim's QoL collection)
+      # snacks: picker/explorer/dashboard — LazyVim dashboard preset ported verbatim
       snacks = {
         enable = true;
-        # picker + explorer keymaps already declared above
+        settings = {
+          dashboard = {
+            enabled = true;
+            preset = {
+              header = ''
+              ██╗      █████╗ ███████╗██╗   ██╗██╗   ██╗██╗███╗   ███╗          Z
+              ██║     ██╔══██╗╚══███╔╝╚██╗ ██╔╝██║   ██║██║████╗ ████║      Z
+              ██║     ███████║  ███╔╝  ╚████╔╝ ██║   ██║██║██╔████╔██║   z
+              ██║     ██╔══██║ ███╔╝    ╚██╔╝  ╚██╗ ██╔╝██║██║╚██╔╝██║ z
+              ███████╗██║  ██║███████╗   ██║    ╚████╔╝ ██║██║ ╚═╝ ██║
+              ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝     ╚═══╝  ╚═╝╚═╝     ╚═╝
+              '';
+              keys = [
+                { icon = " "; key = "f"; desc = "Find File"; action = ":lua Snacks.dashboard.pick('files')"; }
+                { icon = " "; key = "n"; desc = "New File"; action = ":ene | startinsert"; }
+                { icon = " "; key = "g"; desc = "Find Text"; action = ":lua Snacks.dashboard.pick('live_grep')"; }
+                { icon = " "; key = "r"; desc = "Recent Files"; action = ":lua Snacks.dashboard.pick('oldfiles')"; }
+                { icon = " "; key = "s"; desc = "Restore Session"; section = "session"; }
+                { icon = " "; key = "q"; desc = "Quit"; action = ":qa"; }
+              ];
+            };
+            sections = [
+              { section = "header"; }
+              { section = "keys"; gap = 1; padding = 1; }
+              { icon = " "; title = "Recent Files"; section = "recent_files"; indent = 2; padding = 1; }
+              { icon = " "; title = "Sessions"; section = "sessions"; indent = 2; padding = 1; }
+              { section = "startup"; }
+            ];
+          };
+        };
       };
 
       # mini.* family used by LazyVim
@@ -284,6 +385,10 @@ let cfg = config.dyna.nixvim; in
           ts_ls.enable = true; # lang.typescript
           vtsls.enable = true; # lang.typescript (LazyVim uses vtsls)
           intelephense.enable = false; # unfree LSP; PHP not in rotation — re-enable if ever needed
+          pyright.enable = true; # python (was mason-era; explicit now)
+          # C#/.NET 10: OmniSharp 1.39 is deprecated + stuck on old Roslyn — cannot load
+          # .NET 10 / C# 14 solutions. Replaced by Roslyn LS via roslyn-nvim (below).
+          omnisharp.enable = false;
           # typst LSP: nixvim main now ships tinymist under lsp.servers.tinymist;
           # if missing in this nixpkgs pin, it is provided via typst-preview-nvim plugin instead
           # sqlls dropped from nixpkgs — enable with null pkg (uses PATH) or re-enable when back
@@ -291,9 +396,28 @@ let cfg = config.dyna.nixvim; in
             enable = true;
             package = null;
           }; # lang.sql
-          omnisharp.enable = true; # lang.dotnet
           # rust via rustaceanvim below (lang.rust)
           copilot.package = null; # unfree copilot-language-server — node shim on PATH instead
+        };
+      };
+
+      # Roslyn LS — the Microsoft-blessed successor to OmniSharp, tracks current
+      # .NET (nixpkgs 5.11.0-1.26380.x builds against .NET 10) → C# 14 capable.
+      # Attached via the roslyn-nvim plugin, not lspconfig's deprecated path.
+      roslyn = {
+        enable = true;
+        settings = {
+          cmd = [
+            "${pkgs.roslyn-ls}/bin/Microsoft.CodeAnalysis.LanguageServer"
+            "--logLevel=Information"
+            "--extensionLogDirectory=/tmp/roslyn/logs"
+          ];
+          settings = {
+            RoslynExtensions = {
+              enableAnalyzers = true;
+              enableDecompilationSupport = true;
+            };
+          };
         };
       };
 
@@ -318,6 +442,9 @@ let cfg = config.dyna.nixvim; in
             markdown = [ "prettier" ];
             # formatting.black (python)
             python = [ "black" ];
+            # C# via csharpier (.NET 10 ready)
+            cs = [ "csharpier" ];
+            cshtml = [ "csharpier" ];
             # sql: sql-formatter was dropped from nixpkgs — re-add when available
           };
         };
@@ -384,6 +511,7 @@ let cfg = config.dyna.nixvim; in
       black # formatting.black (top-level pkg — python311 pin pulls sphinx9/py311 breakage)
       # sql-formatter: dropped from nixpkgs (nodePackages removal) — Oracle SQL formatting via prettier or re-add later
       eslint # nvim-lint eslint (top-level)
+      csharpier # C# formatter (dotnet tool style, .NET 10 compatible)
     ];
   };
   };
