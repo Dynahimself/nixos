@@ -227,43 +227,35 @@ let cfg = config.dyna.nixvim; in
 
     # ================== EDITOR CORE ==================
     plugins = {
-      # which-key — LazyVim spec (groups + icons, modern bottom-right preset)
+      # which-key — verbatim LazyVim spec via __raw (translation-safe)
       which-key = {
         enable = true;
         settings = {
           preset = "modern";
-          icons = {
-            group = {
-              enabled = true;
-              icon = " ";
-            };
-            rules = false;
-          };
-          spec = [
+          spec.__raw = ''
             {
-              __unkeyed = true;
-              mode = [ "n" "x" ];
-              entries = [
-                { __unkeyed = "<leader><tab>"; group = "tabs"; }
-                { __unkeyed = "<leader>c"; group = "code"; }
-                { __unkeyed = "<leader>d"; group = "debug"; }
-                { __unkeyed = "<leader>dp"; group = "profiler"; }
-                { __unkeyed = "<leader>f"; group = "file/find"; }
-                { __unkeyed = "<leader>g"; group = "git"; }
-                { __unkeyed = "<leader>gh"; group = "hunks"; }
-                { __unkeyed = "<leader>q"; group = "quit/session"; }
-                { __unkeyed = "<leader>s"; group = "search"; }
-                { __unkeyed = "<leader>u"; group = "ui"; }
-                { __unkeyed = "<leader>x"; group = "diagnostics/quickfix"; }
-                { __unkeyed = "["; group = "prev"; }
-                { __unkeyed = "]"; group = "next"; }
-                { __unkeyed = "g"; group = "goto"; }
-                { __unkeyed = "gs"; group = "surround"; }
-                { __unkeyed = "z"; group = "fold"; }
-                { __unkeyed = "gx"; desc = "Open with system app"; }
-              ];
+              {
+                mode = { "n", "x" },
+                { "<leader><tab>", group = "tabs" },
+                { "<leader>c", group = "code" },
+                { "<leader>d", group = "debug" },
+                { "<leader>dp", group = "profiler" },
+                { "<leader>f", group = "file/find" },
+                { "<leader>g", group = "git" },
+                { "<leader>gh", group = "hunks" },
+                { "<leader>q", group = "quit/session" },
+                { "<leader>s", group = "search" },
+                { "<leader>u", group = "ui" },
+                { "<leader>x", group = "diagnostics/quickfix" },
+                { "[", group = "prev" },
+                { "]", group = "next" },
+                { "g", group = "goto" },
+                { "gs", group = "surround" },
+                { "z", group = "fold" },
+                { "gx", desc = "Open with system app" },
+              },
             }
-          ];
+          '';
         };
       };
       lualine.enable = true;
@@ -279,39 +271,37 @@ let cfg = config.dyna.nixvim; in
       indent-blankline.enable = true; # ui.indent-blankline
       lazydev.enable = true; # lua dev for config editing
 
-      # snacks: picker/explorer/dashboard — LazyVim dashboard preset ported verbatim
+      # snacks: picker/explorer/dashboard — verbatim LazyVim dashboard via __raw
       snacks = {
         enable = true;
-        settings = {
-          dashboard = {
-            enabled = true;
+        settings.dashboard.__raw = ''
+          {
             preset = {
-              header = ''
+              header = [[
               ██╗      █████╗ ███████╗██╗   ██╗██╗   ██╗██╗███╗   ███╗          Z
               ██║     ██╔══██╗╚══███╔╝╚██╗ ██╔╝██║   ██║██║████╗ ████║      Z
               ██║     ███████║  ███╔╝  ╚████╔╝ ██║   ██║██║██╔████╔██║   z
               ██║     ██╔══██║ ███╔╝    ╚██╔╝  ╚██╗ ██╔╝██║██║╚██╔╝██║ z
               ███████╗██║  ██║███████╗   ██║    ╚████╔╝ ██║██║ ╚═╝ ██║
               ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝     ╚═══╝  ╚═╝╚═╝     ╚═╝
-              '';
-              keys = [
-                { icon = " "; key = "f"; desc = "Find File"; action = ":lua Snacks.dashboard.pick('files')"; }
-                { icon = " "; key = "n"; desc = "New File"; action = ":ene | startinsert"; }
-                { icon = " "; key = "g"; desc = "Find Text"; action = ":lua Snacks.dashboard.pick('live_grep')"; }
-                { icon = " "; key = "r"; desc = "Recent Files"; action = ":lua Snacks.dashboard.pick('oldfiles')"; }
-                { icon = " "; key = "s"; desc = "Restore Session"; section = "session"; }
-                { icon = " "; key = "q"; desc = "Quit"; action = ":qa"; }
-              ];
-            };
-            sections = [
-              { section = "header"; }
-              { section = "keys"; gap = 1; padding = 1; }
-              { icon = " "; title = "Recent Files"; section = "recent_files"; indent = 2; padding = 1; }
-              { icon = " "; title = "Sessions"; section = "sessions"; indent = 2; padding = 1; }
-              { section = "startup"; }
-            ];
-          };
-        };
+              ]],
+              keys = {
+                { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+                { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
+                { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+                { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+                { icon = " ", key = "s", desc = "Restore Session", section = "session" },
+                { icon = " ", key = "q", desc = "Quit", action = ":qa" },
+              },
+            },
+            sections = {
+              { section = "header" },
+              { section = "keys", gap = 1, padding = 1 },
+              { icon = " ", title = "Recent Files", section = "recent_files", indent = 2, padding = 1 },
+              { icon = " ", title = "Projects", section = "projects", indent = 2, padding = 1 },
+            },
+          }
+        '';
       };
 
       # mini.* family used by LazyVim
