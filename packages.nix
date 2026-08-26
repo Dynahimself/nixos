@@ -201,6 +201,8 @@
     cargo
     rustc
     nodejs
+    scrcpy
+    android-tools  # adb for scrcpy
 
     # =====================================================
     # Languages / Misc

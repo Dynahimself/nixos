@@ -108,6 +108,50 @@ let cfg = config.dyna.nixvim; in
       { mode = "n"; key = "<leader>/"; action.__raw = "function() require('snacks').picker.grep() end"; options.desc = "Grep"; }
       { mode = "n"; key = "<leader>e"; action.__raw = "function() require('snacks').explorer() end"; options.desc = "File Explorer"; }
       { mode = "n"; key = "<leader>oa"; action.__raw = "function() require('otter').activate({'javascript','css'}, true, true, nil) end"; options.desc = "Otter Activate (JS/CSS in HTML)"; }
+
+      # ---- LazyVim space-menu infrastructure (ported 2026-08-26) ----
+      # code: format
+      { mode = "n"; key = "<leader>cf"; action.__raw = "function() require('conform').format({ async = true, lsp_format = 'fallback' }) end"; options.desc = "Format Buffer"; }
+      { mode = "v"; key = "<leader>cf"; action.__raw = "function() require('conform').format({ async = true, lsp_format = 'fallback', range = true }) end"; options.desc = "Format Range"; }
+      { mode = "n"; key = "<leader>uf"; action.__raw = "function() vim.g.format_on_save = vim.g.format_on_save == false; vim.notify('Format on save: ' .. (vim.g.format_on_save and 'ON' or 'OFF')) end"; options.desc = "Toggle Format on Save"; }
+      # git: lazygit (installed in packages.nix)
+      { mode = "n"; key = "<leader>gg"; action.__raw = "function() require('snacks').lazygit() end"; options.desc = "Lazygit (root)"; }
+      # file/find: snacks pickers
+      { mode = "n"; key = "<leader>ff"; action.__raw = "function() require('snacks').picker.files() end"; options.desc = "Find Files"; }
+      { mode = "n"; key = "<leader>fr"; action.__raw = "function() require('snacks').picker.recent() end"; options.desc = "Recent"; }
+      { mode = "n"; key = "<leader>fb"; action.__raw = "function() require('snacks').picker.buffers() end"; options.desc = "Buffers"; }
+      { mode = "n"; key = "<leader>fm"; action.__raw = "function() require('snacks').picker.marks() end"; options.desc = "Marks"; }
+      { mode = "n"; key = "<leader>fg"; action.__raw = "function() require('snacks').picker.git_files() end"; options.desc = "Git Files"; }
+      { mode = "n"; key = "<leader>,"; action.__raw = "function() require('snacks').picker.buffers() end"; options.desc = "Buffers"; }
+      # search
+      { mode = "n"; key = "<leader>ss"; action.__raw = "function() require('snacks').picker.lsp_symbols() end"; options.desc = "Goto Symbol"; }
+      { mode = "n"; key = "<leader>sw"; action.__raw = "function() require('snacks').picker.grep_word() end"; options.desc = "Word (root)"; }
+      # terminal
+      { mode = "n"; key = "<leader>ft"; action.__raw = "function() require('snacks').terminal() end"; options.desc = "Terminal (root)"; }
+      { mode = "t"; key = "<C-/>"; action.__raw = "function() require('snacks').terminal() end"; options.desc = "Toggle Terminal"; }
+      # debugger (netcoredbg/delve in packages.nix)
+      { mode = "n"; key = "<leader>db"; action.__raw = "function() require('dap').toggle_breakpoint() end"; options.desc = "Toggle Breakpoint"; }
+      { mode = "n"; key = "<leader>dB"; action.__raw = "function() require('dap').set_breakpoint(vim.fn.input('Condition: ')) end"; options.desc = "Conditional Breakpoint"; }
+      { mode = "n"; key = "<leader>dc"; action.__raw = "function() require('dap').continue() end"; options.desc = "Continue/Start"; }
+      { mode = "n"; key = "<leader>dt"; action.__raw = "function() require('dap').terminate() end"; options.desc = "Terminate"; }
+      { mode = "n"; key = "<leader>du"; action.__raw = "function() require('dapui').toggle() end"; options.desc = "Toggle DAP UI"; }
+      { mode = [ "n" "v" ]; key = "<leader>de"; action.__raw = "function() require('dapui').eval() end"; options.desc = "Evaluate"; }
+      # diagnostics (trouble)
+      { mode = "n"; key = "<leader>xx"; action = "<cmd>Trouble diagnostics toggle<cr>"; options.desc = "Trouble (buffer)"; }
+      { mode = "n"; key = "<leader>xX"; action = "<cmd>Trouble diagnostics toggle filter.buf=false<cr>"; options.desc = "Trouble (workspace)"; }
+      { mode = "n"; key = "<leader>xq"; action = "<cmd>Trouble qflist toggle<cr>"; options.desc = "Quickfix (Trouble)"; }
+      # sessions (persistence)
+      { mode = "n"; key = "<leader>qs"; action.__raw = "function() require('persistence').load() end"; options.desc = "Restore Session"; }
+      { mode = "n"; key = "<leader>qS"; action.__raw = "function() require('persistence').select() end"; options.desc = "Select Session"; }
+      { mode = "n"; key = "<leader>ql"; action.__raw = "function() require('persistence').load({ last = true }) end"; options.desc = "Restore Last Session"; }
+      # windows
+      { mode = "n"; key = "<leader>w-"; action = "<C-w>s"; options.desc = "Split below"; }
+      { mode = "n"; key = "<leader>w\\"; action = "<C-w>v"; options.desc = "Split right"; }
+      { mode = "n"; key = "<leader>wd"; action = "<C-w>c"; options.desc = "Close window"; }
+      # ui toggles
+      { mode = "n"; key = "<leader>un"; action = "<cmd>set number!<cr>"; options.desc = "Toggle Line Numbers"; }
+      { mode = "n"; key = "<leader>uw"; action = "<cmd>set wrap!<cr>"; options.desc = "Toggle Wrap"; }
+      { mode = "n"; key = "<leader>us"; action = "<cmd>set spell!<cr>"; options.desc = "Toggle Spell"; }
     ];
 
     # ================== AUTOCMDS ==================
@@ -123,6 +167,9 @@ let cfg = config.dyna.nixvim; in
     # ================== PERSONAL COMMANDS + HTML TEMPLATE + PRESENCE ==================
     # verbatim port of init.lua's vim.api.nvim_* blocks
     extraConfigLua = ''
+      -- filetype icons (lualine/bufferline)
+      require("nvim-web-devicons").setup({})
+
       -- :Crun for K&R and CS:APP exercises
       -- Bad practices for real projects, fine for single files.
       vim.api.nvim_create_user_command("Crun", function()
@@ -141,6 +188,92 @@ let cfg = config.dyna.nixvim; in
         local file = vim.fn.expand("%:p")
         vim.cmd("terminal dotnet run " .. vim.fn.shellescape(file))
       end, {})
+
+      -- :CSdebug — build the .NET project, then launch the debugger on the DLL
+      -- Handles BOTH: real .csproj/.sln projects AND loose single .cs files
+      -- (file-based apps get a transient wrapper project in stdpath cache).
+      vim.api.nvim_create_user_command("CSdebug", function()
+        local file = vim.fn.expand("%:p")
+        if file == "" then
+          return vim.notify("CSdebug: no file in buffer", vim.log.levels.WARN)
+        end
+        vim.cmd("write")
+
+        local srcdir = vim.fn.fnamemodify(file, ":h")
+        -- nearest project/solution above the file (space-safe via vim.fs.find)
+        local proj = vim.fs.find({ "*.csproj" }, { upward = true, path = srcdir })[1]
+        local sln = proj and nil
+          or vim.fs.find({ "*.sln" }, { upward = true, path = srcdir })[1]
+
+        local target, cwd, name
+        if proj then
+          target, cwd, name = proj, vim.fn.fnamemodify(proj, ":h"), vim.fn.fnamemodify(proj, ":t:r")
+        elseif sln then
+          target, cwd, name = sln, vim.fn.fnamemodify(sln, ":h"), vim.fn.fnamemodify(sln, ":t:r")
+        else
+          -- loose file(s): wrap in a transient project (like `dotnet run file.cs`)
+          name = vim.fn.fnamemodify(file, ":t:r")
+          local tmp = vim.fn.stdpath("cache") .. "/csdebug/" .. name
+          vim.fn.mkdir(tmp, "p")
+          local includes = {}
+          for _, n in ipairs(vim.fn.glob(srcdir .. "/*.cs", false, true)) do
+            local base = vim.fn.fnamemodify(n, ":t")
+            table.insert(includes, '    <Compile Include="' .. n .. '" Link="' .. base .. '" />')
+          end
+          vim.fn.writefile({
+            '<Project Sdk="Microsoft.NET.Sdk">',
+            '  <PropertyGroup>',
+            '    <OutputType>Exe</OutputType>',
+            '    <TargetFramework>net10.0</TargetFramework>',
+            '    <ImplicitUsings>enable</ImplicitUsings>',
+            '    <Nullable>enable</Nullable>',
+            '    <AssemblyName>' .. name .. '</AssemblyName>',
+            '  </PropertyGroup>',
+            '  <ItemGroup>',
+            table.concat(includes, "\n"),
+            '  </ItemGroup>',
+            '</Project>',
+          }, tmp .. "/" .. name .. ".csproj")
+          target, cwd = tmp .. "/" .. name .. ".csproj", srcdir
+        end
+
+        vim.notify("CSdebug: building " .. vim.fn.fnamemodify(target, ":t") .. "…")
+        local out = vim.fn.system({ "dotnet", "build", target, "--nologo", "-v", "q" })
+        if vim.v.shell_error ~= 0 then
+          vim.notify("CSdebug: build FAILED", vim.log.levels.ERROR)
+          vim.cmd("vnew")
+          vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.fn.split(out, "\n"))
+          return
+        end
+
+        -- parse "Project -> /path/X.dll" from build output (last wins)
+        local dll = nil
+        for line in out:gmatch("[^\r\n]+") do
+          local m = line:match("%->%s*(%S+%.dll)")
+          if m then
+            dll = m
+          end
+        end
+        if not dll or vim.fn.filereadable(dll) == 0 then
+          local hits = vim.fn.glob(vim.fn.fnamemodify(target, ":h") .. "/bin/Debug/**/" .. name .. ".dll", false, true)
+          dll = hits[1]
+        end
+        if not dll then
+          return vim.notify("CSdebug: no DLL found after build", vim.log.levels.ERROR)
+        end
+
+        vim.notify("CSdebug: debugging " .. dll)
+        require("dap").run({
+          type = "coreclr",
+          request = "launch",
+          name = "CSdebug " .. vim.fn.fnamemodify(dll, ":t:r"),
+          program = dll,
+          cwd = cwd,
+        })
+        pcall(function()
+          require("dapui").open()
+        end)
+      end, { desc = "Build & debug .NET (project or loose file)" })
 
       -- HTML '!' template (colemak-safe: triggers only on empty line start)
       vim.api.nvim_create_autocmd("FileType", {
@@ -258,7 +391,19 @@ let cfg = config.dyna.nixvim; in
           '';
         };
       };
-      lualine.enable = true;
+      lualine = {
+        enable = true;
+        settings = {
+          options = {
+            globalstatus = true;
+            icons_enabled = true;
+            theme = "auto"; # follow colorscheme (catppuccin)
+          };
+        };
+      };
+      # devicons: icon source for lualine/bufferline filetypes (no nixvim module
+      # in this pin — loaded via extraPlugins + setup below)
+      # nvim-web-devicons.enable = true;
       bufferline.enable = true;
       noice.enable = true;
       gitsigns.enable = true;
@@ -453,9 +598,36 @@ let cfg = config.dyna.nixvim; in
       # ================== DAP (dap.core + nlua + dotnet/go) ==================
       dap = {
         enable = true;
-        adapters.executables = {
-          # delve + netcoredbg already in packages.nix
-          # NOTE: codellld for C not in packages.nix — add there if needed
+        adapters = {
+          executables = {
+            # .NET: netcoredbg (in packages.nix) — coreclr adapter
+            coreclr = {
+              command = "${pkgs.netcoredbg}/bin/netcoredbg";
+              args = [ "--interpreter=vscode" ];
+            };
+          };
+        };
+        configurations = {
+          cs = [
+            {
+              type = "coreclr";
+              request = "launch";
+              name = "Launch .NET";
+              # auto-find: bin/Debug/**/<ProjectName>.dll first, any dll second, ask last
+              program.__raw = ''
+                function()
+                  local cwd = vim.fn.getcwd()
+                  local name = vim.fn.fnamemodify(cwd, ":t")
+                  local dlls = vim.fn.glob(cwd .. "/bin/Debug/**/*.dll", false, true)
+                  for _, d in ipairs(dlls) do
+                    if vim.fn.fnamemodify(d, ":t") == name .. ".dll" then return d end
+                  end
+                  if #dlls > 0 then return dlls[1] end
+                  return vim.fn.input("Path to dll: ", cwd .. "/bin/Debug/", "file")
+                end
+              '';
+            }
+          ];
         };
       };
       dap-ui.enable = true;
@@ -482,6 +654,7 @@ let cfg = config.dyna.nixvim; in
 
     # plugins without stable nixvim modules
     extraPlugins = with pkgs.vimPlugins; [
+      nvim-web-devicons # filetype icons for lualine/bufferline
       otter-nvim
       vim-dadbod
       vim-dadbod-ui
