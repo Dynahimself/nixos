@@ -233,6 +233,11 @@
     amdgpu_top
     corectrl
     vulkan-tools
+
+    #Office suite
+    libreoffice-qt          
+    hunspellDicts.en_US     
+    hunspellDicts.fr_FR  
   ];
 
   fonts.packages = with pkgs; [
