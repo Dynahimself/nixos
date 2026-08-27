@@ -236,7 +236,7 @@
 
     #Office suite
     libreoffice-qt          
-    hunspellDicts.en-US     
+    hunspellDicts.en-us
     hunspellDicts.fr-moderne
   ];
 
