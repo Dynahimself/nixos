@@ -236,8 +236,8 @@
 
     #Office suite
     libreoffice-qt          
-    hunspellDicts.en_US     
-    hunspellDicts.moderne
+    hunspellDicts.en-US     
+    hunspellDicts.fr-moderne
   ];
 
   fonts.packages = with pkgs; [
