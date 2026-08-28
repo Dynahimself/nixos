@@ -36,7 +36,7 @@
   environment.systemPackages = [ pkgs.wl-clipboard ];
 
   networking.networkmanager.enable = true;
-  networking.networkmanager.wifi.backend = "iwd";
+  networking.networkmanager.wifi.backend = "wpa_supplicant";
 
   time.timeZone = "America/New_York";
 

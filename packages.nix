@@ -88,6 +88,7 @@
     hypridle
     hyprshot
     xdg-desktop-portal-hyprland
+    network-manager-applet
     waybar
     wlogout
     wl-clipboard
@@ -218,6 +219,8 @@
     android-studio
     oracle-instantclient
     python313Packages.oracledb
+    kdenlive
+    mpv
 
     # =====================================================
     # Kernel packages
