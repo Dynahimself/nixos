@@ -88,7 +88,7 @@
     hypridle
     hyprshot
     xdg-desktop-portal-hyprland
-    network-manager-applet
+    networkmanagerapplet
     waybar
     wlogout
     wl-clipboard
