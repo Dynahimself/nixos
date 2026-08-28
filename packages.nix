@@ -219,7 +219,7 @@
     android-studio
     oracle-instantclient
     python313Packages.oracledb
-    kdenlive
+    kdePackages.kdenlive
     mpv
 
     # =====================================================
