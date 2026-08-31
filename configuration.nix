@@ -157,5 +157,13 @@
     cores = 0;
   };
 
+
+  # LanguageTool local server (browser extension points at http://localhost:8081)
+  services.languagetool = {
+    enable = true;
+    port = 8081;
+    allowOrigin = "*";
+  };
+
   system.stateVersion = "25.11";
 }

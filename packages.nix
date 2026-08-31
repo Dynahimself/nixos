@@ -36,6 +36,7 @@
     dust
     sd
     delta
+    psensor
     fx
     glow
     eza
@@ -204,7 +205,7 @@
     rustc
     nodejs
     scrcpy
-    android-tools  # adb for scrcpy
+    android-tools # adb for scrcpy
 
     # =====================================================
     # Languages / Misc

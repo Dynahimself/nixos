@@ -564,8 +564,12 @@ let cfg = config.dyna.nixvim; in
       conform-nvim = {
         enable = true;
         settings = {
+          format_on_save = {
+            lsp_format = "fallback";
+            timeout_ms = 3000;
+          };
           formatters_by_ft = {
-            # formatting.prettier (web)
+            # formatting.prettier (web) — brace same-line via config file
             javascript = [ "prettier" ];
             typescript = [ "prettier" ];
             javascriptreact = [ "prettier" ];
@@ -577,10 +581,32 @@ let cfg = config.dyna.nixvim; in
             markdown = [ "prettier" ];
             # formatting.black (python)
             python = [ "black" ];
-            # C# via csharpier (.NET 10 ready)
-            cs = [ "csharpier" ];
-            cshtml = [ "csharpier" ];
+            # C# two-pass: csharpier does real formatting (needs --stdin-path when piped),
+            # then clang-format-cs attaches braces to the same line
+            cs = [ "csharpier-stdin" "clang-format-cs" ];
+            cshtml = [ "csharpier-stdin" "clang-format-cs" ];
+            # C family: clang-format — LLVM style = braces same line
+            c = [ "clang-format" ];
+            cpp = [ "clang-format" ];
+            objc = [ "clang-format" ];
+            cuda = [ "clang-format" ];
             # sql: sql-formatter was dropped from nixpkgs — re-add when available
+          };
+          formatters = {
+            # pass 1: csharpier — real C# formatting, adapted for conform's stdin pipe.
+            # absolute store path: the binary lives in nvim's extraPackages PATH but not in
+            # interactive shells' PATH, and conform spawns formatters via a login shell
+            csharpier-stdin = {
+              command = "/nix/store/qb9p478mszdf32mlpckh3rh9qcqqim55-csharpier-1.3.0/bin/csharpier";
+              args = [ "format" "--stdin-path" "$FILENAME" ];
+            };
+            # pass 2: attach braces to same line via wrapper script. The wrapper hardcodes
+            # --assume-filename=.cs (conform pipes stdin only and does NOT expand $FILENAME,
+            # so clang-format would otherwise parse C# with its C++ grammar and mangle it)
+            clang-format-cs = {
+              command = "/home/dyna/.local/bin/cs-brace-attach";
+              args = [ ];
+            };
           };
         };
       };
@@ -675,6 +701,7 @@ let cfg = config.dyna.nixvim; in
       # sql-formatter: dropped from nixpkgs (nodePackages removal) — Oracle SQL formatting via prettier or re-add later
       eslint # nvim-lint eslint (top-level)
       csharpier # C# formatter (dotnet tool style, .NET 10 compatible)
+      clang-tools # clang-format for C/C++ (LLVM style = braces same line)
     ];
   };
   };
