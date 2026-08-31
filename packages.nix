@@ -36,7 +36,7 @@
     dust
     sd
     delta
-    psensor
+    python314Packages.pmsensor
     fx
     glow
     eza
