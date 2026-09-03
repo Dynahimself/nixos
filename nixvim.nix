@@ -84,6 +84,11 @@ let cfg = config.dyna.nixvim; in
       { mode = [ "n" "v" "x" ]; key = "e"; action = "gj"; options.desc = "Down (wrapped)"; }
       { mode = [ "n" "v" "x" ]; key = "i"; action = "gk"; options.desc = "Up (wrapped)"; }
       { mode = [ "n" "v" "x" ]; key = "o"; action = "l"; options.desc = "Right"; }
+      # Operator-pending mode: d/c/y + direction work with Colemak
+      { mode = "o"; key = "n"; action = "h"; options.desc = "Left"; }
+      { mode = "o"; key = "e"; action = "j"; options.desc = "Down"; }
+      { mode = "o"; key = "i"; action = "k"; options.desc = "Up"; }
+      { mode = "o"; key = "o"; action = "l"; options.desc = "Right"; }
       # k/K = search next/prev (formerly n/N)
       { mode = [ "n" "v" "x" ]; key = "k"; action = "n"; options.desc = "Search next"; }
       { mode = [ "n" "v" "x" ]; key = "K"; action = "N"; options.desc = "Search previous"; }
@@ -498,7 +503,7 @@ let cfg = config.dyna.nixvim; in
           lspBuf = {
             "gd" = "definition";
             "gr" = "references";
-            "K" = "hover"; # NOTE: colemak K = search-prev; hover wins here as in LazyVim
+            "<leader>K" = "hover"; # moved from K to avoid conflict with colemak search-prev
             "<leader>ca" = "code_action";
             "<leader>cr" = "rename";
           };
