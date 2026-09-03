@@ -36,7 +36,7 @@
   environment.systemPackages = [ pkgs.wl-clipboard ];
 
   networking.networkmanager.enable = true;
-  networking.networkmanager.wifi.backend = "iwd";
+  networking.networkmanager.wifi.backend = "wpa_supplicant";
 
   time.timeZone = "America/New_York";
 
@@ -155,6 +155,14 @@
   nix.settings = {
     max-jobs = 6;
     cores = 0;
+  };
+
+
+  # LanguageTool local server (browser extension points at http://localhost:8081)
+  services.languagetool = {
+    enable = true;
+    port = 8081;
+    allowOrigin = "*";
   };
 
   system.stateVersion = "25.11";

@@ -36,6 +36,7 @@
     dust
     sd
     delta
+    python314Packages.pmsensor
     fx
     glow
     eza
@@ -88,6 +89,7 @@
     hypridle
     hyprshot
     xdg-desktop-portal-hyprland
+    networkmanagerapplet
     waybar
     wlogout
     wl-clipboard
@@ -203,7 +205,7 @@
     rustc
     nodejs
     scrcpy
-    android-tools  # adb for scrcpy
+    android-tools # adb for scrcpy
 
     # =====================================================
     # Languages / Misc
@@ -218,6 +220,8 @@
     android-studio
     oracle-instantclient
     python313Packages.oracledb
+    kdePackages.kdenlive
+    mpv
 
     # =====================================================
     # Kernel packages
