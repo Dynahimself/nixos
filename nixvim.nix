@@ -361,6 +361,297 @@ let cfg = config.dyna.nixvim; in
           url = "oracle://C##FOURNIEO:Lycia@205.237.244.252:1521/ORCL",
         },
       }
+
+      -- hardtime.nvim — break bad habits, Colemak-adapted
+      require("hardtime").setup({
+        -- Colemak: n/e/i/o are the directional keys (not h/j/k/l)
+        restricted_keys = {
+          ["n"] = { "n", "x" },  -- left (was h)
+          ["e"] = { "n", "x" },  -- down (was j)
+          ["i"] = { "n", "x" },  -- up (was k)
+          ["o"] = { "n", "x" },  -- right (was l)
+          ["+"] = { "n", "x" },
+          ["gj"] = { "n", "x" },
+          ["gk"] = { "n", "x" },
+          ["<C-P>"] = { "n", "x" },
+          ["<C-N>"] = { "n", "x" },
+        },
+        -- don't restrict h/j/k/l — they're remapped to other functions on Colemak
+        disabled_keys = {
+          ["<Up>"] = { "", "i" },
+          ["<Down>"] = { "", "i" },
+          ["<Left>"] = { "", "i" },
+          ["<Right>"] = { "", "i" },
+        },
+        -- hints adapted for Colemak: suggest word motions instead of n/e/i/o spam
+        hints = {
+          ["%D1[neio]"] = {
+            message = function(keys)
+              return "Use " .. keys:sub(3, 3) .. " instead of " .. keys:sub(2, 3)
+            end,
+            length = 3,
+          },
+          ["[ei][%^_]"] = {
+            message = function(key)
+              return "Use "
+                .. (key:sub(1, 1) == "i" and "-" or " or +")
+                .. " instead of "
+                .. key
+            end,
+            length = 2,
+          },
+          ["%$a"] = {
+            message = function()
+              return "Use A instead of $a"
+            end,
+            length = 2,
+          },
+          ["d%$"] = {
+            message = function()
+              return "Use D instead of d$"
+            end,
+            length = 2,
+          },
+          ["y%$"] = {
+            message = function()
+              return "Use Y instead of y$"
+            end,
+            length = 2,
+          },
+          ["c%$"] = {
+            message = function()
+              return "Use C instead of c$"
+            end,
+            length = 2,
+          },
+          ["%^l"] = {
+            message = function()
+              return "Use I instead of ^i"
+            end,
+            length = 2,
+          },
+          ["%D[ei+]h"] = {
+            message = function(keys)
+              return "Use h instead of " .. keys:sub(2)
+            end,
+            length = 3,
+          },
+          ["[^fFtT]ol"] = {
+            message = function()
+              return "Use a instead of li"
+            end,
+            length = 3,
+          },
+          ["2([dcy=<>])%1"] = {
+            message = function(key)
+              return "Use " .. key:sub(3) .. "e instead of " .. key
+            end,
+            length = 3,
+          },
+          ["d[bBwWjJ%^%$]l"] = {
+            message = function(keys)
+              return "Use " .. "c" .. keys:sub(2, 2) .. " instead of " .. keys
+            end,
+            length = 3,
+          },
+          ["dg[jJ]l"] = {
+            message = function(keys)
+              return "Use " .. "c" .. keys:sub(2, 3) .. " instead of " .. keys
+            end,
+            length = 4,
+          },
+          ["d[tTfF].l"] = {
+            message = function(keys)
+              return "Use " .. "c" .. keys:sub(2, 3) .. " instead of " .. keys
+            end,
+            length = 4,
+          },
+          ["d[ia][\"'`{}%[%]()<>bBwWspt]l"] = {
+            message = function(keys)
+              return "Use " .. "c" .. keys:sub(2, 3) .. " instead of " .. keys
+            end,
+            length = 4,
+          },
+          ["D[aA]"] = {
+            message = function(keys)
+              return "Use C instead of D" .. keys:sub(2)
+            end,
+            length = 2,
+          },
+          ["Vgg[dcy=<>]"] = {
+            message = function(keys)
+              return "Use " .. keys:sub(4, 4) .. "gg instead of " .. keys
+            end,
+            length = 4,
+          },
+          ['Vgg".[dy]'] = {
+            message = function(keys)
+              return "Use " .. keys:sub(4, 6) .. "gg instead of " .. keys
+            end,
+            length = 6,
+          },
+          ["VG[dcy=<>]"] = {
+            message = function(keys)
+              return "Use " .. keys:sub(3, 3) .. "G instead of " .. keys
+            end,
+            length = 3,
+          },
+          ['VG".[dy]'] = {
+            message = function(keys)
+              return "Use " .. keys:sub(3, 5) .. "G instead of " .. keys
+            end,
+            length = 5,
+          },
+          ["V%d[ei][dcy=<>]"] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(4, 4)
+                .. keys:sub(2, 3)
+                .. " instead of "
+                .. keys
+            end,
+            length = 4,
+          },
+          ['V%d[ei]".[dy]'] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(4, 6)
+                .. keys:sub(2, 3)
+                .. " instead of "
+                .. keys
+            end,
+            length = 6,
+          },
+          ["V%d%d[ei][dcy=<>]"] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(5, 5)
+                .. keys:sub(2, 4)
+                .. " instead of "
+                .. keys
+            end,
+            length = 5,
+          },
+          ['V%d%d[ei]".[dy]'] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(5, 7)
+                .. keys:sub(2, 4)
+                .. " instead of "
+                .. keys
+            end,
+            length = 7,
+          },
+          ["[vV][jJ][dcy]"] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(3, 3)
+                .. keys:sub(2, 2)
+                .. " instead of "
+                .. keys
+            end,
+            length = 3,
+          },
+          ['[vV][jJ]".[dy]'] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(3, 5)
+                .. keys:sub(2, 2)
+                .. " instead of "
+                .. keys
+            end,
+            length = 5,
+          },
+          ["[vV]g[jJ][dcy]"] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(4, 4)
+                .. keys:sub(2, 3)
+                .. " instead of "
+                .. keys
+            end,
+            length = 4,
+          },
+          ['[vV]g[jJ]".[dy]'] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(4, 6)
+                .. keys:sub(2, 3)
+                .. " instead of "
+                .. keys
+            end,
+            length = 6,
+          },
+          ["[vV][tTfF].[dcy]"] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(4, 4)
+                .. keys:sub(2, 3)
+                .. " instead of "
+                .. keys
+            end,
+            length = 4,
+          },
+          ['[vV][tTfF].".[dy]'] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(4, 6)
+                .. keys:sub(2, 3)
+                .. " instead of "
+                .. keys
+            end,
+            length = 6,
+          },
+          ["[vV][ia][\"'`{}%[%]()<>bBwWspt][dcy=<>]"] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(4, 4)
+                .. keys:sub(2, 3)
+                .. " instead of "
+                .. keys
+            end,
+            length = 4,
+          },
+          ['[vV][ia]["\'`{}%[%]()<>bBwWspt]".[dy]'] = {
+            message = function(keys)
+              return "Use "
+                .. keys:sub(4, 6)
+                .. keys:sub(2, 3)
+                .. " instead of "
+                .. keys
+            end,
+            length = 6,
+          },
+        },
+      })
+
+      -- precognition.nvim — show available motions as virtual text
+      require("precognition").setup({
+        startVisible = true,
+        showBlankVirtLine = true,
+        highlightColor = { link = "SpecialComment" },
+        -- Colemak: w/b are same keys, e/E are remapped to j/J
+        -- but precognition shows the motion RESULT, not the key you press
+        -- so the defaults work as-is
+        hints = {
+          Caret = { text = "^", prio = 2 },
+          Dollar = { text = "$", prio = 1 },
+          MatchingPair = { text = "%", prio = 5 },
+          Zero = { text = "0", prio = 1 },
+          w = { text = "w", prio = 10 },
+          b = { text = "b", prio = 9 },
+          e = { text = "e", prio = 8 },
+          W = { text = "W", prio = 7 },
+          B = { text = "B", prio = 6 },
+          E = { text = "E", prio = 5 },
+        },
+        gutterHints = {
+          G = { text = "G", prio = 10 },
+          gg = { text = "gg", prio = 9 },
+          PrevParagraph = { text = "{", prio = 8 },
+          NextParagraph = { text = "}", prio = 8 },
+        },
+      })
     '';
 
     # ================== EDITOR CORE ==================
@@ -694,6 +985,9 @@ let cfg = config.dyna.nixvim; in
       ts-comments-nvim
       markdown-preview-nvim
       typst-preview-nvim
+      hardtime-nvim # break bad vim habits
+      precognition-nvim # show available motions as virtual text
+      nui-nvim # dependency for hardtime
     ];
     # NOTE: sidekick.nvim (ai.sidekick extra) has no nixpkgs package yet
     # (Aug 2026). When vimPlugins.sidekick-nvim lands, add it above.
