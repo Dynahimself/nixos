@@ -625,33 +625,10 @@ let cfg = config.dyna.nixvim; in
         },
       })
 
-      -- precognition.nvim — show available motions as virtual text
-      require("precognition").setup({
-        startVisible = true,
-        showBlankVirtLine = true,
-        highlightColor = { link = "SpecialComment" },
-        -- Colemak: w/b are same keys, e/E are remapped to j/J
-        -- but precognition shows the motion RESULT, not the key you press
-        -- so the defaults work as-is
-        hints = {
-          Caret = { text = "^", prio = 2 },
-          Dollar = { text = "$", prio = 1 },
-          MatchingPair = { text = "%", prio = 5 },
-          Zero = { text = "0", prio = 1 },
-          w = { text = "w", prio = 10 },
-          b = { text = "b", prio = 9 },
-          e = { text = "e", prio = 8 },
-          W = { text = "W", prio = 7 },
-          B = { text = "B", prio = 6 },
-          E = { text = "E", prio = 5 },
-        },
-        gutterHints = {
-          G = { text = "G", prio = 10 },
-          gg = { text = "gg", prio = 9 },
-          PrevParagraph = { text = "{", prio = 8 },
-          NextParagraph = { text = "}", prio = 8 },
-        },
-      })
+      -- precognition.nvim REMOVED 2026-09-04: its 1.3.0 f/t/char-motion virtual
+      -- hints collapse into an unreadable misaligned soup ("twffffetfff...")
+      -- on Colemak remaps + accented French identifiers (byte-offset extmarks
+      -- vs UTF-8 multibyte chars). hardtime covers the habit-breaking half.
     '';
 
     # ================== EDITOR CORE ==================
@@ -986,7 +963,6 @@ let cfg = config.dyna.nixvim; in
       markdown-preview-nvim
       typst-preview-nvim
       hardtime-nvim # break bad vim habits
-      precognition-nvim # show available motions as virtual text
       nui-nvim # dependency for hardtime
     ];
     # NOTE: sidekick.nvim (ai.sidekick extra) has no nixpkgs package yet
