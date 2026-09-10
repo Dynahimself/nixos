@@ -751,13 +751,6 @@ let cfg = config.dyna.nixvim; in
           sources = {
             default = [ "lsp" "path" "snippets" "buffer" ];
           };
-          # Accept = Tab or Enter (default preset had neither — only C-y)
-          keymap = {
-            preset = "default";
-            "<Tab>" = [ "select_and_accept" "snippet_forward" "fallback" ];
-            "<S-Tab>" = [ "select_prev" "snippet_backward" "fallback" ];
-            "<CR>" = [ "accept" "fallback" ];
-          };
         };
       };
 
