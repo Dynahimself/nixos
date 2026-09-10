@@ -63,10 +63,10 @@
     }
   '';
 
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "colemak_dh";
-  };
+  #  services.xserver.xkb = {
+  #    layout = "us";
+  #    variant = "colemak_dh";
+  #  };
 
   console.useXkbConfig = true;
 }
