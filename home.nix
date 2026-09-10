@@ -150,7 +150,7 @@ in
       builtins.readFile (
         pkgs.fetchurl {
           url = "https://raw.githubusercontent.com/starship/starship/main/docs/public/presets/toml/catppuccin-powerline.toml";
-          sha256 = "sha256-wjdG5MJJA1rQL0KIbpR2Q+gLrmZDqkFwo7RxO+pf68s=";
+          sha256 = "sha256-d3A36gpww8CTtdUT1G1yjgfSw9vapwkb3X0Iu1gt8zw=";
         }
       )
     );
