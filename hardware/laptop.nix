@@ -26,6 +26,7 @@
         chainloader /EFI/Microsoft/Boot/bootmgfw.efi
       }
     '';
+    configurationLimit = 5;
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
