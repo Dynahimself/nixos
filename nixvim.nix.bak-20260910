@@ -80,30 +80,18 @@ let cfg = config.dyna.nixvim; in
     # ================== KEYMAPS (colemak home-row, verbatim) ==================
     keymaps = [
       # Directional keys (home row): n=left e=down i=up o=right
-      # `i` = up in NORMAL mode ONLY — in visual and operator-pending, `i` keeps
-      # its builtin meaning (inner text objects: ci{, ciw, di(, viw, vit...).
-      # Same principle as stock vim: `a` = append (normal) but around (aw, a{).
-      { mode = "n"; key = "n"; action = "h"; options.desc = "Left"; }
-      { mode = [ "v" "x" ]; key = "n"; action = "h"; options.desc = "Left"; }
-      { mode = "n"; key = "e"; action = "gj"; options.desc = "Down (wrapped)"; }
-      { mode = [ "v" "x" ]; key = "e"; action = "gj"; options.desc = "Down (wrapped)"; }
-      { mode = "n"; key = "i"; action = "gk"; options.desc = "Up (wrapped)"; }
-      { mode = "n"; key = "o"; action = "l"; options.desc = "Right"; }
-      { mode = [ "v" "x" ]; key = "o"; action = "l"; options.desc = "Right"; }
-      # Operator-pending (after d/c/y/gu...): arrows via n/e/o; `i` freed for
-      # inner text objects; up = original k (dk still deletes up);
-      # j = to-end-of-word, matching normal-mode j
+      { mode = [ "n" "v" "x" ]; key = "n"; action = "h"; options.desc = "Left"; }
+      { mode = [ "n" "v" "x" ]; key = "e"; action = "gj"; options.desc = "Down (wrapped)"; }
+      { mode = [ "n" "v" "x" ]; key = "i"; action = "gk"; options.desc = "Up (wrapped)"; }
+      { mode = [ "n" "v" "x" ]; key = "o"; action = "l"; options.desc = "Right"; }
+      # Operator-pending mode: d/c/y + direction work with Colemak
       { mode = "o"; key = "n"; action = "h"; options.desc = "Left"; }
       { mode = "o"; key = "e"; action = "j"; options.desc = "Down"; }
+      { mode = "o"; key = "i"; action = "k"; options.desc = "Up"; }
       { mode = "o"; key = "o"; action = "l"; options.desc = "Right"; }
-      { mode = "o"; key = "j"; action = "e"; options.desc = "To end of word"; }
-      # k/K = search next/prev (formerly n/N) — normal mode only;
-      # visual needs k for up since i is the text-object prefix there
-      { mode = "n"; key = "k"; action = "n"; options.desc = "Search next"; }
-      { mode = "n"; key = "K"; action = "N"; options.desc = "Search previous"; }
-      { mode = [ "v" "x" ]; key = "k"; action = "gk"; options.desc = "Up (wrapped)"; }
-      # gl = insert at last insert position (builtin gi is unreachable: i is shadowed)
-      { mode = "n"; key = "gl"; action = "gi"; options.desc = "Insert at last position"; }
+      # k/K = search next/prev (formerly n/N)
+      { mode = [ "n" "v" "x" ]; key = "k"; action = "n"; options.desc = "Search next"; }
+      { mode = [ "n" "v" "x" ]; key = "K"; action = "N"; options.desc = "Search previous"; }
       # j/J = end of word (formerly e/E)
       { mode = [ "n" "v" "x" ]; key = "j"; action = "e"; options.desc = "End of word"; }
       { mode = [ "n" "v" "x" ]; key = "J"; action = "E"; options.desc = "End of word (space)"; }

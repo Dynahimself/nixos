@@ -56,12 +56,12 @@
     # finegrained = true;  # uncomment if you want runtime power management (turns off GPU when unused)
   };
 
-  environment.etc."hypr/monitor.conf".text = ''
-    input {
-      kb_layout = us
-      kb_variant = colemak_dh
-    }
-  '';
+  #  environment.etc."hypr/monitor.conf".text = ''
+  #    input {
+  #      kb_layout = us
+  #      kb_variant = colemak_dh
+  #    }
+  #  '';
 
   #  services.xserver.xkb = {
   #    layout = "us";
