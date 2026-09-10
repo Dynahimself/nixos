@@ -56,6 +56,10 @@
     # finegrained = true;  # uncomment if you want runtime power management (turns off GPU when unused)
   };
 
+  environment.etc."hypr/monitor.conf".text = ''
+    monitor = eDP-1, 1920x1080@60, 0x0, 1
+  '';
+
   #  environment.etc."hypr/monitor.conf".text = ''
   #    input {
   #      kb_layout = us
