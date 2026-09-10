@@ -89,7 +89,6 @@ let cfg = config.dyna.nixvim; in
       { mode = [ "v" "x" ]; key = "e"; action = "gj"; options.desc = "Down (wrapped)"; }
       { mode = "n"; key = "i"; action = "gk"; options.desc = "Up (wrapped)"; }
       { mode = "n"; key = "o"; action = "l"; options.desc = "Right"; }
-      { mode = [ "v" "x" ]; key = "o"; action = "l"; options.desc = "Right"; }
       # Operator-pending (after d/c/y/gu...): arrows via n/e/o; `i` freed for
       # inner text objects; up = original k (dk still deletes up);
       # j = to-end-of-word, matching normal-mode j
