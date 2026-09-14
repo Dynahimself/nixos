@@ -157,6 +157,13 @@
     cores = 0;
   };
 
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
+
+  nix.optimise.automatic = true;
 
   # LanguageTool local server (browser extension points at http://localhost:8081)
   services.languagetool = {
