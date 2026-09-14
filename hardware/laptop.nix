@@ -57,7 +57,7 @@
   };
 
   environment.etc."hypr/monitor.conf".text = ''
-    monitor = eDP-1, 1920x1080@60, 0x0, 1
+    monitor = eDP-1, 1920x1080@144, 0x0, 1
   '';
 
   #  environment.etc."hypr/monitor.conf".text = ''
