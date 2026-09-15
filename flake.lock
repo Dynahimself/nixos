@@ -265,17 +265,14 @@
         ]
       },
       "locked": {
-        "lastModified": 1789289402,
-        "narHash": "sha256-7HHAIxdoDAJv09/I6DrMsAJFgol2cqJumaPCCZ+XdAU=",
-        "owner": "youwen5",
-        "repo": "zen-browser-flake",
-        "rev": "4036109214cf20632000558935bd823b901fa886",
-        "type": "github"
+        "lastModified": 1789506387,
+        "narHash": "sha256-LMJvYVdPcr/ef/VueuG4u4HthaZh5+AzPqF7jiQaPMc=",
+        "path": "/home/dyna/src/zen-browser-flake",
+        "type": "path"
       },
       "original": {
-        "owner": "youwen5",
-        "repo": "zen-browser-flake",
-        "type": "github"
+        "path": "/home/dyna/src/zen-browser-flake",
+        "type": "path"
       }
     }
   },
