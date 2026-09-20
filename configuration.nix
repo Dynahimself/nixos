@@ -95,6 +95,11 @@
   # Sound with pipewire
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
+  # Bluetooth
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  services.blueman.enable = true;  # GUI manager
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;
