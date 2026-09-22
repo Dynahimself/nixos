@@ -11,6 +11,9 @@
   fileSystems."/".device = "/dev/null";
   fileSystems."/".fsType = "ext4";
 
+  # Disable Python docs (sphinx build broken in nixpkgs)
+  documentation.enable = false;
+
   # No GUI stuff — just dev tools
   environment.systemPackages = with pkgs; [
     # Core CLI
