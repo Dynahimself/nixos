@@ -17,6 +17,7 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
+    nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
     spicetify-nix.url = "github:Gerg-L/spicetify-nix";
 
     home-manager = {
@@ -35,6 +36,7 @@
       spicetify-nix,
       neovim-nightly-overlay,
       nixvim,
+      nixos-wsl,
       ...
     }@inputs:
     let
@@ -89,6 +91,32 @@
           modules = commonModules ++ [
             ./hardware/desktop.nix
             ./hardware/desktop-hardware-configuration.nix
+          ];
+        };
+
+        wsl = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./wsl.nix
+            nixos-wsl.nixosModules.default
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                backupFileExtension = "backup";
+                extraSpecialArgs = { inherit inputs; };
+                users.dyna = {
+                  imports = [
+                    ./home-wsl.nix
+                    ./nixvim.nix
+                    nixvim.homeModules.nixvim
+                  ];
+                };
+              };
+              nixpkgs.overlays = [ neovim-nightly-overlay.overlays.default ];
+            }
           ];
         };
       };

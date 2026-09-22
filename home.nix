@@ -125,6 +125,13 @@ in
     initExtra = ''
       fastfetch
       export PATH="$HOME/.local/bin:$PATH"
+
+      # Jump to Windows home (WSL)
+      win() {
+        cd /mnt/c/Users/$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r') 2>/dev/null \
+          || cd /mnt/c/Users/*/ 2>/dev/null \
+          || echo "Not in WSL or Windows drive not mounted"
+      }
     '';
     shellAliases = {
       ll = "ls -la";
@@ -150,7 +157,7 @@ in
       builtins.readFile (
         pkgs.fetchurl {
           url = "https://raw.githubusercontent.com/starship/starship/main/docs/public/presets/toml/catppuccin-powerline.toml";
-          sha256 = "sha256-d3A36gpww8CTtdUT1G1yjgfSw9vapwkb3X0Iu1gt8zw=";
+          sha256 = "sha256-1bJv+8P9eP/0SBGAjfPTUFbetI9+1gWcql/RHtNQLsQ=";
         }
       )
     );
