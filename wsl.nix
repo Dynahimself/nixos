@@ -11,6 +11,7 @@
   fileSystems."/".device = "/dev/null";
   fileSystems."/".fsType = "ext4";
 
+  environment.shells = with pkgs; [ bash zsh ];
   # Disable Python docs (sphinx build broken in nixpkgs)
   documentation.enable = false;
 
@@ -34,7 +35,7 @@
     gh lazygit
 
     # Shell
-    zsh starship zellij
+    bash zsh starship zellij
 
     # System utilities
     btop duf dust sd eza zoxide fzf

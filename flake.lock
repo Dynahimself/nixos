@@ -324,8 +324,9 @@
         "type": "path"
       },
       "original": {
-        "path": "/home/dyna/src/zen-browser-flake",
-        "type": "path"
+        "owner": "youwen5",
+        "repo": "zen-browser-flake",
+        "type": "github"
       }
     }
   },
