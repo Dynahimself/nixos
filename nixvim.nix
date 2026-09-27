@@ -698,6 +698,15 @@ let cfg = config.dyna.nixvim; in
       trouble.enable = true; # diagnostics list
       render-markdown.enable = true; # lang.markdown
       indent-blankline.enable = true; # ui.indent-blankline
+
+      # leetcode.nvim — full LeetCode client (:Leet); login via :Leet cookie update
+      leetcode = {
+        enable = true;
+        settings = {
+          lang = "csharp"; # doubles as AOOP practice; :Leet lang to switch
+          storage.home = "~/projects/leetcode";
+        };
+      };
       lazydev.enable = true; # lua dev for config editing
 
       # snacks: picker/explorer/dashboard — verbatim LazyVim dashboard via __raw
