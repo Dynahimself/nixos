@@ -44,6 +44,8 @@
     '';
     shellAliases = {
       ll = "ls -la";
+      # WSL: ALWAYS this exact command — plain `nixos-rebuild switch` builds the wrong config
+      rebuild = "sudo nixos-rebuild switch --flake /etc/nixos#wsl";
     };
   };
 
