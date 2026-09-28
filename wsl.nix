@@ -5,6 +5,10 @@
 
   imports = [ ./base.nix ];
 
+  # the actual NixOS-WSL module (without wsl.enable, no WSL system gets built)
+  wsl.enable = true;
+  wsl.defaultUser = "dyna";
+
   # WSL boot/filesystem (handled by WSL init, not a real bootloader)
   boot.loader.grub.enable = false;
   boot.loader.systemd-boot.enable = false;
