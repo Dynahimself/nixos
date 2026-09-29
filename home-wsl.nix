@@ -1,4 +1,10 @@
-{ config, pkgs, lib, inputs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 
 {
   # Minimal home for WSL — dev tools only, no GUI
@@ -35,6 +41,7 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     initExtra = ''
+      fastfetch
       export PATH="$HOME/.local/bin:$PATH"
 
       # Jump to Windows home (WSL)

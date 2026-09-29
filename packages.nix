@@ -239,7 +239,7 @@
     vulkan-tools
 
     #Office suite
-    libreoffice-qt          
+    libreoffice-qt
     hunspellDicts.en-us
     hunspellDicts.fr-moderne
   ];
