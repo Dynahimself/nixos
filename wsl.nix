@@ -8,6 +8,9 @@
   # the actual NixOS-WSL module (without wsl.enable, no WSL system gets built)
   wsl.enable = true;
   wsl.defaultUser = "dyna";
+  # dyna is really UID 1001 in the WSL filesystem (tarball nixos user owns 1000) â
+  # without this pin, home-manager activation fails: UID is 1001, expected 1000
+  users.users.dyna.uid = 1001;
 
   # WSL boot/filesystem (handled by WSL init, not a real bootloader)
   boot.loader.grub.enable = false;
