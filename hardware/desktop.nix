@@ -25,8 +25,23 @@
   networking.hostName = "desktop";
 
   environment.etc."hypr/monitor.conf".text = ''
-    monitor = DP-3, 2560x1440@240, 0x0, 1
-    monitor = HDMI-A-1, 1920x1080@144, 2560x0, 1
+    monitorv2 {
+      output = DP-3
+      mode = 2560x1440@240
+      position = 0x0
+      scale = 1
+      bitdepth = 10
+      cm = hdr
+      sdrbrightness = 1.2
+      sdrsaturation = 1.0
+    }
+
+    monitorv2 {
+      output = HDMI-A-1
+      mode = 1920x1080@144
+      position = 2560x0
+      scale = 1
+    }
   '';
 
   # Configure keymap in X11
