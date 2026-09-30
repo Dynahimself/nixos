@@ -30,6 +30,8 @@
       mode = 2560x1440@240
       position = 0x0
       scale = 1
+      sdrbrightness = 1.2
+      sdrsaturation = 1.0
       supports_hdr = 1
     }
 
