@@ -32,7 +32,7 @@
       scale = 1
       bitdepth = 10
       cm = auto
-      sdrbrightness = 1.2
+      sdrbrightness = 1.0
       sdrsaturation = 1.0
     }
 
