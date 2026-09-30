@@ -30,10 +30,7 @@
       mode = 2560x1440@240
       position = 0x0
       scale = 1
-      bitdepth = 8
-      cm = auto
-      sdrbrightness = 1.0
-      sdrsaturation = 1.0
+      supports_hdr = 1
     }
 
     monitorv2 {
