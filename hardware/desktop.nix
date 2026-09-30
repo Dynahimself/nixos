@@ -31,7 +31,7 @@
       position = 0x0
       scale = 1
       bitdepth = 10
-      cm = hdr
+      cm = auto
       sdrbrightness = 1.2
       sdrsaturation = 1.0
     }
