@@ -5,7 +5,7 @@ with lib;
 let
   cfg = config.services.srvlaunch;
 
-  appModule = submodule {
+  appModule = types.submodule {
     options = {
       displayName = mkOption { type = types.str; };
       url = mkOption { type = types.str; };
