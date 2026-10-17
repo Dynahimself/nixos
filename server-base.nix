@@ -26,7 +26,6 @@
   programs.zsh.enable = true;
 
   services.openssh.enable = true;
-  services.openssh.settings.passwordAuthentication = false;
 
   environment.systemPackages = with pkgs; [
     git vim htop curl wget tmux
