@@ -119,6 +119,19 @@
             }
           ];
         };
+
+        # headless servers — minimal profiles, no commonModules (no GUI/home-manager)
+        nas = nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs; };
+          modules = [ ./hardware/nas.nix ];
+        };
+
+        pi = nixpkgs.lib.nixosSystem {
+          system = "aarch64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [ ./hardware/pi.nix ];
+        };
       };
     };
 }
