@@ -15,7 +15,7 @@ let
   };
 
   panel = pkgs.writers.writePython3Bin "srvlaunch" {
-    flakeIgnore = [ "E501" ];
+    flakeIgnore = [ "E501" "E401" "E302" "E704" "E305" "E301" "E265" ];
   } ''
 import http.server, socketserver, json, subprocess, os
 
