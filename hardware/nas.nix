@@ -164,7 +164,7 @@
   # ---- launcher panel ----
   services.srvlaunch = {
     enable = true;
-    port = 8300;
+    http_port = 8300;
     apps = {
       media-stack = {
         displayName = "Media Stack";
