@@ -47,7 +47,10 @@ async function act(name,action,url){
 for(const [name,a] of Object.entries(APPS)){
   let d=document.createElement("div");d.className="card";
   d.onclick=()=>act(name,"start",a.url);
-  d.innerHTML='<span class=dot style="background:'+a.color+'"></span><span class=name>'+a.displayName+'</span><div class=sub>'+a.url+'</div><button class=stop onclick="event.stopPropagation();act(\\''+name+'\\',\\'stop\\')">stop</button>';
+  let btn=document.createElement("button");btn.className="stop";btn.textContent="stop";
+  btn.onclick=(e)=>{e.stopPropagation();act(name,"stop")};
+  d.innerHTML='<span class=dot style="background:'+a.color+'"></span><span class=name>'+a.displayName+'</span><div class=sub>'+a.url+'</div>';
+  d.appendChild(btn);
   document.getElementById("g").appendChild(d);
 }
 </script></body></html>"""
