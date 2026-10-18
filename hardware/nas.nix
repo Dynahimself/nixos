@@ -180,7 +180,6 @@
         [Interface]
         PrivateKey = $key
         Table = off
-        FwMark = 51820
         Address = 10.2.0.2/32
         MTU = 1420
 
