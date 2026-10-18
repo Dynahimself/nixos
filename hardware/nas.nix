@@ -121,7 +121,7 @@
       autoStart = false;
     };
     immich-db = {
-      image = "docker.io/tensorchord/pgvecto-rs:pg16-v0.2.1";
+      image = "ghcr.io/immich-app/postgres:16-vectorchord0.4.3-pgvectors0.2.0";
       environment = {
         POSTGRES_PASSWORD = "immich";
         POSTGRES_USER = "immich";
