@@ -163,31 +163,58 @@
     wants = [ "docker-immich-db.service" "docker-immich-redis.service" ];
   };
 
-  # ---- ProtonVPN (split tunnel: only marked traffic goes through wg0) ----
-  networking.wireguard.interfaces.wg0 = {
-    privateKeyFile = "/etc/protonvpn/privatekey";
-    ips = [ "10.2.0.2/32" ];
-    peers = [ {
-      publicKey = "R0J2HK9bYV4Ww6tMk76hiTwiWbC6JvxqhvSNeO4tIhg=";
-      allowedIPs = [ "0.0.0.0/0" ];
-      endpoint = "151.243.141.5:51820";
-      persistentKeepalive = 25;
-    } ];
-    # "off" = wg-quick adds NO routes/rules (its auto-rules with 0.0.0.0/0 would
-    # route EVERYTHING incl. the endpoint UDP into wg0 = encapsulation loop)
-    table = "off";
-    postSetup = [
-      "${pkgs.iproute2}/bin/ip route add default dev wg0 table 51820"
-      "${pkgs.iproute2}/bin/ip rule add fwmark 51820 table 51820 priority 100"
-      "${pkgs.iptables}/bin/iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820"
-      "${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE"
-    ];
-    postShutdown = [
-      "${pkgs.iproute2}/bin/ip rule del fwmark 51820 table 51820 priority 100 || true"
-      "${pkgs.iproute2}/bin/ip route flush table 51820 || true"
-      "${pkgs.iptables}/bin/iptables -t mangle -D OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820 || true"
-      "${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE || true"
-    ];
+  # ---- ProtonVPN (split tunnel: only qbittorrent traffic goes through wg0) ----
+  boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
+  environment.etc."protonvpn/wg0.conf".text = ''
+    [Interface]
+    PrivateKey = PLACEHOLDER_KEY
+    Table = off
+    FwMark = 51820
+    Address = 10.2.0.2/32
+    MTU = 1420
+
+    [Peer]
+    PublicKey = R0J2HK9bYV4Ww6tMk76hiTwiWbC6JvxqhvSNeO4tIhg=
+    AllowedIPs = 0.0.0.0/0
+    Endpoint = 151.243.141.5:51820
+    PersistentKeepalive = 25
+  '';
+  # inject the real key at activation (key lives at /etc/protonvpn/privatekey, not in the repo)
+  systemd.services.protonvpn-key = {
+    description = "Inject ProtonVPN private key into wg0.conf";
+    before = [ "wg-quick-wg0.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "inject-key" ''
+        sed -i "s|PLACEHOLDER_KEY|$(cat /etc/protonvpn/privatekey)|" /etc/protonvpn/wg0.conf
+      '';
+      RemainAfterExit = true;
+    };
+  };
+  systemd.services."wg-quick-wg0" = {
+    description = "ProtonVPN wg0 (split tunnel)";
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" "protonvpn-key.service" ];
+    requires = [ "protonvpn-key.service" ];
+    wantedBy = [ "multi-user.target" ];
+    path = with pkgs; [ iproute2 iptables ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "wg0-up" ''
+        wg-quick up /etc/protonvpn/wg0.conf
+        ip rule add fwmark 51820 table 51820 priority 100
+        iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820
+        iptables -t nat -A POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE
+      '';
+      ExecStop = pkgs.writeShellScript "wg0-down" ''
+        iptables -t nat -D POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE 2>/dev/null || true
+        iptables -t mangle -D OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820 2>/dev/null || true
+        ip rule del fwmark 51820 table 51820 2>/dev/null || true
+        wg-quick down /etc/protonvpn/wg0.conf
+      '';
+    };
   };
 
   # ---- launcher panel ----
