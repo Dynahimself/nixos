@@ -198,10 +198,8 @@
         ip rule add to 151.243.141.5 lookup main priority 99
         ip rule add fwmark 51820 table 100 priority 100
         iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820
-        iptables -t nat -A POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE
       '';
       ExecStop = pkgs.writeShellScript "wg0-down" ''
-        iptables -t nat -D POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE 2>/dev/null || true
         iptables -t mangle -D OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820 2>/dev/null || true
         ip rule del fwmark 51820 table 100 2>/dev/null || true
         ip rule del to 151.243.141.5 lookup main 2>/dev/null || true
