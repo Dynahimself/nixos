@@ -192,6 +192,7 @@
         EOF
         chmod 600 /run/wg0.conf
         wg-quick up /run/wg0.conf
+        ip route add default dev wg0 table 51820
         ip rule add fwmark 51820 table 51820 priority 100
         iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820
         iptables -t nat -A POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE
