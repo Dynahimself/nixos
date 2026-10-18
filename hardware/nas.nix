@@ -15,6 +15,8 @@
 
   networking.hostName = "nas";
   networking.useDHCP = true;
+  # public resolvers: qbittorrent's DNS gets marked into the tunnel (LAN resolver unreachable there)
+  networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
 
   boot.kernelModules = [ "coretemp" ];
 
