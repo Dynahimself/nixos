@@ -62,6 +62,10 @@
     torrentingPort = 51413;
     serverConfig = {
       LegalNotice.Accepted = true;
+      Preferences.WebUI = {
+        Username = "dyna";
+        Password_PBKDF2 = "@ByteArray(MTAwMDAwOnZtWSt6czJxTEJCNk9pNDNzUzZtOUE9PTphK1J1R1AyaHE5cVJBMEl5bmFCSHBMK29OeVJSZkRMU2t1OGpuczN3cEFxMEx5bWRVMDZjbWpwQXBtdWZCcmJYQVRnQ0QrZklCcnBWRGd0cUV5RmMvUT09)";
+      };
       BitTorrent.Session = {
         DefaultSavePath = "/srv/media/downloads";
         TempPathEnabled = true;
@@ -159,20 +163,33 @@
     wants = [ "docker-immich-db.service" "docker-immich-redis.service" ];
   };
 
-  # ---- ProtonVPN (dormant — fill creds, then uncomment) ----
-  # networking.wireguard.interfaces = {
-  #   wg0 = {
-  #     privateKeyFile = "/run/protonvpn/privatekey";
-  #     ips = [ "10.2.0.2/32" ];
-  #     peers = [ {
-  #       publicKey = "<proton server pubkey>";
-  #       allowedIPs = [ "0.0.0.0/0" ];
-  #       endpoint = "<proton server ip>:51820";
-  #     } ];
-  #   };
-  # };
-  # TODO: when creds arrive — generate wg config from proton dashboard, drop key in
-  # /run/protonvpn/, uncomment above, and bind qbittorrent to wg0.
+  # ---- ProtonVPN (split tunnel: only marked traffic goes through wg0) ----
+  networking.wireguard.interfaces.wg0 = {
+    privateKeyFile = "/etc/protonvpn/privatekey";
+    ips = [ "10.2.0.2/32" ];
+    peers = [ {
+      publicKey = "R0J2HK9bYV4Ww6tMk76hiTwiWbC6JvxqhvSNeO4tIhg=";
+      allowedIPs = [ "0.0.0.0/0" ];
+      endpoint = "151.243.141.5:51820";
+      persistentKeepalive = 25;
+    } ];
+    # only packets with fwmark 51820 route into the tunnel
+    table = 51820;
+    # no default route through wg0; policy routing picks marked packets only
+    postSetup = [
+      "${pkgs.iptables}/bin/iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820"
+      "${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE"
+    ];
+    postShutdown = [
+      "${pkgs.iptables}/bin/iptables -t mangle -D OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820"
+      "${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE"
+    ];
+  };
+  networking.firewall.extraCommands = "";
+  # route marked packets via wg0 table
+  networking.localCommands = ''
+    ip rule add fwmark 51820 table 51820 priority 100 || true
+  '';
 
   # ---- launcher panel ----
   services.srvlaunch = {
