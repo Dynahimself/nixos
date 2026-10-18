@@ -165,45 +165,33 @@
 
   # ---- ProtonVPN (split tunnel: only qbittorrent traffic goes through wg0) ----
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
-  environment.etc."protonvpn/wg0.conf".text = ''
-    [Interface]
-    PrivateKey = PLACEHOLDER_KEY
-    Table = off
-    FwMark = 51820
-    Address = 10.2.0.2/32
-    MTU = 1420
-
-    [Peer]
-    PublicKey = R0J2HK9bYV4Ww6tMk76hiTwiWbC6JvxqhvSNeO4tIhg=
-    AllowedIPs = 0.0.0.0/0
-    Endpoint = 151.243.141.5:51820
-    PersistentKeepalive = 25
-  '';
-  # inject the real key at activation (key lives at /etc/protonvpn/privatekey, not in the repo)
-  systemd.services.protonvpn-key = {
-    description = "Inject ProtonVPN private key into wg0.conf";
-    before = [ "wg-quick-wg0.service" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = pkgs.writeShellScript "inject-key" ''
-        sed -i "s|PLACEHOLDER_KEY|$(cat /etc/protonvpn/privatekey)|" /etc/protonvpn/wg0.conf
-      '';
-      RemainAfterExit = true;
-    };
-  };
-  systemd.services."wg-quick-wg0" = {
-    description = "ProtonVPN wg0 (split tunnel)";
+  systemd.services.protonvpn-wg0 = {
+    description = "ProtonVPN wg0 (split tunnel, qbittorrent only)";
     wants = [ "network-online.target" ];
-    after = [ "network-online.target" "protonvpn-key.service" ];
-    requires = [ "protonvpn-key.service" ];
+    after = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     path = with pkgs; [ iproute2 iptables wireguard-tools ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = pkgs.writeShellScript "wg0-up" ''
-        wg-quick up /etc/protonvpn/wg0.conf
+        key=$(cat /etc/protonvpn/privatekey)
+        cat > /run/protonvpn-wg0.conf <<EOF
+        [Interface]
+        PrivateKey = $key
+        Table = off
+        FwMark = 51820
+        Address = 10.2.0.2/32
+        MTU = 1420
+
+        [Peer]
+        PublicKey = R0J2HK9bYV4Ww6tMk76hiTwiWbC6JvxqhvSNeO4tIhg=
+        AllowedIPs = 0.0.0.0/0
+        Endpoint = 151.243.141.5:51820
+        PersistentKeepalive = 25
+        EOF
+        chmod 600 /run/protonvpn-wg0.conf
+        wg-quick up /run/protonvpn-wg0.conf
         ip rule add fwmark 51820 table 51820 priority 100
         iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820
         iptables -t nat -A POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE
@@ -212,7 +200,7 @@
         iptables -t nat -D POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE 2>/dev/null || true
         iptables -t mangle -D OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820 2>/dev/null || true
         ip rule del fwmark 51820 table 51820 2>/dev/null || true
-        wg-quick down /etc/protonvpn/wg0.conf
+        wg-quick down /run/protonvpn-wg0.conf 2>/dev/null || true
       '';
     };
   };
