@@ -198,7 +198,7 @@
     after = [ "network-online.target" "protonvpn-key.service" ];
     requires = [ "protonvpn-key.service" ];
     wantedBy = [ "multi-user.target" ];
-    path = with pkgs; [ iproute2 iptables ];
+    path = with pkgs; [ iproute2 iptables wireguard-tools ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
