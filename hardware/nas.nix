@@ -173,23 +173,22 @@
       endpoint = "151.243.141.5:51820";
       persistentKeepalive = 25;
     } ];
-    # only packets with fwmark 51820 route into the tunnel
-    table = "51820";
-    # no default route through wg0; policy routing picks marked packets only
+    # "off" = wg-quick adds NO routes/rules (its auto-rules with 0.0.0.0/0 would
+    # route EVERYTHING incl. the endpoint UDP into wg0 = encapsulation loop)
+    table = "off";
     postSetup = [
+      "${pkgs.iproute2}/bin/ip route add default dev wg0 table 51820"
+      "${pkgs.iproute2}/bin/ip rule add fwmark 51820 table 51820 priority 100"
       "${pkgs.iptables}/bin/iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820"
       "${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE"
     ];
     postShutdown = [
-      "${pkgs.iptables}/bin/iptables -t mangle -D OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820"
-      "${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE"
+      "${pkgs.iproute2}/bin/ip rule del fwmark 51820 table 51820 priority 100 || true"
+      "${pkgs.iproute2}/bin/ip route flush table 51820 || true"
+      "${pkgs.iptables}/bin/iptables -t mangle -D OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820 || true"
+      "${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE || true"
     ];
   };
-  networking.firewall.extraCommands = "";
-  # route marked packets via wg0 table
-  networking.localCommands = ''
-    ip rule add fwmark 51820 table 51820 priority 100 || true
-  '';
 
   # ---- launcher panel ----
   services.srvlaunch = {
