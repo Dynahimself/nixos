@@ -174,7 +174,7 @@
       persistentKeepalive = 25;
     } ];
     # only packets with fwmark 51820 route into the tunnel
-    table = 51820;
+    table = "51820";
     # no default route through wg0; policy routing picks marked packets only
     postSetup = [
       "${pkgs.iptables}/bin/iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820"
