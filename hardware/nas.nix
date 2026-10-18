@@ -176,7 +176,7 @@
       RemainAfterExit = true;
       ExecStart = pkgs.writeShellScript "wg0-up" ''
         key=$(cat /etc/protonvpn/privatekey)
-        cat > /run/protonvpn-wg0.conf <<EOF
+        cat > /run/wg0.conf <<EOF
         [Interface]
         PrivateKey = $key
         Table = off
@@ -190,8 +190,8 @@
         Endpoint = 151.243.141.5:51820
         PersistentKeepalive = 25
         EOF
-        chmod 600 /run/protonvpn-wg0.conf
-        wg-quick up /run/protonvpn-wg0.conf
+        chmod 600 /run/wg0.conf
+        wg-quick up /run/wg0.conf
         ip rule add fwmark 51820 table 51820 priority 100
         iptables -t mangle -A OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820
         iptables -t nat -A POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE
@@ -200,7 +200,7 @@
         iptables -t nat -D POSTROUTING -m mark --mark 51820 -o wg0 -j MASQUERADE 2>/dev/null || true
         iptables -t mangle -D OUTPUT -m owner --uid-owner qbittorrent -j MARK --set-mark 51820 2>/dev/null || true
         ip rule del fwmark 51820 table 51820 2>/dev/null || true
-        wg-quick down /run/protonvpn-wg0.conf 2>/dev/null || true
+        wg-quick down /run/wg0.conf 2>/dev/null || true
       '';
     };
   };
