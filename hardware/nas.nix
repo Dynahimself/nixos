@@ -66,7 +66,7 @@
       LegalNotice.Accepted = true;
       Preferences.WebUI = {
         Username = "dyna";
-        Password_PBKDF2 = "@ByteArray(MTAwMDAwOnZtWSt6czJxTEJCNk9pNDNzUzZtOUE9PTphK1J1R1AyaHE5cVJBMEl5bmFCSHBMK29OeVJSZkRMU2t1OGpuczN3cEFxMEx5bWRVMDZjbWpwQXBtdWZCcmJYQVRnQ0QrZklCcnBWRGd0cUV5RmMvUT09)";
+        Password_PBKDF2 = "@ByteArray(cinSuNPibHNuXw/1BboPUw==:kDe+WI1ZjvwNxMEig3QQReE2GBgehGaeqC7qabBvA6A0sx26ag9SQwztLDNWpeJm+eVKBJM4NObxhZXk+0gJOQ==)";
       };
       BitTorrent.Session = {
         DefaultSavePath = "/srv/media/downloads";
