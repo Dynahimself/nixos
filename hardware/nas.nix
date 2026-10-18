@@ -112,7 +112,7 @@
         REDIS_HOSTNAME = "immich-redis";
         IMMICH_MACHINE_LEARNING_ENABLED = "false";
       };
-      extraOptions = [ "--network=immich" "--depends-on=immich-db" ];
+      extraOptions = [ "--network=immich" ];
       autoStart = false;
     };
     immich-redis = {
@@ -134,16 +134,29 @@
       autoStart = false;
     };
   };
-  # docker network for the immich trio (idempotent)
+  # ordering for the immich trio (docker run has no --depends-on; that's compose-only)
   systemd.services.docker-immich-network = {
     description = "Ensure docker network 'immich' exists";
     after = [ "docker.service" ];
-    wantedBy = [ "docker-immich-server.service" ];
+    wantedBy = [ "docker-immich-db.service" "docker-immich-redis.service" ];
+    before = [ "docker-immich-db.service" "docker-immich-redis.service" ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${pkgs.docker}/bin/docker network create immich || true";
       RemainAfterExit = true;
     };
+  };
+  systemd.services.docker-immich-db = {
+    after = [ "docker-immich-network.service" ];
+    wants = [ "docker-immich-network.service" ];
+  };
+  systemd.services.docker-immich-redis = {
+    after = [ "docker-immich-network.service" ];
+    wants = [ "docker-immich-network.service" ];
+  };
+  systemd.services.docker-immich-server = {
+    after = [ "docker-immich-db.service" "docker-immich-redis.service" "docker-immich-network.service" ];
+    wants = [ "docker-immich-db.service" "docker-immich-redis.service" ];
   };
 
   # ---- ProtonVPN (dormant — fill creds, then uncomment) ----
