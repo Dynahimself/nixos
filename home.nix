@@ -26,8 +26,8 @@ in
   # Nixvim switch — old LazyVim parked at ~/.config/nvim-lazyvim-backup
   dyna.nixvim.enable = true;
 
-  # nixvim plugin tree evaluates with its own pkgs config in some paths
-  nixpkgs.config.allowUnfree = true;
+  # allowUnfree lives system-wide in base.nix — nixpkgs options are disabled
+  # in home-manager when useGlobalPkgs is enabled
 
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
@@ -75,14 +75,16 @@ in
   # ──────────────────────────────────────────────
   programs.git = {
     enable = true;
-    userName = "Dynahimself";
-    userEmail = "Dynasti.video@gmail.com";
+    settings.user = {
+      name = "Dynahimself";
+      email = "Dynasti.video@gmail.com";
+    };
     signing.format = null;
   };
 
   programs.ssh = {
     enable = true;
-    matchBlocks = {
+    settings = {
       "github.com" = {
         hostname = "ssh.github.com";
         port = 443;
@@ -92,6 +94,7 @@ in
   };
 
   home.pointerCursor = {
+    enable = true;
     gtk.enable = true;
     package = pkgs.catppuccin-cursors.mochaDark;
     name = "Catppuccin-Mocha-Dark-Cursors";
@@ -122,7 +125,7 @@ in
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    initExtra = ''
+    initContent = ''
       fastfetch
       export PATH="$HOME/.local/bin:$PATH"
 
@@ -231,7 +234,7 @@ in
   # ──────────────────────────────────────────────
   programs.ghostty = {
     enable = true;
-    package = if pkgs.stdenv.isDarwin then pkgs.ghostty-bin else pkgs.ghostty;
+    package = pkgs.ghostty;
     settings = {
       font-family = "JetBrainsMono Nerd Font";
       font-size = 13;

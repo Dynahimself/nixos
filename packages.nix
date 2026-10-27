@@ -26,7 +26,7 @@
     python313Packages.pycryptodomex
     usbimager
     nix-output-monitor
-    nixfmt-rfc-style
+    nixfmt
 
     # =====================================================
     # System utilities
@@ -162,7 +162,7 @@
     # =====================================================
     # Gaming
     # =====================================================
-    wineWowPackages.yabridge
+    wineWow64Packages.yabridge
     hydralauncher
     winetricks
 

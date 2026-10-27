@@ -15,18 +15,19 @@
 
   # Nixvim
   dyna.nixvim.enable = true;
-  nixpkgs.config.allowUnfree = true;
 
   programs.git = {
     enable = true;
-    userName = "Dynahimself";
-    userEmail = "Dynasti.video@gmail.com";
+    settings.user = {
+      name = "Dynahimself";
+      email = "Dynasti.video@gmail.com";
+    };
     signing.format = null;
   };
 
   programs.ssh = {
     enable = true;
-    matchBlocks = {
+    settings = {
       "github.com" = {
         hostname = "ssh.github.com";
         port = 443;
@@ -40,7 +41,7 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    initExtra = ''
+    initContent = ''
       fastfetch
       export PATH="$HOME/.local/bin:$PATH"
 
@@ -66,7 +67,7 @@
       builtins.readFile (
         pkgs.fetchurl {
           url = "https://raw.githubusercontent.com/starship/starship/main/docs/public/presets/toml/catppuccin-powerline.toml";
-          sha256 = "sha256-1bJv+8P9eP/0SBGAjfPTUFbetI9+1gWcql/RHtNQLsQ=";
+          sha256 = "sha256-l4XVGxDFMzup1qjvRYVi/utUEmwVm/gpVYIJkCfBCpM=";
         }
       )
     );
