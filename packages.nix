@@ -156,7 +156,8 @@
     # =====================================================
     # Activity tracking
     # =====================================================
-    activitywatch
+    # activitywatch # disabled 2026-10-27: aw-core 0.5.17 needs peewee<4, nixpkgs now ships 4.4.0 — re-enable once nixpkgs patches aw
+    # activitywatch
     python313Packages.influxdb-client
 
     # =====================================================

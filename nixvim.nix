@@ -836,6 +836,11 @@ let cfg = config.dyna.nixvim; in
         };
       };
 
+      # NOTE nvim 0.12+: the plugin's auto-LSP-config (lsp/roslyn.lua) hardcodes
+      # --daemon-mode, which the nixpkgs roslyn-ls build rejects → server exits
+      # instantly and nothing attaches. Handled by ~/.local/bin/roslyn-language-server
+      # wrapper (strips the flag, execs the real binary). Remove the wrapper once
+      # nixpkgs roslyn-ls supports --daemon-mode or the plugin drops it.
       # Roslyn LS — the Microsoft-blessed successor to OmniSharp, tracks current
       # .NET (nixpkgs 5.11.0-1.26380.x builds against .NET 10) → C# 14 capable.
       # Attached via the roslyn-nvim plugin, not lspconfig's deprecated path.
