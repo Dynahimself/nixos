@@ -712,6 +712,8 @@ let cfg = config.dyna.nixvim; in
       # snacks: picker/explorer/dashboard — verbatim LazyVim dashboard via __raw
       snacks = {
         enable = true;
+        # hide build junk from pickers (Aoop has no .gitignore; bin/obj flooded <space><space>)
+        settings.picker.sources.files.exclude = [ "bin" "obj" "*.bak-*" ];
         settings.dashboard.__raw = ''
           {
             preset = {
