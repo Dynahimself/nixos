@@ -34,6 +34,9 @@
 
   # KDE Plasma as fallback session
   services.desktopManager.plasma6.enable = true;
+  # plasma6 pulls in power-profiles-daemon by default, which conflicts with
+  # services.tlp in hardware/laptop.nix (charge threshold is TLP-only):
+  services.power-profiles-daemon.enable = false;
 
   # bspwm - primary tiling WM
   services.xserver.windowManager.bspwm.enable = true;
