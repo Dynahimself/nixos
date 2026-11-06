@@ -864,6 +864,7 @@ let cfg = config.dyna.nixvim; in
       };
 
       rustaceanvim.enable = true; # lang.rust (fatter than rust-analyzer lsp alone)
+      rustaceanvim.settings.server.standalone = true; # attach rust-analyzer to bare .rs files (no Cargo.toml)
       jdtls.enable = true; # lang.java
       neoconf.enable = true; # lsp.neoconf
 
