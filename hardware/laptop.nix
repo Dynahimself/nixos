@@ -30,7 +30,7 @@
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = pkgs.linuxPackages; # zen 7.3.4 panics xHCI at boot; bisect vs vanilla
 
   networking.hostName = "laptop";
 
