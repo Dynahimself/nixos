@@ -26,7 +26,7 @@
         chainloader /EFI/Microsoft/Boot/bootmgfw.efi
       }
     '';
-    configurationLimit = 5;
+    configurationLimit = 3; # ESP is 256MB and shared with Windows
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
