@@ -31,6 +31,9 @@
 
   boot.loader.efi.canTouchEfiVariables = true;
   boot.kernelPackages = pkgs.linuxPackages; # zen 7.3.4 panics xHCI at boot; bisect vs vanilla
+  # vanilla 6.18 loads xe alongside i915 on the Intel iGPU; the bind dance wipes
+  # udev seat tags -> logind never grants DRM master -> greeter+Hyprland EACCESS
+  boot.blacklistedKernelModules = [ "xe" ];
 
   networking.hostName = "laptop";
 
