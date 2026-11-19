@@ -49,12 +49,12 @@ button:hover {
 
 #shutdown:hover,
 #shutdown:focus {
-  border-color: #f38ba8;
+  border-color: #cba6f7;
   color: #f38ba8;
 }
 
 #reboot:hover,
 #reboot:focus {
-  border-color: #fab387;
+  border-color: #cba6f7;
   color: #fab387;
 }
