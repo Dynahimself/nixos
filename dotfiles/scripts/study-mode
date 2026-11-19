@@ -10,7 +10,7 @@ if [ -f "$STATE" ]; then
 else
   touch "$STATE"
   swaync-client -dn >/dev/null 2>&1 || true
-  hyprctl --batch "keyword general:gaps_in 2; keyword general:gaps_out 4" >/dev/null 2>&1 || true
+  hyprctl eval "hl.config({ general = { gaps_in = 2, gaps_out = 4 } })" >/dev/null 2>&1 || true
   nohup setsid zen "http://100.68.54.112:8200" >/dev/null 2>&1 </dev/null &
   notify-send "Study Mode" "ON — DND active, CS Hub ready"
 fi

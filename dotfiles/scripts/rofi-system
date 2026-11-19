@@ -69,17 +69,17 @@ case "$choice" in
     fi ;;
   *"Toggle Colemak"*)
     if hyprctl getoption input:kb_variant | grep -q colemak_dh; then
-      hyprctl keyword input:kb_variant "" && notify-send "Keyboard" "Switched to QWERTY"
+      hyprctl eval 'hl.config({ input = { kb_variant = "" } })' >/dev/null && notify-send "Keyboard" "Switched to QWERTY"
     else
-      hyprctl keyword input:kb_variant colemak_dh && notify-send "Keyboard" "Switched to Colemak-DH"
+      hyprctl eval 'hl.config({ input = { kb_variant = "colemak_dh" } })' >/dev/null && notify-send "Keyboard" "Switched to Colemak-DH"
     fi ;;
   *"Focus-Follows-Mouse"*)
     cur=$(hyprctl getoption input:follow_mouse -j | jq .int)
     if [ "$cur" = "1" ]; then
-      hyprctl keyword input:follow_mouse 0
+      hyprctl eval 'hl.config({ input = { follow_mouse = 0 } })' >/dev/null
       notify-send "Hyprland" "Focus follows mouse: OFF"
     else
-      hyprctl keyword input:follow_mouse 1
+      hyprctl eval 'hl.config({ input = { follow_mouse = 1 } })' >/dev/null
       notify-send "Hyprland" "Focus follows mouse: ON"
     fi ;;
   *"Cheatsheet"*) rofi-binds ;;

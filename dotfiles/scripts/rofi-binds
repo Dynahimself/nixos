@@ -1,19 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 {
-  if [ -f /etc/nixos/dotfiles/hypr/conf/binds.conf ]; then
-    awk -F',' '
-      /^[[:space:]]*bind/ {
-        gsub(/^[[:space:]]*bind[a-z]*[[:space:]]*=[[:space:]]*/, "", $1);
-        gsub(/\$mainMod/, "SUPER", $1);
-        key = $1 " + " $2;
-        gsub(/^[[:space:]]+|[[:space:]]+$/, "", key);
-        cmd = "";
-        for (i = 3; i <= NF; i++) cmd = cmd (i > 3 ? "," : "") $i;
-        gsub(/^[[:space:]]+|[[:space:]]+$/, "", cmd);
-        printf "%-26s -> %s\n", key, cmd;
-      }
-    ' /etc/nixos/dotfiles/hypr/conf/binds.conf
+  if [ -f "$HOME/.config/hypr/hyprland.lua" ]; then
+    sed -nE 's/^[[:space:]]*hl\.bind\(([^,]+),[[:space:]]*(.*)\)[[:space:]]*$/\1  ->  \2/p' "$HOME/.config/hypr/hyprland.lua" \
+      | sed -E 's/mainMod \.\. "/SUPER/g; s/"//g; s/hl\.dsp\.exec_cmd\((.*)\)/\1/; s/hl\.dsp\.//g'
+  elif [ -f /etc/nixos/dotfiles/hypr/conf/binds.conf ]; then
+    awk -F',' '/^[[:space:]]*bind/ { gsub(/\$mainMod/, "SUPER", $1); print $1 " + " $2 " -> " $3 }' /etc/nixos/dotfiles/hypr/conf/binds.conf
   fi
   if [ -f "$HOME/cheatsheet.txt" ]; then
     echo "--- ~/cheatsheet.txt ---"

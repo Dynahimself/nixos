@@ -149,7 +149,7 @@
     "format": "󰌌 {}",
     "format-en": "QWE",
     "format-en-colemak_dh": "COL",
-    "on-click": "sh -c 'hyprctl getoption input:kb_variant | grep -q colemak_dh && hyprctl keyword input:kb_variant \"\" || hyprctl keyword input:kb_variant colemak_dh'"
+    "on-click": "sh -c 'hyprctl getoption input:kb_variant | grep -q colemak_dh && hyprctl eval \"hl.config({ input = { kb_variant = \\\"\\\" } })\" || hyprctl eval \"hl.config({ input = { kb_variant = \\\"colemak_dh\\\" } })\"'"
   },
 
   "backlight": {

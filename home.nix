@@ -44,11 +44,11 @@
     };
   };
 
-  xdg.configFile."hypr".source = ./dotfiles/hypr;
-  xdg.configFile."waybar".source = ./dotfiles/waybar;
-  xdg.configFile."rofi".source = ./dotfiles/rofi;
-  xdg.configFile."swaync".source = ./dotfiles/swaync;
-  xdg.configFile."wlogout".source = ./dotfiles/wlogout;
-  xdg.configFile."swayosd".source = ./dotfiles/swayosd;
+  xdg.configFile."hypr" = { source = ./dotfiles/hypr; force = true; };
+  xdg.configFile."waybar" = { source = ./dotfiles/waybar; force = true; };
+  xdg.configFile."rofi" = { source = ./dotfiles/rofi; force = true; };
+  xdg.configFile."swaync" = { source = ./dotfiles/swaync; force = true; };
+  xdg.configFile."wlogout" = { source = ./dotfiles/wlogout; force = true; };
+  xdg.configFile."swayosd" = { source = ./dotfiles/swayosd; force = true; };
   home.file."backgrounds".source = ./dotfiles/backgrounds;
 }

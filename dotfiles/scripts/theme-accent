@@ -19,7 +19,7 @@ hex_nohash="${hex#\#}"
 mkdir -p "$HOME/.cache"
 echo "$hex" > "$HOME/.cache/mocha-accent"
 
-hyprctl keyword general:col.active_border "rgba(${hex_nohash}ff) rgba(89b4faff) 45deg" >/dev/null 2>&1 || true
+hyprctl eval "hl.config({ general = { col = { active_border = { colors = { \"rgba(${hex_nohash}ff)\", \"rgba(89b4faff)\" }, angle = 45 } } } })" >/dev/null 2>&1 || true
 
 for f in /etc/nixos/dotfiles/waybar/style.css /etc/nixos/dotfiles/swaync/style.css; do
   [ -w "$f" ] && sed -i -E "s|(@define-color mauve[[:space:]]+)#[0-9a-fA-F]{6};|\1${hex};|" "$f"

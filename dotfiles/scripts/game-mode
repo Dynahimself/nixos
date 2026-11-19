@@ -3,7 +3,7 @@ set -euo pipefail
 anim=$(hyprctl getoption animations:enabled -j | jq .int)
 
 if [ "$anim" = "1" ]; then
-  hyprctl --batch "keyword animations:enabled 0; keyword decoration:blur:enabled 0; keyword decoration:shadow:enabled 0; keyword general:gaps_in 0; keyword general:gaps_out 0; keyword decoration:rounding 0" >/dev/null
+  hyprctl eval "hl.config({ animations = { enabled = false }, decoration = { rounding = 0, blur = { enabled = false }, shadow = { enabled = false } }, general = { gaps_in = 0, gaps_out = 0 } })" >/dev/null
   pkill -x hypridle 2>/dev/null || true
   notify-send "Gaming Mode" "ON — blur/animations/hypridle disabled"
 else
