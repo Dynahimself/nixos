@@ -30,9 +30,7 @@
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = pkgs.linuxPackages; # zen 7.3.4 panics xHCI at boot; bisect vs vanilla
-  # vanilla 6.18 loads xe alongside i915 on the Intel iGPU; the bind dance wipes
-  # udev seat tags -> logind never grants DRM master -> greeter+Hyprland EACCESS
+  boot.kernelPackages = pkgs.linuxPackages; # temp LTS (6.18): zen 7.3.4 has a bh_worker NULL deref panic at boot
   boot.blacklistedKernelModules = [ "xe" ];
 
   networking.hostName = "laptop";
@@ -45,7 +43,7 @@
 
   powerManagement.enable = true;
   # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = [ "modesetting" "nvidia" ];
 
   # NVIDIA Optimus Setup
   hardware.nvidia = {
@@ -56,6 +54,15 @@
 
     # This is the critical bit for suspend/resume on Nvidia laptops
     powerManagement.enable = true;
+
+    prime = {
+      offload = {
+        enable = true;
+        enableOffloadCmd = true;
+      };
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
     # finegrained = true;  # uncomment if you want runtime power management (turns off GPU when unused)
   };
 

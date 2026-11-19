@@ -31,8 +31,6 @@
 
   # Display Manager - SDDM with session selection at login
   services.displayManager.sddm.enable = true;
-  # 26.11 channel: wayland greeter (kwin 6.8.3) crash-loops the greeter; force X11
-  services.displayManager.sddm.wayland.enable = false;
 
   # KDE Plasma as fallback session
   services.desktopManager.plasma6.enable = true;
