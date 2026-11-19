@@ -23,6 +23,7 @@ in
     "cshub-bar"
     "fleet-bar"
     "battery-alert"
+    "nas-cache-push"
   ];
 
   systemd.user.services.battery-alert = {

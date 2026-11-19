@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+TARGET="${1:-/run/current-system}"
+if ! ping -c1 -W2 100.97.162.110 >/dev/null 2>&1; then
+  echo "NAS (100.97.162.110) is unreachable." >&2
+  exit 1
+fi
+echo "Pushing $TARGET closure to NAS binary cache (100.97.162.110)..."
+nix copy --to ssh-ng://dyna@100.97.162.110 "$TARGET"
+echo "Done — closure is now served by http://100.97.162.110:5000"

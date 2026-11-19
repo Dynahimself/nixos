@@ -19,6 +19,7 @@
     '';
     shellAliases = {
       ll = "ls -la";
+      npush = "nas-cache-push";
     };
   };
 

@@ -265,5 +265,12 @@
     };
   };
 
+  # ---- Nix binary cache server (serves /nix/store to the fleet on :5000) ----
+  services.nix-serve = {
+    enable = true;
+    port = 5000;
+    secretKeyFile = "/var/cache-priv-key.pem";
+  };
+
   networking.firewall.enable = false; # LAN + tailscale only; panel on 8300
 }
