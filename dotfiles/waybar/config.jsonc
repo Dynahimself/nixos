@@ -1,115 +1,194 @@
 {
-  "layer": "bottom",
+  "layer": "top",
   "position": "top",
-  "height": 40,
-  "spacing": 2,
+  "height": 36,
+  "margin-top": 6,
+  "margin-left": 10,
+  "margin-right": 10,
+  "spacing": 6,
   "exclusive": true,
   "gtk-layer-shell": true,
-  "passthrough": false,
   "fixed-center": true,
-  "modules-left": ["hyprland/workspaces", "hyprland/window"],
-  "modules-center": ["mpris"],
+
+  "modules-left": [
+    "hyprland/workspaces",
+    "hyprland/window"
+  ],
+  "modules-center": [
+    "mpris",
+    "clock"
+  ],
   "modules-right": [
-    "cpu",
-    "memory",
+    "group/sys",
+    "backlight",
     "pulseaudio",
-    "clock",
-    "clock#simpleclock",
+    "bluetooth",
+    "network",
+    "battery",
     "tray",
     "custom/notification",
-    "custom/power",
+    "custom/power"
   ],
-  "custom/spotify": {
-    "format": "  {}",
-    "return-type": "json",
-    "on-click": "playerctl -p spotify play-pause",
-    "on-click-right": "spotifatius toggle-liked",
-    "on-click-middle": "playerctl -p spotify next",
-    "exec": "spotifatius monitor",
-  },
-  "mpris": {
-    "player": "spotify",
-    "dynamic-order": ["artist", "title"],
-    "format": "{player_icon} {dynamic}",
-    "format-paused": "{status_icon} <i>{dynamic}</i>",
-    "status-icons": {
-      "paused": "",
-    },
-    "player-icons": {
-      "default": "",
-    },
-  },
+
   "hyprland/workspaces": {
     "on-click": "activate",
     "format": "{id}",
     "all-outputs": true,
     "disable-scroll": false,
     "active-only": false,
+    "persistent-workspaces": {
+      "*": 5
+    }
   },
+
   "hyprland/window": {
     "format": "{title}",
+    "max-length": 42,
+    "separate-outputs": true
   },
-  "tray": {
-    "show-passive-items": true,
-    "spacing": 10,
+
+  "mpris": {
+    "format": "{player_icon} {dynamic}",
+    "format-paused": "{status_icon} <i>{dynamic}</i>",
+    "dynamic-order": ["artist", "title"],
+    "dynamic-len": 32,
+    "player-icons": {
+      "default": "󰎆",
+      "spotify": "",
+      "firefox": "󰈹"
+    },
+    "status-icons": {
+      "paused": ""
+    },
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous"
   },
-  "clock#simpleclock": {
-    "tooltip": false,
-    "format": " {:%H:%M}",
-  },
+
   "clock": {
-    "format": " {:L%a %d %b}",
+    "format": " {:%a %d %b   %H:%M}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
     "calendar": {
-      "format": {
-        "days": "<span weight='normal'>{}</span>",
-        "months": "<span color='#cdd6f4'><b>{}</b></span>",
-        "today": "<span color='#f38ba8' weight='700'><u>{}</u></span>",
-        "weekdays": "<span color='#f9e2af'><b>{}</b></span>",
-        "weeks": "<span color='#a6e3a1'><b>W{}</b></span>",
-      },
       "mode": "month",
       "mode-mon-col": 1,
       "on-scroll": 1,
-    },
-    "tooltip-format": "<span color='#cdd6f4' font='Lexend 16'><tt><small>{calendar}</small></tt></span>",
+      "format": {
+        "months": "<span color='#cba6f7'><b>{}</b></span>",
+        "days": "<span color='#cdd6f4'>{}</span>",
+        "weekdays": "<span color='#f9e2af'><b>{}</b></span>",
+        "today": "<span color='#f38ba8'><b><u>{}</u></b></span>"
+      }
+    }
   },
+
+  "group/sys": {
+    "orientation": "horizontal",
+    "modules": ["cpu", "memory"]
+  },
+
   "cpu": {
     "format": " {usage}%",
-    "tooltip": true,
-    "interval": 1,
+    "interval": 2,
+    "tooltip": true
   },
+
   "memory": {
-    "format": " {used:0.1f}Gi",
+    "format": " {used:0.1f}G",
+    "interval": 5,
+    "tooltip-format": "{used:0.1f} GiB / {total:0.1f} GiB ({percentage}%)"
   },
+
+  "backlight": {
+    "format": "{icon} {percent}%",
+    "format-icons": ["󰃞", "󰃟", "󰃠"],
+    "on-scroll-up": "brightnessctl set 5%+",
+    "on-scroll-down": "brightnessctl set 5%-",
+    "tooltip": false
+  },
+
   "pulseaudio": {
     "format": "{icon} {volume}%",
-    "format-muted": "  muted",
+    "format-muted": "󰖁 muted",
     "format-icons": {
       "headphone": "",
-      "default": [" ", " ", " "],
+      "hands-free": "",
+      "headset": "",
+      "default": ["", "", ""]
     },
+    "scroll-step": 5,
     "on-click": "pavucontrol",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
   },
-  "custom/sep": {
-    "format": "|",
-    "tooltip": false,
+
+  "bluetooth": {
+    "format": "󰂯",
+    "format-connected": "󰂱 {device_alias}",
+    "format-connected-battery": "󰂱 {device_alias} {device_battery_percentage}%",
+    "format-disabled": "󰂲",
+    "format-off": "󰂲",
+    "max-length": 18,
+    "tooltip-format": "{controller_alias}\n{num_connections} connected",
+    "tooltip-format-connected": "{controller_alias}\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias} ({device_address})",
+    "on-click": "blueman-manager"
   },
-  "custom/power": {
-    "tooltip": false,
-    "on-click": "wlogout -p layer-shell &",
-    "format": "⏻",
+
+  "network": {
+    "format-wifi": "{icon} {essid}",
+    "format-ethernet": "󰈀 {ifname}",
+    "format-disconnected": "󰤭 Offline",
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+    "max-length": 18,
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}/{cidr} · {frequency}GHz\nClick to open Wi-Fi menu",
+    "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}",
+    "tooltip-format-disconnected": "Disconnected — click to open Wi-Fi menu",
+    "on-click": "rofi-wifi"
   },
+
+  "battery": {
+    "interval": 15,
+    "states": {
+      "good": 80,
+      "warning": 25,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-full": "󰁹 {capacity}%",
+    "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    "tooltip-format": "{timeTo}\nPower: {power:.1f}W"
+  },
+
+  "tray": {
+    "icon-size": 15,
+    "spacing": 8
+  },
+
   "custom/notification": {
-    "escape": true,
-    "exec": "swaync-client -swb",
-    "exec-if": "which swaync-client",
+    "tooltip": false,
     "format": "{icon}",
     "format-icons": {
-      "none": "󰅺",
-      "notification": "󰡟",
+      "notification": "󱅫",
+      "none": "󰂚",
+      "dnd-notification": "󰂛",
+      "dnd-none": "󰂛",
+      "inhibited-notification": "󱅫",
+      "inhibited-none": "󰂚",
+      "dnd-inhibited-notification": "󰂛",
+      "dnd-inhibited-none": "󰂛"
     },
-    "on-click": "sleep 0.1 && swaync-client -t -sw",
     "return-type": "json",
-    "tooltip": false,
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
   },
+
+  "custom/power": {
+    "format": "⏻",
+    "tooltip-format": "Power menu",
+    "on-click": "wlogout -p layer-shell &"
+  }
 }

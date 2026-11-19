@@ -110,6 +110,7 @@
     polybar
     feh
     alacritty
+    swaynotificationcenter
     dunst
     maim
     xclip

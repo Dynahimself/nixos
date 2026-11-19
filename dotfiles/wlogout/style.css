@@ -1,0 +1,41 @@
+/* Catppuccin Mocha Mauve — Wlogout Power Menu */
+* {
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  background-image: none;
+  box-shadow: none;
+}
+
+window {
+  background-color: rgba(17, 17, 27, 0.82);
+}
+
+button {
+  color: #cdd6f4;
+  background-color: #181825;
+  border: 2px solid #313244;
+  border-radius: 14px;
+  margin: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.16s ease;
+}
+
+button:focus,
+button:active,
+button:hover {
+  background-color: #313244;
+  border-color: #cba6f7;
+  color: #cba6f7;
+}
+
+#shutdown:hover,
+#shutdown:focus {
+  border-color: #f38ba8;
+  color: #f38ba8;
+}
+
+#reboot:hover,
+#reboot:focus {
+  border-color: #fab387;
+  color: #fab387;
+}

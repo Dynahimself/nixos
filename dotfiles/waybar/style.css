@@ -1,116 +1,202 @@
+/* Catppuccin Mocha Mauve — Unified Floating Pill Waybar */
+@define-color crust    #11111b;
+@define-color mantle   #181825;
+@define-color base     #1e1e2e;
+@define-color surface0 #313244;
+@define-color surface1 #45475a;
+@define-color overlay0 #6c7086;
+@define-color subtext0 #a6adc8;
+@define-color text     #cdd6f4;
+@define-color mauve    #cba6f7;
+@define-color lavender #b4befe;
+@define-color blue     #89b4fa;
+@define-color sapphire #74c7ec;
+@define-color teal     #94e2d5;
+@define-color green    #a6e3a1;
+@define-color yellow   #f9e2af;
+@define-color peach    #fab387;
+@define-color red      #f38ba8;
+
 * {
-  min-height: 0;
-  min-width: 0;
-  font-family: Lexend, "JetBrainsMono NFP";
-  font-size: 16px;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 12.5px;
   font-weight: 600;
+  min-height: 0;
 }
 
 window#waybar {
-  transition-property: background-color;
-  transition-duration: 0.5s;
-  /* background-color: #1e1e2e; */
-  /* background-color: #181825; */
-  background-color: #11111b;
-  /* background-color: rgba(24, 24, 37, 0.6); */
-}
-
-#workspaces button {
-  padding: 0.3rem 0.6rem;
-  margin: 0.4rem 0.25rem;
-  border-radius: 6px;
-  /* background-color: #181825; */
-  background-color: #1e1e2e;
-  color: #cdd6f4;
-}
-
-#workspaces button:hover {
-  color: #1e1e2e;
-  background-color: #cdd6f4;
-}
-
-#workspaces button.active {
-  background-color: #1e1e2e;
-  color: #89b4fa;
-}
-
-#workspaces button.urgent {
-  background-color: #1e1e2e;
-  color: #f38ba8;
-}
-
-#clock,
-#pulseaudio,
-#custom-logo,
-#custom-power,
-#custom-spotify,
-#custom-notification,
-#cpu,
-#tray,
-#memory,
-#window,
-#mpris {
-  padding: 0.3rem 0.6rem;
-  margin: 0.4rem 0.25rem;
-  border-radius: 6px;
-  /* background-color: #181825; */
-  background-color: #1e1e2e;
-}
-
-#mpris.playing {
-  color: #a6e3a1;
-}
-
-#mpris.paused {
-  color: #9399b2;
-}
-
-#custom-sep {
-  padding: 0px;
-  color: #585b70;
-}
-
-window#waybar.empty #window {
-  background-color: transparent;
-}
-
-#cpu {
-  color: #94e2d5;
-}
-
-#memory {
-  color: #cba6f7;
-}
-
-#clock {
-  color: #74c7ec;
-}
-
-#clock.simpleclock {
-  color: #89b4fa;
-}
-
-#window {
-  color: #cdd6f4;
-}
-
-#pulseaudio {
-  color: #b4befe;
-}
-
-#pulseaudio.muted {
-  color: #a6adc8;
-}
-
-#custom-logo {
-  color: #89b4fa;
-}
-
-#custom-power {
-  color: #f38ba8;
+  background: transparent;
+  color: @text;
 }
 
 tooltip {
-  background-color: #181825;
-  border: 2px solid #89b4fa;
+  background: @mantle;
+  border: 1px solid @surface1;
+  border-radius: 10px;
+  color: @text;
+}
+tooltip label {
+  color: @text;
+  padding: 4px 6px;
+}
+
+/* Shared pill styling */
+#workspaces,
+#window,
+#mpris,
+#clock,
+#sys,
+#backlight,
+#pulseaudio,
+#bluetooth,
+#network,
+#battery,
+#tray,
+#custom-notification,
+#custom-power {
+  background: rgba(24, 24, 37, 0.92);
+  border: 1px solid @surface0;
+  border-radius: 10px;
+  padding: 0 11px;
+  margin: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+#window {
+  color: @subtext0;
+  font-weight: 500;
+}
+window#waybar.empty #window {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Workspaces */
+#workspaces {
+  padding: 3px 5px;
+}
+#workspaces button {
+  color: @overlay0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 0 8px;
+  margin: 0 2px;
+  transition: all 0.16s ease;
+}
+#workspaces button:hover {
+  color: @text;
+  background: @surface0;
+}
+#workspaces button.active {
+  color: @crust;
+  background: @mauve;
+  padding: 0 13px;
+  font-weight: 700;
+}
+#workspaces button.urgent {
+  color: @crust;
+  background: @red;
+}
+
+/* Center */
+#mpris {
+  color: @green;
+  border-color: rgba(166, 227, 161, 0.25);
+}
+#mpris.paused {
+  color: @subtext0;
+  border-color: @surface0;
+}
+
+#clock {
+  color: @text;
+  border-color: rgba(203, 166, 247, 0.3);
+}
+
+/* System group */
+#sys {
+  padding: 0 10px;
+}
+#cpu {
+  color: @blue;
+  padding-right: 8px;
+}
+#memory {
+  color: @lavender;
+}
+
+/* Hardware pills */
+#backlight {
+  color: @yellow;
+}
+#pulseaudio {
+  color: @sapphire;
+}
+#pulseaudio.muted {
+  color: @overlay0;
+}
+#bluetooth {
+  color: @blue;
+}
+#bluetooth.disabled,
+#bluetooth.off {
+  color: @overlay0;
+}
+#network {
+  color: @teal;
+}
+#network.disconnected {
+  color: @red;
+}
+#network:hover,
+#bluetooth:hover,
+#pulseaudio:hover,
+#custom-notification:hover,
+#custom-power:hover {
+  background: @surface0;
+  border-color: @mauve;
+}
+
+/* Battery */
+#battery {
+  color: @green;
+}
+#battery.charging,
+#battery.plugged {
+  color: @teal;
+  border-color: rgba(148, 226, 213, 0.35);
+}
+#battery.warning:not(.charging) {
+  color: @peach;
+  border-color: rgba(250, 179, 135, 0.45);
+}
+#battery.critical:not(.charging) {
+  color: @crust;
+  background: @red;
+  border-color: @red;
+  animation: blink 1s linear infinite alternate;
+}
+@keyframes blink {
+  to {
+    background: @mantle;
+    color: @red;
+  }
+}
+
+/* Utilities */
+#tray {
+  padding: 0 9px;
+}
+#custom-notification {
+  color: @mauve;
+  padding: 0 11px;
+}
+#custom-power {
+  color: @red;
+  padding: 0 12px;
+}
+#custom-power:hover {
+  background: rgba(243, 139, 168, 0.18);
+  border-color: @red;
 }
