@@ -1,4 +1,4 @@
-/* Catppuccin Mocha Mauve — Unified Floating Pill Waybar */
+/* Catppuccin Mocha — Unified Floating Pill Waybar */
 @define-color crust    #11111b;
 @define-color mantle   #181825;
 @define-color base     #1e1e2e;
@@ -19,7 +19,7 @@
 
 * {
   font-family: "JetBrainsMono Nerd Font", monospace;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   min-height: 0;
 }
@@ -43,9 +43,13 @@ tooltip label {
 /* Shared pill styling */
 #workspaces,
 #window,
+#custom-cshub,
+#custom-fleet,
+#custom-recording,
 #mpris,
 #clock,
 #sys,
+#language,
 #backlight,
 #pulseaudio,
 #bluetooth,
@@ -57,7 +61,7 @@ tooltip label {
   background: rgba(24, 24, 37, 0.92);
   border: 1px solid @surface0;
   border-radius: 10px;
-  padding: 0 11px;
+  padding: 0 10px;
   margin: 0;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
@@ -80,7 +84,7 @@ window#waybar.empty #window {
   color: @overlay0;
   background: transparent;
   border-radius: 7px;
-  padding: 0 8px;
+  padding: 0 7px;
   margin: 0 2px;
   transition: all 0.16s ease;
 }
@@ -91,12 +95,28 @@ window#waybar.empty #window {
 #workspaces button.active {
   color: @crust;
   background: @mauve;
-  padding: 0 13px;
+  padding: 0 11px;
   font-weight: 700;
 }
 #workspaces button.urgent {
   color: @crust;
   background: @red;
+}
+
+/* Custom Hub & Fleet pills */
+#custom-cshub {
+  color: @mauve;
+  border-color: rgba(203, 166, 247, 0.25);
+}
+#custom-fleet {
+  color: @teal;
+  border-color: rgba(148, 226, 213, 0.25);
+}
+#custom-recording {
+  color: @crust;
+  background: @red;
+  border-color: @red;
+  animation: blink 1s linear infinite alternate;
 }
 
 /* Center */
@@ -122,11 +142,25 @@ window#waybar.empty #window {
   color: @blue;
   padding-right: 8px;
 }
+#temperature {
+  color: @peach;
+  padding-right: 8px;
+}
+#temperature.critical {
+  color: @red;
+}
 #memory {
   color: @lavender;
+  padding-right: 8px;
+}
+#disk {
+  color: @subtext0;
 }
 
 /* Hardware pills */
+#language {
+  color: @mauve;
+}
 #backlight {
   color: @yellow;
 }
@@ -149,6 +183,9 @@ window#waybar.empty #window {
 #network.disconnected {
   color: @red;
 }
+#custom-cshub:hover,
+#custom-fleet:hover,
+#language:hover,
 #network:hover,
 #bluetooth:hover,
 #pulseaudio:hover,
@@ -190,11 +227,11 @@ window#waybar.empty #window {
 }
 #custom-notification {
   color: @mauve;
-  padding: 0 11px;
+  padding: 0 10px;
 }
 #custom-power {
   color: @red;
-  padding: 0 12px;
+  padding: 0 11px;
 }
 #custom-power:hover {
   background: rgba(243, 139, 168, 0.18);

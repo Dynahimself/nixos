@@ -1,21 +1,24 @@
 /* Catppuccin Mocha Mauve — Wlogout Power Menu */
 * {
   font-family: "JetBrainsMono Nerd Font", sans-serif;
-  background-image: none;
   box-shadow: none;
 }
 
 window {
-  background-color: rgba(17, 17, 27, 0.82);
+  background-color: rgba(17, 17, 27, 0.85);
 }
 
 button {
   color: #cdd6f4;
   background-color: #181825;
+  background-repeat: no-repeat;
+  background-position: center 36%;
+  background-size: 26%;
   border: 2px solid #313244;
   border-radius: 14px;
   margin: 12px;
-  font-size: 16px;
+  padding-top: 90px;
+  font-size: 15px;
   font-weight: 700;
   transition: all 0.16s ease;
 }
@@ -26,6 +29,22 @@ button:hover {
   background-color: #313244;
   border-color: #cba6f7;
   color: #cba6f7;
+}
+
+#lock {
+  background-image: image(url("/home/dyna/.config/wlogout/icons/lock.png"));
+}
+#logout {
+  background-image: image(url("/home/dyna/.config/wlogout/icons/logout.png"));
+}
+#suspend {
+  background-image: image(url("/home/dyna/.config/wlogout/icons/suspend.png"));
+}
+#reboot {
+  background-image: image(url("/home/dyna/.config/wlogout/icons/reboot.png"));
+}
+#shutdown {
+  background-image: image(url("/home/dyna/.config/wlogout/icons/shutdown.png"));
 }
 
 #shutdown:hover,

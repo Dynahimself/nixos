@@ -1,78 +1,24 @@
+{ ... }:
+
 {
-  config,
-  pkgs,
-  lib,
-  inputs,
-  ...
-}:
+  imports = [
+    ./home/ghostty.nix
+    ./home/zen.nix
+    ./home/shell.nix
+    ./home/theming.nix
+    ./home/colemak-apps.nix
+    ./home/scripts.nix
+  ];
 
-let
-  # Pin the Zen-specific Catppuccin theme
-  catppuccin-zen = pkgs.fetchFromGitHub {
-    owner = "catppuccin";
-    repo = "zen-browser";
-    rev = "main";
-    sha256 = "5A57Lyctq497SSph7B+ucuEyF1gGVTsuI3zuBItGfg4=";
-  };
-
-  flavor = "Mocha";
-  accent = "Mauve";
-  themePath = "${catppuccin-zen}/themes/${flavor}/${accent}";
-
-  spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
-  profileName = "dynas";
-in
-{
-  # Nixvim switch — old LazyVim parked at ~/.config/nvim-lazyvim-backup
+  # Nixvim editor (Colemak-DH workbench)
   dyna.nixvim.enable = true;
-
-  # allowUnfree lives system-wide in base.nix — nixpkgs options are disabled
-  # in home-manager when useGlobalPkgs is enabled
+  programs.neovim.enable = false;
 
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
   home.stateVersion = "25.11";
+  home.sessionPath = [ "$HOME/.local/bin" ];
 
-  # 1. THE SOURCE OF TRUTH: profiles.ini
-  home.file.".zen/profiles.ini".text = ''
-    [General]
-    StartWithLastProfile=1
-    Version=2
-
-    [Profile0]
-    Name=default
-    IsRelative=1
-    Path=${profileName}
-    Default=1
-  '';
-
-  # 2. THE THEME FILES
-  home.file.".zen/${profileName}/chrome/userChrome.css".source = "${themePath}/userChrome.css";
-
-  home.file.".zen/${profileName}/chrome/userContent.css".source = ./dotfiles/userContent.css;
-
-  home.file.".zen/${profileName}/chrome/zen-logo-mocha.svg".source =
-    "${themePath}/zen-logo-mocha.svg";
-
-  # 3. SETTINGS & TWEAKS
-  home.file.".zen/${profileName}/user.js".text = ''
-    user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-    user_pref("browser.tabs.drawInTitlebar", true);
-    user_pref("browser.compactmode.show", true);
-    user_pref("zen.view.compact", false);
-  '';
-
-  #Zen mods
-  home.file.".zen/${profileName}/zen-themes.json".source = ./dotfiles/zen-themes.json;
-
-  programs.neovim.enable = false;
-
-  # neovim binary now comes from nixvim's wrapper (wraps nightly via the
-  # global overlay) — direct nightly install collided in buildEnv
-
-  # ──────────────────────────────────────────────
-  # GIT
-  # ──────────────────────────────────────────────
   programs.git = {
     enable = true;
     settings.user = {
@@ -84,7 +30,12 @@ in
 
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     settings = {
+      "*" = {
+        serverAliveInterval = 60;
+        serverAliveCountMax = 3;
+      };
       "github.com" = {
         hostname = "ssh.github.com";
         port = 443;
@@ -93,228 +44,11 @@ in
     };
   };
 
-  home.pointerCursor = {
-    enable = true;
-    gtk.enable = true;
-    package = pkgs.catppuccin-cursors.mochaDark;
-    name = "Catppuccin-Mocha-Dark-Cursors";
-    size = 24;
-  };
-
-  gtk = {
-    enable = true;
-    theme = {
-      name = "Catppuccin-Mocha-Mauve"; # or "Catppuccin-Mocha-Mauve-Dark" if menus look off
-      package = pkgs.magnetic-catppuccin-gtk;
-    };
-    font = {
-      name = "JetBrains Mono";
-      size = 11;
-    };
-  };
-
-  # War casualties
-  xdg.configFile."gtk-3.0/settings.ini".force = true;
-  xdg.configFile."gtk-4.0/settings.ini".force = true;
-
-  # ──────────────────────────────────────────────
-  # ZSH
-  # ──────────────────────────────────────────────
-  programs.zsh = {
-    enable = true;
-    enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
-    initContent = ''
-      fastfetch
-      export PATH="$HOME/.local/bin:$PATH"
-
-      # Jump to Windows home (WSL)
-      win() {
-        cd /mnt/c/Users/$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r') 2>/dev/null \
-          || cd /mnt/c/Users/*/ 2>/dev/null \
-          || echo "Not in WSL or Windows drive not mounted"
-      }
-    '';
-    shellAliases = {
-      ll = "ls -la";
-    };
-  };
-
-  home.sessionPath = [
-    "$HOME/.local/bin"
-  ];
-
-  # ──────────────────────────────────────────────
-  # THEMING (Catppuccin)
-  # ──────────────────────────────────────────────
-  catppuccin.enable = true;
-  catppuccin.flavor = "mocha";
-  programs.bat.enable = true;
-
-  programs.starship = {
-    enable = true;
-    enableBashIntegration = true;
-    enableZshIntegration = true;
-    settings = builtins.fromTOML (
-      builtins.readFile (
-        pkgs.fetchurl {
-          url = "https://raw.githubusercontent.com/starship/starship/main/docs/public/presets/toml/catppuccin-powerline.toml";
-          sha256 = "sha256-l4XVGxDFMzup1qjvRYVi/utUEmwVm/gpVYIJkCfBCpM=";
-        }
-      )
-    );
-  };
-  catppuccin.starship.enable = true;
-
-  # ──────────────────────────────────────────────
-  # NEOVIM CONFIG SYMLINK
-  # ──────────────────────────────────────────────
   xdg.configFile."hypr".source = ./dotfiles/hypr;
   xdg.configFile."waybar".source = ./dotfiles/waybar;
   xdg.configFile."rofi".source = ./dotfiles/rofi;
   xdg.configFile."swaync".source = ./dotfiles/swaync;
   xdg.configFile."wlogout".source = ./dotfiles/wlogout;
-
-  home.packages = [
-    (pkgs.writeShellScriptBin "rofi-wifi" ''
-      set -euo pipefail
-      status=$(nmcli -fields WIFI g | sed -n '2p' | tr -d ' ')
-      if [ "$status" = "enabled" ]; then
-        toggle="󰤭  Disable Wi-Fi"
-        list=$(nmcli --fields "IN-USE,SECURITY,SIGNAL,SSID" device wifi list --rescan auto | sed 1d | awk '
-          NF >= 4 {
-            inuse = ($1 == "*") ? "✓ " : "  ";
-            sec = ($2 ~ /WPA|WEP/) ? "󰌾" : "󰿆";
-            sig = $3 "%";
-            $1=""; $2=""; $3="";
-            sub(/^ +/, "");
-            if (length($0) > 0 && !seen[$0]++) printf "%s%s  %4s  %s
-", inuse, sec, sig, $0;
-          }')
-        chosen=$(printf "%s
-%s
-" "$toggle" "$list" | rofi -dmenu -i -p "󰤨 Wi-Fi")
-      else
-        toggle="󰤨  Enable Wi-Fi"
-        chosen=$(printf "%s
-" "$toggle" | rofi -dmenu -i -p "󰤨 Wi-Fi")
-      fi
-      [ -z "$chosen" ] && exit 0
-      if [ "$chosen" = "󰤨  Enable Wi-Fi" ]; then
-        nmcli radio wifi on && notify-send "Wi-Fi" "Enabled"
-        exit 0
-      elif [ "$chosen" = "󰤭  Disable Wi-Fi" ]; then
-        nmcli radio wifi off && notify-send "Wi-Fi" "Disabled"
-        exit 0
-      fi
-      ssid=$(echo "$chosen" | sed -E 's/^(✓ |  )[󰌾󰿆] +[0-9]+% +//')
-      if nmcli -g NAME connection show | grep -Fxq "$ssid"; then
-        if nmcli connection up id "$ssid"; then
-          notify-send "Wi-Fi" "Connected to $ssid"
-        else
-          notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
-        fi
-      else
-        if echo "$chosen" | grep -q "󰌾"; then
-          pw=$(rofi -dmenu -password -p "Password for $ssid")
-          [ -z "$pw" ] && exit 0
-          nmcli device wifi connect "$ssid" password "$pw" && notify-send "Wi-Fi" "Connected to $ssid" || notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
-        else
-          nmcli device wifi connect "$ssid" && notify-send "Wi-Fi" "Connected to $ssid" || notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
-        fi
-      fi
-    '')
-  ];
+  xdg.configFile."swayosd".source = ./dotfiles/swayosd;
   home.file."backgrounds".source = ./dotfiles/backgrounds;
-
-  # ──────────────────────────────────────────────
-  # KITTY
-  # ──────────────────────────────────────────────
-  programs.kitty = {
-    enable = true;
-    settings = {
-      font_size = "12";
-      enable_audio_bell = false;
-    };
-  };
-
-  # ──────────────────────────────────────────────
-  # Spicetify
-  # ──────────────────────────────────────────────
-  programs.spicetify = {
-    enable = true;
-    enabledExtensions = with spicePkgs.extensions; [
-      adblockify
-      hidePodcasts
-      shuffle
-    ];
-    theme = spicePkgs.themes.catppuccin;
-    colorScheme = "mocha";
-  };
-
-  # ──────────────────────────────────────────────
-  # Flameshot
-  # ──────────────────────────────────────────────
-  services.flameshot = {
-    enable = true;
-    # Enable wayland support with this build flag
-    package = pkgs.flameshot.override {
-      enableWlrSupport = true;
-    };
-
-    settings = {
-      General = {
-        disabledTrayIcon = true;
-        showStartupLaunchMessage = false;
-
-        # Auto save to this path
-        savePath = "$HOME/Pictures/Screenshots";
-        savePathFixed = true;
-        saveAsFileExtension = ".jpg";
-        filenamePattern = "%F_%H-%M";
-        drawThickness = 1;
-        copyPathAfterSave = true;
-
-        # For wayland
-        useGrimAdapter = true;
-      };
-    };
-  };
-
-  # ──────────────────────────────────────────────
-  # GHOSTTY
-  # ──────────────────────────────────────────────
-  programs.ghostty = {
-    enable = true;
-    package = pkgs.ghostty;
-    settings = {
-      font-family = "JetBrainsMono Nerd Font";
-      font-size = 13;
-      font-thicken = true;
-      window-padding-x = 8;
-      window-padding-y = 8;
-      background-opacity = 0.65;
-      mouse-hide-while-typing = true;
-      clipboard-read = "allow";
-      clipboard-write = "allow";
-      shell-integration = "detect";
-      keybind = [
-        "ctrl+shift+c=copy_to_clipboard"
-        "ctrl+shift+v=paste_from_clipboard"
-        "ctrl+shift+t=new_tab"
-        "ctrl+shift+w=close_surface"
-        "ctrl+tab=next_tab"
-        "ctrl+shift+tab=previous_tab"
-        "ctrl+plus=increase_font_size:1"
-        "ctrl+minus=decrease_font_size:1"
-        "ctrl+0=reset_font_size"
-      ];
-    };
-  };
-  home.activation = {
-    copyGtkConfig = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
-      rm -rf $HOME/.gtkrc-2.0
-    '';
-  };
 }

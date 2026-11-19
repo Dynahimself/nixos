@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+json=$(curl -fsS -m 2 "http://100.68.54.112:8200/api/overview" 2>/dev/null || true)
+if [ -z "$json" ]; then
+  echo '{"text":"󰑴 Hub","tooltip":"CS Hub unreachable"}'
+  exit 0
+fi
+due=$(echo "$json" | jq -r '.due_count // 0')
+streak=$(echo "$json" | jq -r '.streak // 0')
+mins=$(echo "$json" | jq -r '.today_minutes // 0')
+jq -nc --arg txt "󰑴 ${due} due · 🔥${streak}d" \
+  --arg tip "CS Hub: ${due} due · ${streak}d streak · ${mins}m today\nLeft-click: Drill | Right-click: Capture term" \
+  '{text:$txt, tooltip:$tip}'

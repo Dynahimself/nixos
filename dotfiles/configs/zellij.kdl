@@ -1,0 +1,16 @@
+theme "catppuccin-mocha"
+
+keybinds {
+    shared_except "locked" {
+        bind "Alt n" { MoveFocus "Left"; }
+        bind "Alt e" { MoveFocus "Down"; }
+        bind "Alt i" { MoveFocus "Up"; }
+        bind "Alt o" { MoveFocus "Right"; }
+    }
+    scroll {
+        bind "e" { ScrollDown; }
+        bind "i" { ScrollUp; }
+        bind "d" { HalfPageScrollDown; }
+        bind "u" { HalfPageScrollUp; }
+    }
+}

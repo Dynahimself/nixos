@@ -34,6 +34,7 @@
     "d /srv/media/downloads/complete 2775 root media -"
     "d /srv/immich 2775 root media -"
     "d /srv/immich/library 2775 root media -"
+    "d /srv/backups/pi 2775 dyna media -"
   ];
 
   # ---- Jellyfin ----

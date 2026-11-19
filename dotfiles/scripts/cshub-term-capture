@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+sel="$(wl-paste -p 2>/dev/null || wl-paste 2>/dev/null || true)"
+sel="$(printf '%s' "$sel" | tr '\n' ' ' | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' | cut -c1-120)"
+
+term=$(printf '%s\n' "$sel" | rofi -dmenu -p "󰑴 Term" || true)
+[ -z "${term// /}" ] && exit 0
+
+def=$(rofi -dmenu -p "Definition ($term)" || true)
+[ -z "${def// /}" ] && exit 0
+
+course=$(rofi -dmenu -p "Course (opt, e.g. KR-C)" || true)
+
+payload=$(jq -nc --arg t "$term" --arg d "$def" --arg c "$course" \
+  '{term:$t, definition:$d, course:$c, source:"Desktop capture"}')
+
+if curl -fsS -m 3 -X POST "http://100.68.54.112:8200/api/terms" \
+    -H "Content-Type: application/json" -d "$payload" >/dev/null; then
+  notify-send "CS Hub Term Saved" "$term"
+else
+  notify-send -u critical "CS Hub" "Failed to save term (Pi unreachable)"
+fi

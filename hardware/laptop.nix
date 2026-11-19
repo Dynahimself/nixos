@@ -30,15 +30,17 @@
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.initrd.compressor = "zstd";
+  boot.initrd.compressorArgs = [ "-19" "-T0" ];
   boot.kernelPackages = pkgs.linuxPackages; # temp LTS (6.18): zen 7.3.4 has a bh_worker NULL deref panic at boot
   boot.blacklistedKernelModules = [ "xe" ];
 
   networking.hostName = "laptop";
 
   # Lid switch behavior
-  services.logind = {
-    lidSwitch = "suspend";
-    lidSwitchDocked = "ignore";
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchDocked = "ignore";
   };
 
   powerManagement.enable = true;

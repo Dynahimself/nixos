@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+choice=$(printf '%s\n' \
+  "Mauve #cba6f7" \
+  "Blue #89b4fa" \
+  "Lavender #b4befe" \
+  "Sapphire #74c7ec" \
+  "Teal #94e2d5" \
+  "Green #a6e3a1" \
+  "Peach #fab387" \
+  "Red #f38ba8" \
+  "Pink #f5c2e7" | rofi -dmenu -i -p "󰏘 Mocha Accent")
+
+[ -z "$choice" ] && exit 0
+name="${choice%% *}"
+hex="${choice##* }"
+hex_nohash="${hex#\#}"
+
+mkdir -p "$HOME/.cache"
+echo "$hex" > "$HOME/.cache/mocha-accent"
+
+hyprctl keyword general:col.active_border "rgba(${hex_nohash}ff) rgba(89b4faff) 45deg" >/dev/null 2>&1 || true
+
+for f in /etc/nixos/dotfiles/waybar/style.css /etc/nixos/dotfiles/swaync/style.css; do
+  [ -w "$f" ] && sed -i -E "s|(@define-color mauve[[:space:]]+)#[0-9a-fA-F]{6};|\1${hex};|" "$f"
+done
+
+if [ -w /etc/nixos/dotfiles/rofi/config.rasi ]; then
+  sed -i -E "s|(mauve:[[:space:]]+)#[0-9a-fA-F]{8};|\1${hex}ff;|" /etc/nixos/dotfiles/rofi/config.rasi
+fi
+
+for f in /etc/nixos/dotfiles/wlogout/style.css /etc/nixos/dotfiles/swayosd/style.css; do
+  [ -w "$f" ] && sed -i -E "s|border-color:[[:space:]]*#[0-9a-fA-F]{6};|border-color: ${hex};|g" "$f"
+done
+
+pkill -x waybar 2>/dev/null || true
+pkill -x .waybar-wrapped 2>/dev/null || true
+sleep 0.2
+nohup setsid waybar >/tmp/waybar.log 2>&1 </dev/null &
+swaync-client -rs >/dev/null 2>&1 || true
+
+notify-send "Catppuccin Mocha" "Accent switched to $name ($hex)"

@@ -1,0 +1,44 @@
+/* Catppuccin Mocha Mauve — SwayOSD */
+window#osd {
+  padding: 12px 20px;
+  border-radius: 14px;
+  border: 1.5px solid #cba6f7;
+  background: rgba(24, 24, 37, 0.94);
+}
+
+#container {
+  margin: 4px;
+}
+
+image,
+label {
+  color: #cdd6f4;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-weight: 600;
+}
+
+progressbar:disabled,
+image:disabled {
+  opacity: 0.45;
+}
+
+progressbar {
+  min-height: 7px;
+  border-radius: 99px;
+  background: transparent;
+  border: none;
+}
+
+trough {
+  min-height: inherit;
+  border-radius: inherit;
+  border: none;
+  background: #313244;
+}
+
+progress {
+  min-height: inherit;
+  border-radius: inherit;
+  border: none;
+  background: #cba6f7;
+}

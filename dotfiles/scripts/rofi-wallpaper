@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+dirs=("$HOME/backgrounds")
+[ -d "$HOME/Pictures/Wallpapers" ] && dirs+=("$HOME/Pictures/Wallpapers")
+mapfile -t imgs < <(find "${dirs[@]}" -maxdepth 2 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) 2>/dev/null | sort)
+if [ ${#imgs[@]} -eq 0 ]; then
+  notify-send "Wallpaper" "No images found in ~/backgrounds/"
+  exit 0
+fi
+chosen=$(for f in "${imgs[@]}"; do printf '%s\0icon\x1f%s\n' "$(basename "$f")" "$f"; done | rofi -dmenu -show-icons -i -p "󰸉 Wallpaper")
+[ -z "$chosen" ] && exit 0
+full=""
+for f in "${imgs[@]}"; do
+  [ "$(basename "$f")" = "$chosen" ] && full="$f" && break
+done
+[ -z "$full" ] && exit 0
+mkdir -p "$HOME/.cache"
+ln -sf "$full" "$HOME/.cache/current-wallpaper"
+if command -v awww >/dev/null; then
+  pgrep -x awww-daemon >/dev/null || (awww-daemon & sleep 0.4)
+  awww img "$full" --transition-type grow --transition-duration 0.7
+else
+  hyprctl hyprpaper preload "$full" >/dev/null 2>&1 || true
+  hyprctl hyprpaper wallpaper ",$full" >/dev/null 2>&1 || true
+fi
+notify-send "Wallpaper" "Applied $chosen"

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+status=$(nmcli -fields WIFI g | sed -n '2p' | tr -d ' ')
+if [ "$status" = "enabled" ]; then
+  toggle="󰤭  Disable Wi-Fi"
+  list=$(nmcli --fields "IN-USE,SECURITY,SIGNAL,SSID" device wifi list --rescan auto | sed 1d | awk '
+    NF >= 4 {
+      inuse = ($1 == "*") ? "✓ " : "  ";
+      sec = ($2 ~ /WPA|WEP/) ? "󰌾" : "󰿆";
+      sig = $3 "%";
+      $1=""; $2=""; $3="";
+      sub(/^ +/, "");
+      if (length($0) > 0 && !seen[$0]++) printf "%s%s  %4s  %s\n", inuse, sec, sig, $0;
+    }')
+  chosen=$(printf "%s\n%s\n" "$toggle" "$list" | rofi -dmenu -i -p "󰤨 Wi-Fi")
+else
+  toggle="󰤨  Enable Wi-Fi"
+  chosen=$(printf "%s\n" "$toggle" | rofi -dmenu -i -p "󰤨 Wi-Fi")
+fi
+[ -z "$chosen" ] && exit 0
+if [ "$chosen" = "󰤨  Enable Wi-Fi" ]; then
+  nmcli radio wifi on && notify-send "Wi-Fi" "Enabled"
+  exit 0
+elif [ "$chosen" = "󰤭  Disable Wi-Fi" ]; then
+  nmcli radio wifi off && notify-send "Wi-Fi" "Disabled"
+  exit 0
+fi
+ssid=$(echo "$chosen" | sed -E 's/^(✓ |  )[󰌾󰿆] +[0-9]+% +//')
+if nmcli -g NAME connection show | grep -Fxq "$ssid"; then
+  if nmcli connection up id "$ssid"; then
+    notify-send "Wi-Fi" "Connected to $ssid"
+  else
+    notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
+  fi
+else
+  if echo "$chosen" | grep -q "󰌾"; then
+    pw=$(rofi -dmenu -password -p "Password for $ssid")
+    [ -z "$pw" ] && exit 0
+    nmcli device wifi connect "$ssid" password "$pw" && notify-send "Wi-Fi" "Connected to $ssid" || notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
+  else
+    nmcli device wifi connect "$ssid" && notify-send "Wi-Fi" "Connected to $ssid" || notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
+  fi
+fi

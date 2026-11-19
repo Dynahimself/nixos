@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+raw=$(rofi -dmenu -p "📓 Note (win:/fossil:/blocker:)" || true)
+[ -z "${raw// /}" ] && exit 0
+
+kind="note"
+text="$raw"
+case "$raw" in
+  win:*)     kind="win";     text="${raw#win:}" ;;
+  fossil:*)  kind="fossil";  text="${raw#fossil:}" ;;
+  blocker:*) kind="blocker"; text="${raw#blocker:}" ;;
+esac
+text="$(echo "$text" | sed -E 's/^[[:space:]]+//')"
+[ -z "$text" ] && exit 0
+
+mkdir -p "$HOME/Documents"
+printf '%s [%s] %s\n' "$(date '+%Y-%m-%d %H:%M')" "$kind" "$text" >> "$HOME/Documents/quick-notes.md"
+
+if curl -fsS -m 3 -X POST "http://100.68.54.112:8200/api/log" \
+    -H "Content-Type: application/json" \
+    -d "$(jq -nc --arg k "$kind" --arg t "$text" '{kind:$k, text:$t}')" >/dev/null 2>&1; then
+  notify-send "CS Hub Journal [$kind]" "$text"
+else
+  notify-send "Saved locally (Hub offline)" "$text"
+fi

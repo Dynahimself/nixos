@@ -1,4 +1,4 @@
-/* Catppuccin Mocha Mauve — Sleek Spotlight-style Rofi */
+/* Catppuccin Mocha Mauve — Sleek Spotlight-style Rofi (zero beige bleed) */
 configuration {
     modi:                "drun,run,window";
     show-icons:          true;
@@ -46,6 +46,7 @@ window {
 
 mainbox {
     spacing:          12px;
+    background-color: transparent;
     children:         [ "inputbar", "message", "listview" ];
 }
 
@@ -60,12 +61,15 @@ inputbar {
 }
 
 prompt {
+    background-color: transparent;
     text-color:       @mauve;
     vertical-align:   0.5;
 }
 
 entry {
-    placeholder:       "Search apps…";
+    background-color:  transparent;
+    text-color:        @text;
+    placeholder:       "Search…";
     placeholder-color: @overlay0;
     vertical-align:    0.5;
     cursor:            text;
@@ -73,11 +77,13 @@ entry {
 
 message {
     padding:          8px 12px;
+    border:           0px;
     border-radius:    8px;
     background-color: @mantle;
 }
 
 textbox {
+    background-color: transparent;
     text-color:       @subtext0;
 }
 
@@ -88,12 +94,15 @@ listview {
     dynamic:          true;
     scrollbar:        false;
     fixed-height:     false;
+    border:           0px;
     spacing:          4px;
+    background-color: transparent;
 }
 
 element {
     spacing:          12px;
     padding:          9px 12px;
+    border:           0px;
     border-radius:    9px;
     background-color: transparent;
     text-color:       @subtext0;
@@ -101,13 +110,21 @@ element {
     cursor:           pointer;
 }
 
+element normal.normal,
+element alternate.normal {
+    background-color: transparent;
+    text-color:       @subtext0;
+}
+
 element normal.active,
 element alternate.active {
+    background-color: transparent;
     text-color:       @green;
 }
 
 element normal.urgent,
 element alternate.urgent {
+    background-color: transparent;
     text-color:       @red;
 }
 
@@ -117,12 +134,19 @@ element selected.active {
     text-color:       @mauve;
 }
 
+element selected.urgent {
+    background-color: @red;
+    text-color:       @crust;
+}
+
 element-icon {
     size:             26px;
+    background-color: transparent;
     vertical-align:   0.5;
 }
 
 element-text {
+    background-color: transparent;
     vertical-align:   0.5;
     text-color:       inherit;
 }

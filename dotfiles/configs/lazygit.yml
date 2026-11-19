@@ -1,0 +1,39 @@
+gui:
+  nerdFontsVersion: "3"
+  theme:
+    activeBorderColor:
+      - "#cba6f7"
+      - bold
+    inactiveBorderColor:
+      - "#45475a"
+    optionsTextColor:
+      - "#89b4fa"
+    selectedLineBgColor:
+      - "#313244"
+    cherryPickedCommitBgColor:
+      - "#45475a"
+    cherryPickedCommitFgColor:
+      - "#cba6f7"
+    unstagedChangesColor:
+      - "#f38ba8"
+    defaultFgColor:
+      - "#cdd6f4"
+    searchingActiveBorderColor:
+      - "#f9e2af"
+keybinding:
+  universal:
+    prevItem: "i"
+    nextItem: "e"
+    prevItem-alt: "<up>"
+    nextItem-alt: "<down>"
+    prevBlock: "n"
+    nextBlock: "o"
+    prevPage: "<c-i>"
+    nextPage: "<c-e>"
+    scrollUpMain: "<pgup>"
+    scrollDownMain: "<pgdown>"
+    quit: "q"
+    edit: "l"
+    openFile: "h"
+    nextMatch: "k"
+    prevMatch: "K"

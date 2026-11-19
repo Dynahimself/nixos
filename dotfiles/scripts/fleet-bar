@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+st=$(curl -fsS -m 2 "http://100.68.54.112:8210/api/status" 2>/dev/null || true)
+if [ -z "$st" ]; then
+  pi_ok=$(ping -c1 -W1 100.68.54.112 >/dev/null 2>&1 && echo "up" || echo "down")
+  nas_ok=$(ping -c1 -W1 100.97.162.110 >/dev/null 2>&1 && echo "up" || echo "down")
+  jq -nc --arg txt "󰒍 Pi:${pi_ok}" --arg tip "Pi: ${pi_ok}\nNAS: ${nas_ok}\nClick for Fleet menu" '{text:$txt, tooltip:$tip}'
+  exit 0
+fi
+online=$(echo "$st" | jq -r '[.nodes[] | select(.online) | (if (.name|startswith("Raspberry")) then "Pi" elif (.name|startswith("TerraMaster")) then "NAS" else (.name|split(" ")[0]) end)] | join("·")')
+backup=$(echo "$st" | jq -r '.backup // "?"')
+temp=$(echo "$st" | jq -r '.pi_temp // "?"')
+jq -nc --arg txt "󰒍 ${online}" \
+  --arg tip "Online: ${online}\nPi temp: ${temp}\nBackup: ${backup}\nClick for Fleet menu" \
+  '{text:$txt, tooltip:$tip}'

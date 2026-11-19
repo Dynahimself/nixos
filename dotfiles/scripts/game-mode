@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+anim=$(hyprctl getoption animations:enabled -j | jq .int)
+
+if [ "$anim" = "1" ]; then
+  hyprctl --batch "keyword animations:enabled 0; keyword decoration:blur:enabled 0; keyword decoration:shadow:enabled 0; keyword general:gaps_in 0; keyword general:gaps_out 0; keyword decoration:rounding 0" >/dev/null
+  pkill -x hypridle 2>/dev/null || true
+  notify-send "Gaming Mode" "ON — blur/animations/hypridle disabled"
+else
+  hyprctl reload >/dev/null
+  pgrep -x hypridle >/dev/null || (nohup setsid hypridle >/tmp/hypridle.log 2>&1 </dev/null &)
+  notify-send "Gaming Mode" "OFF — Mocha visuals & hypridle restored"
+fi

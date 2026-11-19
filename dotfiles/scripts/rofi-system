@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+choice=$(printf '%s\n' \
+  "󰏘  Catppuccin Accent Switcher" \
+  "󰸉  Wallpaper Switcher" \
+  "󰑴  Study Mode Toggle (SUPER+F1)" \
+  "󰊴  Gaming Mode Toggle (SUPER+F2)" \
+  "󰖔  Night Light Toggle (4200K)" \
+  "󰖩  Wi-Fi Manager (SUPER+W)" \
+  "󰂯  Bluetooth Manager" \
+  "󰕾  Audio Mixer" \
+  "󰄀  Screenshot Region -> Annotate (SUPER+SHIFT+S)" \
+  "󰄀  Screenshot Window" \
+  "󰄀  Screenshot Fullscreen" \
+  "󰈬  OCR Region -> Clipboard" \
+  "󰑊  Toggle Screen Recording (MP4)" \
+  "󰌌  Toggle Colemak-DH / QWERTY (SUPER+G)" \
+  "󰍽  Toggle Focus-Follows-Mouse" \
+  "󰌌  Keybind Cheatsheet (SUPER+/)" | rofi -dmenu -i -p "⚙ System")
+
+[ -z "$choice" ] && exit 0
+case "$choice" in
+  *"Accent Switcher"*) theme-accent ;;
+  *"Wallpaper Switcher"*) rofi-wallpaper ;;
+  *"Study Mode"*) study-mode ;;
+  *"Gaming Mode"*) game-mode ;;
+  *"Night Light"*)
+    if pkill -x hyprsunset 2>/dev/null; then
+      notify-send "Night Light" "Disabled"
+    else
+      if command -v hyprsunset >/dev/null; then
+        nohup setsid hyprsunset -t 4200 >/dev/null 2>&1 </dev/null &
+        notify-send "Night Light" "Enabled (4200K)"
+      else
+        notify-send -u critical "Night Light" "hyprsunset not installed yet (rebuild needed)"
+      fi
+    fi ;;
+  *"Wi-Fi Manager"*) rofi-wifi ;;
+  *"Bluetooth Manager"*) blueman-manager ;;
+  *"Audio Mixer"*) pavucontrol ;;
+  *"Screenshot Region"*)
+    if command -v satty >/dev/null && command -v grim >/dev/null && command -v slurp >/dev/null; then
+      grim -g "$(slurp)" - | satty -f -
+    else
+      hyprshot -m region
+    fi ;;
+  *"Screenshot Window"*) hyprshot -m window ;;
+  *"Screenshot Fullscreen"*) hyprshot -m output ;;
+  *"OCR Region"*)
+    if command -v tesseract >/dev/null && command -v grim >/dev/null && command -v slurp >/dev/null; then
+      grim -g "$(slurp)" - | tesseract - - -l eng+fra 2>/dev/null | wl-copy
+      notify-send "OCR" "Copied text to clipboard"
+    else
+      notify-send -u critical "OCR" "tesseract/grim/slurp missing (rebuild needed)"
+    fi ;;
+  *"Screen Recording"*)
+    if pgrep -x wf-recorder >/dev/null; then
+      pkill -INT -x wf-recorder
+      notify-send "Recorder" "Saved to ~/Videos/"
+    else
+      if command -v wf-recorder >/dev/null && command -v slurp >/dev/null; then
+        mkdir -p "$HOME/Videos"
+        f="$HOME/Videos/rec_$(date +%Y%m%d_%H%M%S).mp4"
+        nohup setsid wf-recorder -g "$(slurp)" -f "$f" >/dev/null 2>&1 </dev/null &
+        notify-send "Recorder" "Recording started -> $f"
+      else
+        notify-send -u critical "Recorder" "wf-recorder/slurp missing (rebuild needed)"
+      fi
+    fi ;;
+  *"Toggle Colemak"*)
+    if hyprctl getoption input:kb_variant | grep -q colemak_dh; then
+      hyprctl keyword input:kb_variant "" && notify-send "Keyboard" "Switched to QWERTY"
+    else
+      hyprctl keyword input:kb_variant colemak_dh && notify-send "Keyboard" "Switched to Colemak-DH"
+    fi ;;
+  *"Focus-Follows-Mouse"*)
+    cur=$(hyprctl getoption input:follow_mouse -j | jq .int)
+    if [ "$cur" = "1" ]; then
+      hyprctl keyword input:follow_mouse 0
+      notify-send "Hyprland" "Focus follows mouse: OFF"
+    else
+      hyprctl keyword input:follow_mouse 1
+      notify-send "Hyprland" "Focus follows mouse: ON"
+    fi ;;
+  *"Cheatsheet"*) rofi-binds ;;
+esac

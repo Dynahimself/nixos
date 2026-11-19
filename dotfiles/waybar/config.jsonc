@@ -12,14 +12,18 @@
 
   "modules-left": [
     "hyprland/workspaces",
-    "hyprland/window"
+    "hyprland/window",
+    "custom/cshub",
+    "custom/fleet"
   ],
   "modules-center": [
     "mpris",
     "clock"
   ],
   "modules-right": [
+    "custom/recording",
     "group/sys",
+    "hyprland/language",
     "backlight",
     "pulseaudio",
     "bluetooth",
@@ -32,7 +36,15 @@
 
   "hyprland/workspaces": {
     "on-click": "activate",
-    "format": "{id}",
+    "format": "{icon}",
+    "format-icons": {
+      "1": "1 ",
+      "2": "2 󰈹",
+      "3": "3 ",
+      "4": "4 󰑴",
+      "5": "5 󰙯",
+      "default": "{id}"
+    },
     "all-outputs": true,
     "disable-scroll": false,
     "active-only": false,
@@ -43,15 +55,37 @@
 
   "hyprland/window": {
     "format": "{title}",
-    "max-length": 42,
+    "max-length": 36,
     "separate-outputs": true
+  },
+
+  "custom/cshub": {
+    "exec": "cshub-bar",
+    "return-type": "json",
+    "interval": 30,
+    "on-click": "zen http://100.68.54.112:8200/knowledge",
+    "on-click-right": "cshub-term-capture"
+  },
+
+  "custom/fleet": {
+    "exec": "fleet-bar",
+    "return-type": "json",
+    "interval": 30,
+    "on-click": "rofi-fleet"
+  },
+
+  "custom/recording": {
+    "exec": "sh -c 'pgrep -x wf-recorder >/dev/null && echo \"{\\\"text\\\":\\\"󰑊 REC\\\",\\\"tooltip\\\":\\\"Click to stop recording\\\"}\" || echo \"\"'",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "pkill -INT -x wf-recorder"
   },
 
   "mpris": {
     "format": "{player_icon} {dynamic}",
     "format-paused": "{status_icon} <i>{dynamic}</i>",
     "dynamic-order": ["artist", "title"],
-    "dynamic-len": 32,
+    "dynamic-len": 28,
     "player-icons": {
       "default": "󰎆",
       "spotify": "",
@@ -83,7 +117,7 @@
 
   "group/sys": {
     "orientation": "horizontal",
-    "modules": ["cpu", "memory"]
+    "modules": ["cpu", "temperature", "memory", "disk"]
   },
 
   "cpu": {
@@ -92,10 +126,30 @@
     "tooltip": true
   },
 
+  "temperature": {
+    "critical-threshold": 85,
+    "format": " {temperatureC}°",
+    "interval": 4
+  },
+
   "memory": {
     "format": " {used:0.1f}G",
     "interval": 5,
     "tooltip-format": "{used:0.1f} GiB / {total:0.1f} GiB ({percentage}%)"
+  },
+
+  "disk": {
+    "interval": 60,
+    "path": "/",
+    "format": "󰋊 {percentage_used}%",
+    "tooltip-format": "{used} / {total} ({free} free)"
+  },
+
+  "hyprland/language": {
+    "format": "󰌌 {}",
+    "format-en": "QWE",
+    "format-en-colemak_dh": "COL",
+    "on-click": "sh -c 'hyprctl getoption input:kb_variant | grep -q colemak_dh && hyprctl keyword input:kb_variant \"\" || hyprctl keyword input:kb_variant colemak_dh'"
   },
 
   "backlight": {
@@ -126,7 +180,7 @@
     "format-connected-battery": "󰂱 {device_alias} {device_battery_percentage}%",
     "format-disabled": "󰂲",
     "format-off": "󰂲",
-    "max-length": 18,
+    "max-length": 16,
     "tooltip-format": "{controller_alias}\n{num_connections} connected",
     "tooltip-format-connected": "{controller_alias}\n{device_enumerate}",
     "tooltip-format-enumerate-connected": "{device_alias} ({device_address})",
@@ -138,7 +192,7 @@
     "format-ethernet": "󰈀 {ifname}",
     "format-disconnected": "󰤭 Offline",
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
-    "max-length": 18,
+    "max-length": 16,
     "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}/{cidr} · {frequency}GHz\nClick to open Wi-Fi menu",
     "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}",
     "tooltip-format-disconnected": "Disconnected — click to open Wi-Fi menu",

@@ -5,6 +5,9 @@
 
   # Catppuccin
   catppuccin.enable = true;
+  catppuccin.autoEnable = true;
+  catppuccin.sddm.enable = true;
+  catppuccin.sddm.flavor = "mocha";
   catppuccin.cursors.enable = true;
 
   # Enable OpenGL
@@ -76,6 +79,7 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;
+  programs.kdeconnect.enable = true;
 
   services.pipewire = {
     enable = true;

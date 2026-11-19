@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -euo pipefail
+choice=$(printf '%s\n' \
+  "󰌢  Wake Desktop + SSH (WoL -> wait -> Ghostty)" \
+  "󰌢  Wake Desktop Only (WoL via Pi)" \
+  "󰤄  Suspend Desktop Remotely" \
+  "  SSH -> Pi" \
+  "  SSH -> NAS" \
+  "  SSH -> Desktop" \
+  "󰖟  Open Fleet Startpage (:8210)" \
+  "󰑴  Open CS Hub (:8200)" \
+  "󰚩  Open WebUI (:3000)" \
+  "󰍛  Open Chub Gems (:5123)" \
+  "󰒍  Open NAS Launcher (:8300)" \
+  "  Open NAS Files in Dolphin (SFTP)" \
+  "󰁯  Trigger Pi -> NAS Backup Now" | rofi -dmenu -i -p "⚡ Fleet")
+
+[ -z "$choice" ] && exit 0
+case "$choice" in
+  *"Wake Desktop + SSH"*)
+    if ssh -o BatchMode=yes -o ConnectTimeout=5 pi "python3 -c 'import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1); s.sendto(b\"\xff\"*6 + bytes.fromhex(\"a0ad9f882ce7\")*16, (\"10.0.0.255\", 9))'"; then
+      notify-send "Fleet" "Magic packet sent — waiting for Desktop SSH (up to 45s)..."
+      ok=0
+      for _ in $(seq 1 22); do
+        if ssh -o BatchMode=yes -o ConnectTimeout=2 desktop true 2>/dev/null; then
+          ok=1; break
+        fi
+        sleep 2
+      done
+      if [ "$ok" = "1" ]; then
+        notify-send "Fleet" "Desktop online — launching SSH"
+        ghostty -e ssh desktop
+      else
+        notify-send -u critical "Fleet" "Desktop did not respond within 45s"
+      fi
+    else
+      notify-send -u critical "Fleet" "Failed to reach Pi for WoL"
+    fi ;;
+  *"Wake Desktop Only"*)
+    if ssh -o BatchMode=yes -o ConnectTimeout=5 pi "python3 -c 'import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1); s.sendto(b\"\xff\"*6 + bytes.fromhex(\"a0ad9f882ce7\")*16, (\"10.0.0.255\", 9))'"; then
+      notify-send "Fleet" "Magic packet sent to Desktop (~30s to wake)"
+    else
+      notify-send -u critical "Fleet" "Failed to reach Pi for WoL"
+    fi ;;
+  *"Suspend Desktop Remotely"*)
+    if ssh -o BatchMode=yes -o ConnectTimeout=3 desktop true 2>/dev/null; then
+      ssh -o BatchMode=yes desktop "sudo -n systemctl suspend" 2>/dev/null && notify-send "Fleet" "Desktop suspended" || notify-send -u critical "Fleet" "Desktop suspend requires sudo/TTY (open SSH session)"
+    else
+      notify-send "Fleet" "Desktop is already offline"
+    fi ;;
+  *"SSH -> Pi"*) ghostty -e ssh pi ;;
+  *"SSH -> NAS"*) ghostty -e ssh nas ;;
+  *"SSH -> Desktop"*) ghostty -e ssh desktop ;;
+  *"Fleet Startpage"*) zen http://100.68.54.112:8210 ;;
+  *"CS Hub"*) zen http://100.68.54.112:8200 ;;
+  *"Open WebUI"*) zen http://100.68.54.112:3000 ;;
+  *"Chub Gems"*) zen http://100.68.54.112:5123 ;;
+  *"NAS Launcher"*) zen http://100.97.162.110:8300 ;;
+  *"NAS Files"*) dolphin "sftp://dyna@100.97.162.110/srv" ;;
+  *"Backup Now"*)
+    if ssh -o BatchMode=yes -o ConnectTimeout=5 pi "systemctl --user start pi-nas-backup.service"; then
+      notify-send "Fleet" "Pi -> NAS backup triggered"
+    else
+      notify-send -u critical "Fleet" "Failed to trigger backup on Pi"
+    fi ;;
+esac

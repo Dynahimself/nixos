@@ -95,24 +95,27 @@
     wl-clipboard
     wireplumber
     brightnessctl
-    flameshot
-    picom-pijulius
 
     # =====================================================
     # bspwm stack
     # =====================================================
-    bspwm
-    sxhkd
     rofi
     rofi-calc
     rofi-systemd
     rofi-network-manager
-    polybar
-    feh
-    alacritty
     swaynotificationcenter
-    dunst
-    maim
+    cliphist
+    swayosd
+    awww
+    satty
+    wf-recorder
+    tesseract
+    slurp
+    grim
+    hyprsunset
+    cava
+    nh
+    nvd
     xclip
     pamixer
     playerctl
