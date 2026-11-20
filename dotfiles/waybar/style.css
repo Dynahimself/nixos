@@ -48,6 +48,7 @@ tooltip label {
 #custom-recording,
 #mpris,
 #clock,
+#custom-clock,
 #sys,
 #language,
 #backlight,
@@ -129,7 +130,8 @@ window#waybar.empty #window {
   border-color: @surface0;
 }
 
-#clock {
+#clock,
+#custom-clock {
   color: @text;
   border-color: rgba(203, 166, 247, 0.3);
 }

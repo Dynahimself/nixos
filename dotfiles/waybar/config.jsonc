@@ -18,7 +18,7 @@
   ],
   "modules-center": [
     "mpris",
-    "clock"
+    "custom/clock"
   ],
   "modules-right": [
     "custom/recording",
@@ -36,14 +36,14 @@
 
   "hyprland/workspaces": {
     "on-click": "activate",
-    "format": "{icon}",
+    "format": "{id}{icon}",
     "format-icons": {
-      "1": "1 ",
-      "2": "2 󰈹",
-      "3": "3 ",
-      "4": "4 󰑴",
-      "5": "5 󰙯",
-      "default": "{id}"
+      "1": " ",
+      "2": " 󰈹",
+      "3": " ",
+      "4": " 󰑴",
+      "5": " 󰙯",
+      "default": ""
     },
     "all-outputs": true,
     "disable-scroll": false,
@@ -99,20 +99,14 @@
     "on-scroll-down": "playerctl previous"
   },
 
-  "clock": {
-    "format": " {:%a %d %b   %H:%M}",
-    "tooltip-format": "<tt><small>{calendar}</small></tt>",
-    "calendar": {
-      "mode": "month",
-      "mode-mon-col": 1,
-      "on-scroll": 1,
-      "format": {
-        "months": "<span color='#cba6f7'><b>{}</b></span>",
-        "days": "<span color='#cdd6f4'>{}</span>",
-        "weekdays": "<span color='#f9e2af'><b>{}</b></span>",
-        "today": "<span color='#f38ba8'><b><u>{}</u></b></span>"
-      }
-    }
+  "custom/clock": {
+    "exec": "clock-bar",
+    "return-type": "json",
+    "interval": 15,
+    "signal": 8,
+    "on-scroll-up": "clock-bar +1 && pkill -RTMIN+8 waybar",
+    "on-scroll-down": "clock-bar -1 && pkill -RTMIN+8 waybar",
+    "on-click": "clock-bar reset && pkill -RTMIN+8 waybar"
   },
 
   "group/sys": {
@@ -189,12 +183,14 @@
 
   "network": {
     "format-wifi": "{icon} {essid}",
-    "format-ethernet": "󰈀 {ifname}",
+    "format-ethernet": "󰈀",
+    "format-linked": "󰈀",
     "format-disconnected": "󰤭 Offline",
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
     "max-length": 16,
     "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}/{cidr} · {frequency}GHz\nClick to open Wi-Fi menu",
     "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}",
+    "tooltip-format-linked": "{ifname} (linked)",
     "tooltip-format-disconnected": "Disconnected — click to open Wi-Fi menu",
     "on-click": "rofi-wifi"
   },
@@ -243,6 +239,6 @@
   "custom/power": {
     "format": "⏻",
     "tooltip-format": "Power menu",
-    "on-click": "wlogout -p layer-shell &"
+    "on-click": "wlogout -b 5 -p layer-shell &"
   }
 }

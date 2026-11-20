@@ -34,6 +34,8 @@
 
   # Display Manager - SDDM with session selection at login
   services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = false;
+  services.displayManager.sddm.settings.General.InputMethod = "";
 
   # KDE Plasma as fallback session
   services.desktopManager.plasma6.enable = true;

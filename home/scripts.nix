@@ -22,6 +22,7 @@ in
     "cshub-term-capture"
     "cshub-bar"
     "fleet-bar"
+    "clock-bar"
     "battery-alert"
     "nas-cache-push"
   ];

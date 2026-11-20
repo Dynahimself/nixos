@@ -3,8 +3,10 @@
 ------------------
 ---- MONITORS ----
 ------------------
+hl.monitor({ output = "DP-3", mode = "2560x1440@240", position = "0x0", scale = 1 })
+hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@144", position = "2560x0", scale = 1 })
 hl.monitor({ output = "eDP-1", mode = "1920x1080@144", position = "0x0", scale = 1 })
-hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+hl.monitor({ output = "", mode = "highrr", position = "auto", scale = "auto" })
 
 -------------------------------
 ---- ENVIRONMENT VARIABLES ----
@@ -93,7 +95,7 @@ hl.config({
 
     input = {
         kb_layout = "us",
-        kb_variant = "colemak_dh",
+        kb_variant = "",
         follow_mouse = 1,
         sensitivity = 0,
         touchpad = {
@@ -140,7 +142,7 @@ hl.bind(mainMod .. " + Q",             hl.dsp.window.close())
 hl.bind(mainMod .. " + M",             hl.dsp.exec_cmd("hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + E",             hl.dsp.exec_cmd("dolphin"))
 hl.bind(mainMod .. " + T",             hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + F",             hl.dsp.exec_cmd("hyprctl dispatch fullscreen"))
+hl.bind(mainMod .. " + F",             hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + CTRL + RETURN", hl.dsp.exec_cmd("rofi -show drun"))
 hl.bind(mainMod .. " + B",             hl.dsp.exec_cmd("zen"))
 hl.bind(mainMod .. " + SHIFT + B",     hl.dsp.exec_cmd("sh -c 'pkill -x waybar; pkill -x .waybar-wrapped; sleep 0.2; nohup setsid waybar >/tmp/waybar.log 2>&1 </dev/null &'"))
@@ -160,7 +162,7 @@ hl.bind(mainMod .. " + N",             hl.dsp.exec_cmd("quick-note"))
 hl.bind(mainMod .. " + SHIFT + N",     hl.dsp.exec_cmd("swaync-client -t -sw"))
 hl.bind(mainMod .. " + L",             hl.dsp.exec_cmd("hyprlock"))
 hl.bind(mainMod .. " + SHIFT + I",     hl.dsp.exec_cmd("rofi-wallpaper"))
-hl.bind(mainMod .. " + SHIFT + P",     hl.dsp.exec_cmd("wlogout -p layer-shell"))
+hl.bind(mainMod .. " + SHIFT + P",     hl.dsp.exec_cmd("wlogout -b 5 -p layer-shell"))
 hl.bind(mainMod .. " + SHIFT + T",     hl.dsp.exec_cmd("cshub-term-capture"))
 hl.bind(mainMod .. " + SHIFT + S",     hl.dsp.exec_cmd("sh -c 'if command -v satty >/dev/null; then grim -g \"$(slurp)\" - | satty -f -; else hyprshot -m region; fi'"))
 hl.bind(mainMod .. " + F1",            hl.dsp.exec_cmd("study-mode"))
