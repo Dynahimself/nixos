@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -x /run/current-system/sw/bin/notify-send ]; then
+  exec /run/current-system/sw/bin/notify-send "$@"
+fi
+
+urgency="normal"
+expire="-1"
+icon=""
+app_name="desktop"
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -u|--urgency)
+      urgency="${2:-normal}"
+      shift 2
+      ;;
+    --urgency=*)
+      urgency="${1#*=}"
+      shift
+      ;;
+    -t|--expire-time)
+      expire="${2:--1}"
+      shift 2
+      ;;
+    --expire-time=*)
+      expire="${1#*=}"
+      shift
+      ;;
+    -i|--icon)
+      icon="${2:-}"
+      shift 2
+      ;;
+    --icon=*)
+      icon="${1#*=}"
+      shift
+      ;;
+    -a|--app-name)
+      app_name="${2:-desktop}"
+      shift 2
+      ;;
+    --app-name=*)
+      app_name="${1#*=}"
+      shift
+      ;;
+    -c|--category|-h|--hint)
+      shift 2
+      ;;
+    -e|--transient|-p|--print-id|-r|--replace-id|-w|--wait)
+      if [ "$1" = "-r" ] || [ "$1" = "--replace-id" ]; then
+        shift 2
+      else
+        shift
+      fi
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+summary="${1:-Notification}"
+body="${2:-}"
+
+case "$urgency" in
+  low) urg_byte=0 ;;
+  critical) urg_byte=2 ;;
+  *) urg_byte=1 ;;
+esac
+
+export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
+busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
+  org.freedesktop.Notifications.Notify susssasa\{sv\}i \
+  "$app_name" 0 "$icon" "$summary" "$body" 0 1 "urgency" y "$urg_byte" "$expire" >/dev/null 2>&1 || true

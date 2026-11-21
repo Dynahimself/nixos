@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+vol_line=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo "Volume: ?")
+sinks=$(wpctl status | awk '
+  /├─ Sinks:/ { in_sinks=1; next }
+  in_sinks && /├─|└─/ { in_sinks=0 }
+  in_sinks {
+    line=$0
+    sub(/^[^0-9*]*/, "", line)
+    if (line ~ /^\*?[[:space:]]*[0-9]+\./) {
+      is_def = (line ~ /^\*/) ? "✓ " : "  "
+      sub(/^\*[[:space:]]*/, "", line)
+      sub(/^[[:space:]]+/, "", line)
+      print is_def line
+    }
+  }
+')
+
+menu="${sinks}
+󰖁  Toggle Output Mute
+󰍬  Toggle Mic Mute
+󰕾  Open Volume Mixer (pavucontrol)"
+
+chosen=$(printf '%s\n' "$menu" | rofi -dmenu -i -p "󰕾 Audio" -mesg "Default ${vol_line}" || true)
+[ -z "$chosen" ] && exit 0
+
+case "$chosen" in
+  *"Toggle Output Mute"*)
+    wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+    notify-send "Audio" "Toggled output mute" ;;
+  *"Toggle Mic Mute"*)
+    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+    notify-send "Audio" "Toggled microphone mute" ;;
+  *"Open Volume Mixer"*)
+    nohup setsid pavucontrol >/dev/null 2>&1 </dev/null & ;;
+  *)
+    sink_id=$(printf '%s' "$chosen" | sed -nE 's/^[✓ ]*([0-9]+)\..*/\1/p')
+    sink_name=$(printf '%s' "$chosen" | sed -E 's/^[✓ ]*[0-9]+\.[[:space:]]*//; s/[[:space:]]*\[vol:.*\]$//')
+    if [ -n "$sink_id" ]; then
+      wpctl set-default "$sink_id"
+      notify-send "Audio Output" "Switched to ${sink_name}"
+    fi ;;
+esac

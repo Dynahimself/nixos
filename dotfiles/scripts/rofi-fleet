@@ -1,25 +1,72 @@
 #!/usr/bin/env bash
 set -euo pipefail
-choice=$(printf '%s\n' \
-  "󰌢  Wake Desktop + SSH (WoL -> wait -> Ghostty)" \
-  "󰌢  Wake Desktop Only (WoL via Pi)" \
-  "󰤄  Suspend Desktop Remotely" \
-  "  SSH -> Pi" \
-  "  SSH -> NAS" \
-  "  SSH -> Desktop" \
-  "󰖟  Open Fleet Startpage (:8210)" \
-  "󰑴  Open CS Hub (:8200)" \
-  "󰚩  Open WebUI (:3000)" \
-  "󰍛  Open Chub Gems (:5123)" \
-  "󰒍  Open NAS Launcher (:8300)" \
-  "  Open NAS Files in Dolphin (SFTP)" \
-  "󰁯  Trigger Pi -> NAS Backup Now" | rofi -dmenu -i -p "⚡ Fleet")
 
+PI_IP="100.68.54.112"
+NAS_IP="100.97.162.110"
+DESKTOP_IP="100.89.63.116"
+HOST=$(hostname 2>/dev/null || echo "unknown")
+
+status_json=$(curl -fsS -m 1.5 "http://${PI_IP}:8210/api/status" 2>/dev/null || true)
+if [ -n "$status_json" ]; then
+  mesg=$(echo "$status_json" | jq -r '
+    "Pi: " + (.pi_temp // "?") + " (" + (.pi_mem // "?") + ")" +
+    "  ·  " + ([.nodes[] | (if (.name|startswith("Raspberry")) then "Pi" elif (.name|startswith("TerraMaster")) then "NAS" else (.name|split(" ")[0]) end) + ":" + (if .online then "UP" else "DOWN" end)] | join(" · ")) +
+    "  ·  Backup: " + (.backup // "?")
+  ' 2>/dev/null || echo "Fleet API online")
+else
+  mesg="Pi API unreachable — using direct Tailscale endpoints"
+fi
+
+open_ssh() {
+  local label="$1"
+  local target="$2"
+  nohup setsid ghostty -e bash -lc "echo 'Connecting to ${label} (${target})...'; ssh ${target} || { code=\$?; echo ''; read -rp \"[SSH exited (\$code)] Press Enter to close...\"; }" >/dev/null 2>&1 </dev/null &
+}
+
+menu_items=(
+  "  SSH -> Raspberry Pi (dyna@raspberrypi · ${PI_IP})"
+  "  SSH -> TerraMaster NAS (dyna@nas · ${NAS_IP})"
+  "  SSH -> Laptop NixOS (dyna@laptop · 100.116.179.60)"
+  "  SSH -> Laptop Windows (olivi@laptop-win · 100.110.58.123)"
+)
+
+if [ "$HOST" != "desktop" ]; then
+  menu_items+=(
+    "󰌢  Wake Desktop + SSH (WoL -> wait -> Ghostty)"
+    "󰌢  Wake Desktop Only (WoL via Pi)"
+    "  SSH -> Desktop (dyna@desktop · ${DESKTOP_IP})"
+    "󰤄  Suspend Desktop Remotely"
+  )
+fi
+
+menu_items+=(
+  "󰖟  Open Fleet Startpage (Pi :8210)"
+  "󰑴  Open CS Student Hub (Pi :8200)"
+  "󰚩  Open WebUI LLM (Pi :3000)"
+  "󰍛  Open Chub AI Gems (Pi :5123)"
+  "󰓅  Open Pi Glances Monitor (Pi :61208)"
+  "󰒍  Open NAS Launcher srvlaunch (NAS :8300)"
+  "󰎁  Open Jellyfin (NAS :8096)"
+  "󰿎  Open Jellyseerr (NAS :5055)"
+  "󰇚  Open qBittorrent (NAS :8080)"
+  "󰋩  Open Immich Photos (NAS :2283)"
+  "  Open NAS Files in Dolphin (SFTP)"
+  "󰁯  Trigger Pi -> NAS Backup Now"
+  "󰏗  Push Current System to NAS Nix Cache"
+)
+
+choice=$(printf '%s\n' "${menu_items[@]}" | rofi -dmenu -i -p "⚡ Fleet" -mesg "$mesg" || true)
 [ -z "$choice" ] && exit 0
+
 case "$choice" in
+  *"SSH -> Raspberry Pi"*)   open_ssh "Raspberry Pi" "dyna@raspberrypi" ;;
+  *"SSH -> TerraMaster NAS"*) open_ssh "TerraMaster NAS" "dyna@nas" ;;
+  *"SSH -> Laptop NixOS"*)   open_ssh "Laptop (NixOS)" "dyna@laptop" ;;
+  *"SSH -> Laptop Windows"*) open_ssh "Laptop (Windows)" "olivi@laptop-win" ;;
+  *"SSH -> Desktop"*)        open_ssh "Desktop" "dyna@desktop" ;;
   *"Wake Desktop + SSH"*)
-    if ssh -o BatchMode=yes -o ConnectTimeout=5 pi "python3 -c 'import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1); s.sendto(b\"\xff\"*6 + bytes.fromhex(\"a0ad9f882ce7\")*16, (\"10.0.0.255\", 9))'"; then
-      notify-send "Fleet" "Magic packet sent — waiting for Desktop SSH (up to 45s)..."
+    if curl -fsS -m 3 -X POST "http://${PI_IP}:8210/api/wake-desktop" >/dev/null 2>&1; then
+      notify-send "Fleet" "Magic packet sent via Pi — waiting for Desktop SSH (up to 45s)..."
       ok=0
       for _ in $(seq 1 22); do
         if ssh -o BatchMode=yes -o ConnectTimeout=2 desktop true 2>/dev/null; then
@@ -29,38 +76,44 @@ case "$choice" in
       done
       if [ "$ok" = "1" ]; then
         notify-send "Fleet" "Desktop online — launching SSH"
-        ghostty -e ssh desktop
+        open_ssh "Desktop" "dyna@desktop"
       else
         notify-send -u critical "Fleet" "Desktop did not respond within 45s"
       fi
     else
-      notify-send -u critical "Fleet" "Failed to reach Pi for WoL"
+      notify-send -u critical "Fleet" "Failed to reach Pi WoL API"
     fi ;;
   *"Wake Desktop Only"*)
-    if ssh -o BatchMode=yes -o ConnectTimeout=5 pi "python3 -c 'import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1); s.sendto(b\"\xff\"*6 + bytes.fromhex(\"a0ad9f882ce7\")*16, (\"10.0.0.255\", 9))'"; then
+    if curl -fsS -m 3 -X POST "http://${PI_IP}:8210/api/wake-desktop" >/dev/null 2>&1; then
       notify-send "Fleet" "Magic packet sent to Desktop (~30s to wake)"
     else
-      notify-send -u critical "Fleet" "Failed to reach Pi for WoL"
+      notify-send -u critical "Fleet" "Failed to reach Pi WoL API"
     fi ;;
   *"Suspend Desktop Remotely"*)
     if ssh -o BatchMode=yes -o ConnectTimeout=3 desktop true 2>/dev/null; then
-      ssh -o BatchMode=yes desktop "sudo -n systemctl suspend" 2>/dev/null && notify-send "Fleet" "Desktop suspended" || notify-send -u critical "Fleet" "Desktop suspend requires sudo/TTY (open SSH session)"
+      ssh -o BatchMode=yes desktop "sudo -n systemctl suspend" 2>/dev/null \
+        && notify-send "Fleet" "Desktop suspended" \
+        || notify-send -u critical "Fleet" "Desktop suspend requires sudo/TTY (open SSH session)"
     else
       notify-send "Fleet" "Desktop is already offline"
     fi ;;
-  *"SSH -> Pi"*) ghostty -e ssh pi ;;
-  *"SSH -> NAS"*) ghostty -e ssh nas ;;
-  *"SSH -> Desktop"*) ghostty -e ssh desktop ;;
-  *"Fleet Startpage"*) zen http://100.68.54.112:8210 ;;
-  *"CS Hub"*) zen http://100.68.54.112:8200 ;;
-  *"Open WebUI"*) zen http://100.68.54.112:3000 ;;
-  *"Chub Gems"*) zen http://100.68.54.112:5123 ;;
-  *"NAS Launcher"*) zen http://100.97.162.110:8300 ;;
-  *"NAS Files"*) dolphin "sftp://dyna@100.97.162.110/srv" ;;
+  *"Fleet Startpage"*)    nohup setsid zen "http://${PI_IP}:8210" >/dev/null 2>&1 </dev/null & ;;
+  *"CS Student Hub"*)     nohup setsid zen "http://${PI_IP}:8200" >/dev/null 2>&1 </dev/null & ;;
+  *"Open WebUI"*)         nohup setsid zen "http://${PI_IP}:3000" >/dev/null 2>&1 </dev/null & ;;
+  *"Chub AI Gems"*)       nohup setsid zen "http://${PI_IP}:5123" >/dev/null 2>&1 </dev/null & ;;
+  *"Pi Glances"*)         nohup setsid zen "http://${PI_IP}:61208" >/dev/null 2>&1 </dev/null & ;;
+  *"NAS Launcher"*)       nohup setsid zen "http://${NAS_IP}:8300" >/dev/null 2>&1 </dev/null & ;;
+  *"Jellyfin"*)           nohup setsid zen "http://${NAS_IP}:8096" >/dev/null 2>&1 </dev/null & ;;
+  *"Jellyseerr"*)         nohup setsid zen "http://${NAS_IP}:5055" >/dev/null 2>&1 </dev/null & ;;
+  *"qBittorrent"*)        nohup setsid zen "http://${NAS_IP}:8080" >/dev/null 2>&1 </dev/null & ;;
+  *"Immich"*)             nohup setsid zen "http://${NAS_IP}:2283" >/dev/null 2>&1 </dev/null & ;;
+  *"NAS Files"*)          nohup setsid dolphin "sftp://dyna@${NAS_IP}/srv" >/dev/null 2>&1 </dev/null & ;;
   *"Backup Now"*)
-    if ssh -o BatchMode=yes -o ConnectTimeout=5 pi "systemctl --user start pi-nas-backup.service"; then
+    if curl -fsS -m 4 -X POST "http://${PI_IP}:8210/api/backup" >/dev/null 2>&1; then
       notify-send "Fleet" "Pi -> NAS backup triggered"
     else
-      notify-send -u critical "Fleet" "Failed to trigger backup on Pi"
+      notify-send -u critical "Fleet" "Failed to trigger backup via Pi API"
     fi ;;
+  *"NAS Nix Cache"*)
+    nohup setsid ghostty -e bash -lc 'nas-cache-push; echo ""; read -rp "Press Enter to close..."' >/dev/null 2>&1 </dev/null & ;;
 esac

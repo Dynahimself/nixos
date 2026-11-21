@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
+cur="default (#cba6f7)"
+[ -f "$HOME/.cache/mocha-accent" ] && cur=$(cat "$HOME/.cache/mocha-accent")
+
 choice=$(printf '%s\n' \
   "Mauve #cba6f7" \
   "Blue #89b4fa" \
@@ -9,7 +12,7 @@ choice=$(printf '%s\n' \
   "Green #a6e3a1" \
   "Peach #fab387" \
   "Red #f38ba8" \
-  "Pink #f5c2e7" | rofi -dmenu -i -p "󰏘 Mocha Accent")
+  "Pink #f5c2e7" | rofi -dmenu -i -p "󰏘 Mocha Accent" -mesg "Current: ${cur}" || true)
 
 [ -z "$choice" ] && exit 0
 name="${choice%% *}"
@@ -17,26 +20,49 @@ hex="${choice##* }"
 hex_nohash="${hex#\#}"
 
 mkdir -p "$HOME/.cache"
-echo "$hex" > "$HOME/.cache/mocha-accent"
+echo "$name ($hex)" > "$HOME/.cache/mocha-accent"
 
 hyprctl eval "hl.config({ general = { col = { active_border = { colors = { \"rgba(${hex_nohash}ff)\", \"rgba(89b4faff)\" }, angle = 45 } } } })" >/dev/null 2>&1 || true
 
-for f in /etc/nixos/dotfiles/waybar/style.css /etc/nixos/dotfiles/swaync/style.css; do
-  [ -w "$f" ] && sed -i -E "s|(@define-color mauve[[:space:]]+)#[0-9a-fA-F]{6};|\1${hex};|" "$f"
+for f in "$HOME/.config/waybar/style.css" "$HOME/.config/swaync/style.css"; do
+  target=$(readlink -f "$f" 2>/dev/null || echo "$f")
+  [ -w "$target" ] && sed -i -E "s|(@define-color mauve[[:space:]]+)#[0-9a-fA-F]{6};|\1${hex};|" "$target"
 done
 
-if [ -w /etc/nixos/dotfiles/rofi/config.rasi ]; then
-  sed -i -E "s|(mauve:[[:space:]]+)#[0-9a-fA-F]{8};|\1${hex}ff;|" /etc/nixos/dotfiles/rofi/config.rasi
+rofi_cfg=$(readlink -f "$HOME/.config/rofi/config.rasi" 2>/dev/null || echo "$HOME/.config/rofi/config.rasi")
+[ -w "$rofi_cfg" ] && sed -i -E "s|(mauve:[[:space:]]+)#[0-9a-fA-F]{8};|\1${hex}ff;|" "$rofi_cfg"
+
+for f in "$HOME/.config/wlogout/style.css" "$HOME/.config/swayosd/style.css"; do
+  target=$(readlink -f "$f" 2>/dev/null || echo "$f")
+  [ -w "$target" ] && sed -i -E "s|border-color:[[:space:]]*#[0-9a-fA-F]{6};|border-color: ${hex};|g" "$target"
+done
+
+swayosd_css=$(readlink -f "$HOME/.config/swayosd/style.css" 2>/dev/null || echo "$HOME/.config/swayosd/style.css")
+if [ -w "$swayosd_css" ]; then
+  sed -i -E "s|(border:[[:space:]]*1\.5px solid )#[0-9a-fA-F]{6};|\1${hex};|" "$swayosd_css"
+  sed -i -E "s|(background:[[:space:]]*)#[0-9a-fA-F]{6};|\1${hex};|" "$swayosd_css"
+  # Keep trough surface0 color intact
+  python3 - "$swayosd_css" "$hex" <<'PY'
+import re, sys
+p, hexv = sys.argv[1], sys.argv[2]
+with open(p, "r", encoding="utf-8") as f:
+    s = f.read()
+s = re.sub(r"(trough\s*\{[^}]*background:\s*)#[0-9a-fA-F]{6};", r"\g<1>#313244;", s, flags=re.S)
+s = re.sub(r"(progress\s*\{[^}]*background:\s*)#[0-9a-fA-F]{6};", rf"\g<1>{hexv};", s, flags=re.S)
+with open(p, "w", encoding="utf-8") as f:
+    f.write(s)
+PY
 fi
-
-for f in /etc/nixos/dotfiles/wlogout/style.css /etc/nixos/dotfiles/swayosd/style.css; do
-  [ -w "$f" ] && sed -i -E "s|border-color:[[:space:]]*#[0-9a-fA-F]{6};|border-color: ${hex};|g" "$f"
-done
 
 pkill -x waybar 2>/dev/null || true
 pkill -x .waybar-wrapped 2>/dev/null || true
 sleep 0.2
-nohup setsid waybar >/tmp/waybar.log 2>&1 </dev/null &
+hyprctl dispatch 'hl.dsp.exec_cmd("waybar >/tmp/waybar.log 2>&1")' >/dev/null 2>&1 || nohup setsid waybar >/tmp/waybar.log 2>&1 </dev/null &
 swaync-client -rs >/dev/null 2>&1 || true
+
+pkill -x swayosd-server 2>/dev/null || true
+pkill -x .swayosd-server 2>/dev/null || true
+sleep 0.1
+hyprctl dispatch 'hl.dsp.exec_cmd("swayosd-server")' >/dev/null 2>&1 || nohup setsid swayosd-server >/dev/null 2>&1 </dev/null &
 
 notify-send "Catppuccin Mocha" "Accent switched to $name ($hex)"

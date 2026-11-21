@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
-status=$(nmcli -fields WIFI g | sed -n '2p' | tr -d ' ')
-if [ "$status" = "enabled" ]; then
+
+lan_line=$(ip -4 -o addr show scope global 2>/dev/null | awk '$2 !~ /^tailscale/ && $2 !~ /^docker/ && $2 !~ /^br-/ {sub(/\/.*/, "", $4); print $2 ": " $4; exit}' || true)
+lan_ip="${lan_line#*: }"
+ts_ip=$(tailscale ip -4 2>/dev/null | head -n1 || true)
+wifi_status=$(nmcli -fields WIFI g 2>/dev/null | sed -n '2p' | tr -d ' ' || echo "unknown")
+
+mesg="LAN: ${lan_line:-disconnected}  ·  Tailscale: ${ts_ip:-offline}  ·  Wi-Fi: ${wifi_status}"
+
+quick_actions=""
+[ -n "$lan_ip" ] && quick_actions+="󰅌  Copy LAN IP (${lan_ip})"$'\n'
+[ -n "$ts_ip" ] && quick_actions+="󰅌  Copy Tailscale IP (${ts_ip})"$'\n'
+quick_actions+="󰒄  Open Network Connections (nm-connection-editor)"$'\n'
+
+if [ "$wifi_status" = "enabled" ]; then
   toggle="󰤭  Disable Wi-Fi"
-  list=$(nmcli --fields "IN-USE,SECURITY,SIGNAL,SSID" device wifi list --rescan auto | sed 1d | awk '
+  list=$(nmcli --fields "IN-USE,SECURITY,SIGNAL,SSID" device wifi list --rescan auto 2>/dev/null | sed 1d | awk '
     NF >= 4 {
       inuse = ($1 == "*") ? "✓ " : "  ";
       sec = ($2 ~ /WPA|WEP/) ? "󰌾" : "󰿆";
@@ -11,20 +23,38 @@ if [ "$status" = "enabled" ]; then
       $1=""; $2=""; $3="";
       sub(/^ +/, "");
       if (length($0) > 0 && !seen[$0]++) printf "%s%s  %4s  %s\n", inuse, sec, sig, $0;
-    }')
-  chosen=$(printf "%s\n%s\n" "$toggle" "$list" | rofi -dmenu -i -p "󰤨 Wi-Fi")
+    }' || true)
+  menu="${quick_actions}${toggle}"
+  [ -n "$list" ] && menu+=$'\n'"${list}"
+  chosen=$(printf '%s\n' "$menu" | rofi -dmenu -i -p "󰤨 Network" -mesg "$mesg" || true)
 else
   toggle="󰤨  Enable Wi-Fi"
-  chosen=$(printf "%s\n" "$toggle" | rofi -dmenu -i -p "󰤨 Wi-Fi")
+  menu="${quick_actions}${toggle}"
+  chosen=$(printf '%s\n' "$menu" | rofi -dmenu -i -p "󰤨 Network" -mesg "$mesg" || true)
 fi
+
 [ -z "$chosen" ] && exit 0
-if [ "$chosen" = "󰤨  Enable Wi-Fi" ]; then
-  nmcli radio wifi on && notify-send "Wi-Fi" "Enabled"
-  exit 0
-elif [ "$chosen" = "󰤭  Disable Wi-Fi" ]; then
-  nmcli radio wifi off && notify-send "Wi-Fi" "Disabled"
-  exit 0
-fi
+
+case "$chosen" in
+  *"Copy LAN IP"*)
+    printf '%s' "$lan_ip" | wl-copy
+    notify-send "Network" "Copied LAN IP: $lan_ip"
+    exit 0 ;;
+  *"Copy Tailscale IP"*)
+    printf '%s' "$ts_ip" | wl-copy
+    notify-send "Network" "Copied Tailscale IP: $ts_ip"
+    exit 0 ;;
+  *"Open Network Connections"*)
+    nohup setsid nm-connection-editor >/dev/null 2>&1 </dev/null &
+    exit 0 ;;
+  "󰤨  Enable Wi-Fi")
+    nmcli radio wifi on && notify-send "Wi-Fi" "Enabled"
+    exit 0 ;;
+  "󰤭  Disable Wi-Fi")
+    nmcli radio wifi off && notify-send "Wi-Fi" "Disabled"
+    exit 0 ;;
+esac
+
 ssid=$(echo "$chosen" | sed -E 's/^(✓ |  )[󰌾󰿆] +[0-9]+% +//')
 if nmcli -g NAME connection show | grep -Fxq "$ssid"; then
   if nmcli connection up id "$ssid"; then
@@ -34,10 +64,14 @@ if nmcli -g NAME connection show | grep -Fxq "$ssid"; then
   fi
 else
   if echo "$chosen" | grep -q "󰌾"; then
-    pw=$(rofi -dmenu -password -p "Password for $ssid")
+    pw=$(rofi -dmenu -password -p "Password for $ssid" || true)
     [ -z "$pw" ] && exit 0
-    nmcli device wifi connect "$ssid" password "$pw" && notify-send "Wi-Fi" "Connected to $ssid" || notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
+    nmcli device wifi connect "$ssid" password "$pw" \
+      && notify-send "Wi-Fi" "Connected to $ssid" \
+      || notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
   else
-    nmcli device wifi connect "$ssid" && notify-send "Wi-Fi" "Connected to $ssid" || notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
+    nmcli device wifi connect "$ssid" \
+      && notify-send "Wi-Fi" "Connected to $ssid" \
+      || notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
   fi
 fi

@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+st_up=0
+if ss -ltn 2>/dev/null | grep -q ':8000 '; then
+  st_up=1
+fi
+
+latest_tp_dir=$(ls -1dt "$HOME/cswip/Aoop/homeworks"/TP* 2>/dev/null | head -n1 || true)
+[ -z "$latest_tp_dir" ] && latest_tp_dir="$HOME/cswip/Aoop"
+latest_tp_name=$(basename "$latest_tp_dir")
+latest_tp_pdf=$(ls -1t "$HOME/Downloads"/*TP*.pdf "$HOME/Downloads"/*.pdf 2>/dev/null | head -n1 || true)
+
+st_label="󰚩  SillyTavern (:8000) — Start & Open in Zen"
+[ "$st_up" = "1" ] && st_label="󰚩  SillyTavern (:8000 RUNNING) — Open in Zen"
+
+items=(
+  "󰑴  CEGEP Study Split (${latest_tp_name} Neovim + PDF + CS Hub)"
+  "  Open ${latest_tp_name} C# Homework in Neovim"
+  "󰈦  Open Latest Assignment PDF in Zathura"
+  "$st_label"
+)
+[ "$st_up" = "1" ] && items+=("󰓛  Stop SillyTavern Server (:8000)")
+
+items+=(
+  "󰍳  Launch PrismLauncher (Minecraft GTNH / JJK)"
+  "󰢮  RX 9070 XT GPU Dashboard (amdgpu_top)"
+  "  System Process Monitor (btop)"
+  "󰆼  DBeaver SQL Workbench"
+  "📓  Open Quick Notes in Neovim"
+  "󰑴  Capture Term to CS Hub (SUPER+SHIFT+T)"
+  "󰏗  Git Status & Pull /etc/nixos"
+)
+
+mesg="Aoop: ${latest_tp_name}  ·  SillyTavern: $([ "$st_up" = "1" ] && echo "UP :8000" || echo "stopped")"
+chosen=$(printf '%s\n' "${items[@]}" | rofi -dmenu -i -p "󰉋 Workbench" -mesg "$mesg" || true)
+[ -z "$chosen" ] && exit 0
+
+case "$chosen" in
+  *"CEGEP Study Split"*)
+    nohup setsid ghostty -e bash -lc "cd '$latest_tp_dir' && exec nvim" >/dev/null 2>&1 </dev/null &
+    [ -n "$latest_tp_pdf" ] && nohup setsid zathura "$latest_tp_pdf" >/dev/null 2>&1 </dev/null &
+    nohup setsid zen "http://100.68.54.112:8200" >/dev/null 2>&1 </dev/null &
+    notify-send "Study Workbench" "Opened ${latest_tp_name}, PDF, and CS Hub" ;;
+  *"C# Homework in Neovim"*)
+    nohup setsid ghostty -e bash -lc "cd '$latest_tp_dir' && exec nvim" >/dev/null 2>&1 </dev/null & ;;
+  *"Latest Assignment PDF"*)
+    if [ -n "$latest_tp_pdf" ]; then
+      nohup setsid zathura "$latest_tp_pdf" >/dev/null 2>&1 </dev/null &
+    else
+      notify-send -u critical "Workbench" "No PDF found in ~/Downloads"
+    fi ;;
+  *"SillyTavern (:8000"*)
+    if [ "$st_up" = "0" ]; then
+      st_dir="$HOME/SillyTavern-Launcher/SillyTavern"
+      if [ -d "$st_dir" ]; then
+        if [ -d "$st_dir/node_modules" ]; then
+          nohup setsid bash -lc "cd '$st_dir' && exec node server.js" >/tmp/sillytavern.log 2>&1 </dev/null &
+        else
+          nohup setsid bash -lc "cd '$st_dir' && exec bash start.sh" >/tmp/sillytavern.log 2>&1 </dev/null &
+        fi
+        notify-send "SillyTavern" "Starting server on :8000..."
+        for _ in $(seq 1 20); do
+          ss -ltn 2>/dev/null | grep -q ':8000 ' && break
+          sleep 0.4
+        done
+      else
+        notify-send -u critical "SillyTavern" "Directory not found: $st_dir"
+        exit 1
+      fi
+    fi
+    nohup setsid zen "http://127.0.0.1:8000" >/dev/null 2>&1 </dev/null & ;;
+  *"Stop SillyTavern"*)
+    pkill -f "SillyTavern.*server\.js" 2>/dev/null || pkill -f "node server.js" 2>/dev/null || true
+    notify-send "SillyTavern" "Stopped server on :8000" ;;
+  *"PrismLauncher"*)
+    nohup setsid prismlauncher >/dev/null 2>&1 </dev/null & ;;
+  *"amdgpu_top"*)
+    nohup setsid ghostty -e amdgpu_top >/dev/null 2>&1 </dev/null & ;;
+  *"btop"*)
+    nohup setsid ghostty -e btop >/dev/null 2>&1 </dev/null & ;;
+  *"DBeaver"*)
+    nohup setsid dbeaver >/dev/null 2>&1 </dev/null & ;;
+  *"Quick Notes"*)
+    mkdir -p "$HOME/Documents"
+    nohup setsid ghostty -e nvim "$HOME/Documents/quick-notes.md" >/dev/null 2>&1 </dev/null & ;;
+  *"Capture Term"*)
+    cshub-term-capture ;;
+  *"/etc/nixos"*)
+    nohup setsid ghostty -e bash -lc 'cd /etc/nixos && git status; echo ""; git log -n 5 --oneline; echo ""; read -rp "Press Enter to close..."' >/dev/null 2>&1 </dev/null & ;;
+esac

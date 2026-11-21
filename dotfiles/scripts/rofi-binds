@@ -1,14 +1,113 @@
 #!/usr/bin/env bash
 set -euo pipefail
-{
-  if [ -f "$HOME/.config/hypr/hyprland.lua" ]; then
-    sed -nE 's/^[[:space:]]*hl\.bind\(([^,]+),[[:space:]]*(.*)\)[[:space:]]*$/\1  ->  \2/p' "$HOME/.config/hypr/hyprland.lua" \
-      | sed -E 's/mainMod \.\. "/SUPER/g; s/"//g; s/hl\.dsp\.exec_cmd\((.*)\)/\1/; s/hl\.dsp\.//g'
-  elif [ -f /etc/nixos/dotfiles/hypr/conf/binds.conf ]; then
-    awk -F',' '/^[[:space:]]*bind/ { gsub(/\$mainMod/, "SUPER", $1); print $1 " + " $2 " -> " $3 }' /etc/nixos/dotfiles/hypr/conf/binds.conf
-  fi
-  if [ -f "$HOME/cheatsheet.txt" ]; then
-    echo "--- ~/cheatsheet.txt ---"
-    cat "$HOME/cheatsheet.txt"
-  fi
-} | rofi -dmenu -i -p "󰌌 Keybinds" >/dev/null || true
+
+exec python3 - <<'PY'
+import json
+import os
+import re
+import subprocess
+
+
+def format_mods(mask):
+    parts = []
+    if mask & 64:
+        parts.append("SUPER")
+    if mask & 4:
+        parts.append("CTRL")
+    if mask & 8:
+        parts.append("ALT")
+    if mask & 1:
+        parts.append("SHIFT")
+    return " + ".join(parts)
+
+
+exec_by_desc = {}
+lua_path = os.path.expanduser("~/.config/hypr/hyprland.lua")
+if os.path.exists(lua_path):
+    with open(lua_path, "r", encoding="utf-8") as f:
+        for line in f:
+            m_cmd = re.search(r'hl\.dsp\.exec_cmd\("((?:[^"\\]|\\.)*)"\)', line)
+            m_desc = re.search(r'desc\s*=\s*"([^"]+)"', line)
+            if m_cmd and m_desc:
+                cmd = m_cmd.group(1).replace('\\"', '"').replace("\\\\", "\\")
+                exec_by_desc[m_desc.group(1)] = cmd
+
+rows = []
+seen = set()
+try:
+    raw = subprocess.check_output(["hyprctl", "binds", "-j"], text=True, timeout=3)
+    binds = json.loads(raw)
+    for b in binds:
+        key = b.get("key") or ""
+        if not key:
+            continue
+        mods = format_mods(int(b.get("modmask") or 0))
+        combo = f"{mods} + {key}" if mods else key
+        desc = (b.get("description") or "").strip()
+        if not desc:
+            disp = (b.get("dispatcher") or "").replace("HL.Dispatcher(", "").rstrip(")")
+            desc = disp
+        # Collapse repetitive 1..10 workspace entries into clean summary once
+        if desc.startswith("Workspace ") and key not in ("1", "0"):
+            if key == "2":
+                rows.append((f"{mods} + 1..0", "Switch to Workspace 1..10", None))
+            continue
+        if desc.startswith("Move Window to WS ") and key not in ("1", "0"):
+            if key == "2":
+                rows.append((f"{mods} + SHIFT + 1..0", "Move Window to Workspace 1..10", None))
+            continue
+        sig = (combo, desc)
+        if sig in seen:
+            continue
+        seen.add(sig)
+        rows.append((combo, desc, exec_by_desc.get(desc)))
+except Exception:
+    pass
+
+cs_path = os.path.expanduser("~/cheatsheet.txt")
+if os.path.exists(cs_path):
+    with open(cs_path, "r", encoding="utf-8") as f:
+        for line in f:
+            s = line.strip()
+            if s and not s.startswith("#"):
+                rows.append(("NOTE", s, None))
+
+display_lines = []
+row_map = {}
+for combo, desc, cmd in rows:
+    marker = "▸" if cmd else "·"
+    label = f"{combo:<24} {marker} {desc}"
+    display_lines.append(label)
+    row_map[label] = (combo, desc, cmd)
+
+proc = subprocess.run(
+    [
+        "rofi",
+        "-dmenu",
+        "-i",
+        "-p",
+        "󰌌 Keybinds",
+        "-mesg",
+        "Select any ▸ command to run it immediately, or inspect shortcuts",
+    ],
+    input="\n".join(display_lines),
+    text=True,
+    capture_output=True,
+)
+
+chosen = proc.stdout.strip()
+if not chosen or chosen not in row_map:
+    raise SystemExit(0)
+
+combo, desc, cmd = row_map[chosen]
+if cmd:
+    subprocess.Popen(
+        ["bash", "-lc", cmd],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+else:
+    subprocess.run(["notify-send", "Keybind", f"{combo} -> {desc}"], check=False)
+PY

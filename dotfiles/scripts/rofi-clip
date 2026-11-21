@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+entries=$(cliphist list || true)
+if [ -z "$entries" ]; then
+  notify-send "Clipboard" "Clipboard history is empty"
+  exit 0
+fi
+
+chosen=$(printf '%s\n%s\n' "󰆴  Clear Clipboard History" "$entries" | rofi -dmenu -i -p "󰅌 Clipboard" || true)
+[ -z "$chosen" ] && exit 0
+
+if [ "$chosen" = "󰆴  Clear Clipboard History" ]; then
+  cliphist wipe
+  notify-send "Clipboard" "Cleared clipboard history"
+else
+  printf '%s' "$chosen" | cliphist decode | wl-copy
+  notify-send "Clipboard" "Copied selection to clipboard"
+fi

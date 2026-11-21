@@ -99,8 +99,9 @@
     # =====================================================
     # bspwm stack
     # =====================================================
-    rofi
-    rofi-calc
+    (rofi.override { plugins = [ rofi-calc ]; })
+    libqalculate
+    libnotify
     rofi-systemd
     rofi-network-manager
     swaynotificationcenter

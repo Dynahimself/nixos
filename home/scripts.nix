@@ -14,6 +14,10 @@ in
     "rofi-fleet"
     "rofi-system"
     "rofi-wallpaper"
+    "rofi-calc"
+    "rofi-clip"
+    "rofi-audio"
+    "rofi-workbench"
     "theme-accent"
     "study-mode"
     "game-mode"
@@ -23,6 +27,7 @@ in
     "cshub-bar"
     "fleet-bar"
     "clock-bar"
+    "hw-temp-bar"
     "battery-alert"
     "nas-cache-push"
   ];

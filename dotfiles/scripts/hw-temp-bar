@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec python3 - <<'PY'
+import glob
+import json
+import os
+
+
+def read_str(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except Exception:
+        return None
+
+
+def read_int(path):
+    val = read_str(path)
+    if val is None:
+        return None
+    try:
+        return int(val)
+    except Exception:
+        return None
+
+
+cpu_tctl = None
+cpu_tccd = None
+nvme_temps = []
+spd_temps = []
+dgpu = None
+
+for hw in sorted(glob.glob("/sys/class/hwmon/hwmon*")):
+    name = read_str(os.path.join(hw, "name")) or ""
+    if name in ("k10temp", "coretemp", "zenpower"):
+        t1 = read_int(os.path.join(hw, "temp1_input"))
+        if t1 is not None:
+            cpu_tctl = t1 / 1000.0
+        for ti in sorted(glob.glob(os.path.join(hw, "temp*_label"))):
+            lbl = read_str(ti)
+            if lbl and "Tccd" in lbl:
+                inp = ti.replace("_label", "_input")
+                v = read_int(inp)
+                if v is not None:
+                    cpu_tccd = v / 1000.0
+                    break
+    elif name == "amdgpu":
+        vram_tot = read_int(os.path.join(hw, "device/mem_info_vram_total")) or 0
+        has_hotspot = os.path.exists(os.path.join(hw, "temp2_input"))
+        if vram_tot > 4 * 1024 * 1024 * 1024 or (dgpu is None and has_hotspot):
+            edge = read_int(os.path.join(hw, "temp1_input"))
+            junc = read_int(os.path.join(hw, "temp2_input"))
+            mem_t = read_int(os.path.join(hw, "temp3_input"))
+            busy = read_int(os.path.join(hw, "device/gpu_busy_percent"))
+            vram_used = read_int(os.path.join(hw, "device/mem_info_vram_used"))
+            pwr = read_int(os.path.join(hw, "power1_average"))
+            if pwr is None:
+                pwr = read_int(os.path.join(hw, "power1_input"))
+            dgpu = {
+                "edge": edge / 1000.0 if edge is not None else None,
+                "junc": junc / 1000.0 if junc is not None else None,
+                "mem": mem_t / 1000.0 if mem_t is not None else None,
+                "busy": busy,
+                "vram_used": vram_used / (1024 ** 3) if vram_used is not None else None,
+                "vram_tot": vram_tot / (1024 ** 3) if vram_tot else None,
+                "pwr": pwr / 1e6 if pwr is not None else None,
+            }
+    elif name == "nvme":
+        t = read_int(os.path.join(hw, "temp1_input"))
+        if t is not None:
+            nvme_temps.append(t / 1000.0)
+    elif name == "spd5118":
+        t = read_int(os.path.join(hw, "temp1_input"))
+        if t is not None:
+            spd_temps.append(t / 1000.0)
+
+if cpu_tctl is None:
+    tz = read_int("/sys/class/thermal/thermal_zone0/temp")
+    if tz is not None:
+        cpu_tctl = tz / 1000.0
+
+cpu_str = f"{cpu_tctl:.0f}°C" if cpu_tctl is not None else "?°C"
+lines = []
+if cpu_tctl is not None:
+    c_line = f"<span color='#fab387'><b>CPU Tctl:</b></span>  {cpu_tctl:.1f}°C"
+    if cpu_tccd is not None:
+        c_line += f"  (CCD1 {cpu_tccd:.1f}°C)"
+    lines.append(c_line)
+
+max_t = cpu_tctl or 0.0
+
+if dgpu is not None:
+    edge_s = f"{dgpu['edge']:.0f}°C" if dgpu["edge"] is not None else "?°C"
+    busy_s = f"{dgpu['busy']}%" if dgpu["busy"] is not None else "?%"
+    text = f" {cpu_str} · 󰢮 {busy_s} {edge_s}"
+    gpu_parts = [f"Load {busy_s}", f"Edge {edge_s}"]
+    if dgpu["junc"] is not None:
+        gpu_parts.append(f"Hotspot {dgpu['junc']:.0f}°C")
+        max_t = max(max_t, dgpu["junc"])
+    if dgpu["mem"] is not None:
+        gpu_parts.append(f"Mem {dgpu['mem']:.0f}°C")
+    lines.append(f"<span color='#cba6f7'><b>GPU:</b></span>       " + " · ".join(gpu_parts))
+    if dgpu["vram_used"] is not None and dgpu["vram_tot"]:
+        pwr_s = f"  ·  Power {dgpu['pwr']:.0f}W" if dgpu["pwr"] is not None else ""
+        lines.append(
+            f"<span color='#89b4fa'><b>VRAM:</b></span>      {dgpu['vram_used']:.1f} / {dgpu['vram_tot']:.1f} GiB{pwr_s}"
+        )
+else:
+    text = f" {cpu_str}"
+
+if nvme_temps:
+    lines.append(
+        "<span color='#a6e3a1'><b>NVMe:</b></span>      "
+        + ", ".join(f"{t:.0f}°C" for t in nvme_temps)
+    )
+if spd_temps:
+    lines.append(
+        "<span color='#94e2d5'><b>DDR5:</b></span>      "
+        + ", ".join(f"{t:.0f}°C" for t in spd_temps)
+    )
+
+lines.append("<span color='#a6adc8'>Left-click: btop  |  Right-click: amdgpu_top</span>")
+
+cls = "critical" if max_t >= 88 else ("warm" if max_t >= 72 else "normal")
+print(json.dumps({"text": text, "tooltip": "\n".join(lines), "class": cls}, ensure_ascii=False))
+PY

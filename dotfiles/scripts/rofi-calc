@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HIST="${XDG_RUNTIME_DIR:-/tmp}/rofi-calc-history"
+touch "$HIST"
+
+mesg="Type an expression (e.g. 2560*1440, hex(255), sqrt(2), ans*1.15)"
+
+while true; do
+  list="󰆴  Clear History"
+  if [ -s "$HIST" ]; then
+    hist_lines=$(tac "$HIST" | head -n 15)
+    list="${hist_lines}"$'\n'"${list}"
+  fi
+
+  chosen=$(printf '%s\n' "$list" | rofi -dmenu -i -p "󰃬 Calc" -mesg "$mesg" || true)
+  [ -z "${chosen// /}" ] && exit 0
+
+  if [ "$chosen" = "󰆴  Clear History" ]; then
+    : > "$HIST"
+    mesg="History cleared"
+    continue
+  fi
+
+  if grep -Fxq "$chosen" "$HIST" 2>/dev/null; then
+    res=$(printf '%s' "$chosen" | sed -nE 's/^.*= ([^()]+)( \(.*\))?$/\1/p' | sed -E 's/[[:space:]]+$//')
+    if [ -n "$res" ]; then
+      printf '%s' "$res" | wl-copy
+      notify-send "Calculator" "Copied $res to clipboard"
+      exit 0
+    fi
+  fi
+
+  eval_out=$(python3 - "$HIST" "$chosen" <<'PY'
+import math
+import re
+import sys
+
+hist_path, expr = sys.argv[1], sys.argv[2].strip()
+
+last_ans = 0
+try:
+    with open(hist_path, "r", encoding="utf-8") as f:
+        lines = [l.strip() for l in f if l.strip()]
+    if lines:
+        m = re.search(r"=\s*([^\s(]+)", lines[-1])
+        if m:
+            last_ans = eval(m.group(1), {"__builtins__": {}}, {})
+except Exception:
+    pass
+
+env = {
+    "__builtins__": {},
+    "ans": last_ans,
+    "pi": math.pi,
+    "e": math.e,
+    "tau": math.tau,
+    "sqrt": math.sqrt,
+    "sin": math.sin,
+    "cos": math.cos,
+    "tan": math.tan,
+    "asin": math.asin,
+    "acos": math.acos,
+    "atan": math.atan,
+    "log": math.log,
+    "log2": math.log2,
+    "log10": math.log10,
+    "exp": math.exp,
+    "pow": pow,
+    "abs": abs,
+    "round": round,
+    "floor": math.floor,
+    "ceil": math.ceil,
+    "factorial": math.factorial,
+    "gcd": math.gcd,
+    "hex": hex,
+    "bin": bin,
+    "oct": oct,
+    "int": int,
+    "float": float,
+}
+
+clean = expr.replace("^", "**")
+try:
+    val = eval(clean, env, {})
+    if isinstance(val, float) and val.is_integer():
+        val_str = str(int(val))
+    elif isinstance(val, float):
+        val_str = f"{val:.10g}"
+    else:
+        val_str = str(val)
+    extra = ""
+    if isinstance(val, int) and 0 <= val <= 0xFFFFFFFF and not expr.startswith(("hex(", "bin(", "oct(")):
+        extra = f" (0x{val:X})"
+    line = f"{expr} = {val_str}{extra}"
+    print("OK|" + val_str + "|" + line)
+except Exception as exc:
+    print("ERR|" + str(exc))
+PY
+)
+
+  if [[ "$eval_out" == OK\|* ]]; then
+    rest="${eval_out#OK|}"
+    val="${rest%%|*}"
+    line="${rest#*|}"
+    printf '%s\n' "$line" >> "$HIST"
+    printf '%s' "$val" | wl-copy
+    mesg="Result: ${val}  (copied to clipboard — chain with 'ans')"
+  else
+    err="${eval_out#ERR|}"
+    mesg="Error: ${err}"
+  fi
+done

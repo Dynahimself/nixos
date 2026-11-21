@@ -144,11 +144,16 @@ window#waybar.empty #window {
   color: @blue;
   padding-right: 8px;
 }
-#temperature {
+#temperature,
+#custom-hwtemp {
   color: @peach;
   padding-right: 8px;
 }
-#temperature.critical {
+#custom-hwtemp.warm {
+  color: @yellow;
+}
+#temperature.critical,
+#custom-hwtemp.critical {
   color: @red;
 }
 #memory {
@@ -187,6 +192,7 @@ window#waybar.empty #window {
 }
 #custom-cshub:hover,
 #custom-fleet:hover,
+#custom-clock:hover,
 #language:hover,
 #network:hover,
 #bluetooth:hover,

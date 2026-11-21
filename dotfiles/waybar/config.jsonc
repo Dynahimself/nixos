@@ -111,32 +111,37 @@
 
   "group/sys": {
     "orientation": "horizontal",
-    "modules": ["cpu", "temperature", "memory", "disk"]
+    "modules": ["cpu", "custom/hwtemp", "memory", "disk"]
   },
 
   "cpu": {
     "format": " {usage}%",
     "interval": 2,
-    "tooltip": true
+    "tooltip": true,
+    "on-click": "ghostty -e btop"
   },
 
-  "temperature": {
-    "critical-threshold": 85,
-    "format": " {temperatureC}°",
-    "interval": 4
+  "custom/hwtemp": {
+    "exec": "hw-temp-bar",
+    "return-type": "json",
+    "interval": 4,
+    "on-click": "ghostty -e btop",
+    "on-click-right": "ghostty -e amdgpu_top"
   },
 
   "memory": {
     "format": " {used:0.1f}G",
     "interval": 5,
-    "tooltip-format": "{used:0.1f} GiB / {total:0.1f} GiB ({percentage}%)"
+    "tooltip-format": "{used:0.1f} GiB / {total:0.1f} GiB ({percentage}%)",
+    "on-click": "ghostty -e btop"
   },
 
   "disk": {
     "interval": 60,
-    "path": "/",
+    "paths": ["/"],
     "format": "󰋊 {percentage_used}%",
-    "tooltip-format": "{used} / {total} ({free} free)"
+    "tooltip-format": "{used} / {total} ({free} free)",
+    "on-click": "dolphin"
   },
 
   "hyprland/language": {
@@ -164,7 +169,8 @@
       "default": ["", "", ""]
     },
     "scroll-step": 5,
-    "on-click": "pavucontrol",
+    "on-click": "rofi-audio",
+    "on-click-middle": "pavucontrol",
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
   },
 
@@ -192,7 +198,8 @@
     "tooltip-format-ethernet": "{ifname}: {ipaddr}/{cidr}",
     "tooltip-format-linked": "{ifname} (linked)",
     "tooltip-format-disconnected": "Disconnected — click to open Wi-Fi menu",
-    "on-click": "rofi-wifi"
+    "on-click": "rofi-wifi",
+    "on-click-right": "nm-connection-editor"
   },
 
   "battery": {
