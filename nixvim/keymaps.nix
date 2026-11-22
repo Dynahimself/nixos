@@ -163,6 +163,8 @@
     { mode = "n"; key = "<leader>cg"; action.__raw = "function() require('neogen').generate() end"; options.desc = "Generate Docstring (Neogen)"; }
     { mode = "n"; key = "<leader>cp"; action = "<cmd>SmartPreview<cr>"; options.desc = "Toggle Markdown/Typst Preview"; }
     { mode = [ "n" "v" ]; key = "<leader>ct"; action = "<cmd>CshubTerm<cr>"; options.desc = "Capture Term -> CS Hub"; }
+    { mode = "n"; key = "<leader>cA"; action = "<cmd>CshubAdd<cr>"; options.desc = "Add Exam/HW/Task -> CS Hub"; }
+    { mode = "n"; key = "<leader>cH"; action = "<cmd>CshubDash<cr>"; options.desc = "CS Hub Dashboard & Calendar"; }
     { mode = "n"; key = "<leader>cT"; action = "<cmd>Cstest<cr>"; options.desc = "Run dotnet test"; }
     { mode = "n"; key = "<leader>oa"; action.__raw = "function() require('otter').activate({'javascript','css'}, true, true, nil) end"; options.desc = "Otter Activate (JS/CSS in HTML)"; }
 
@@ -231,6 +233,7 @@
     # --- UI Toggles ---
     { mode = "n"; key = "<leader>uf"; action.__raw = "function() vim.g.format_on_save = not (vim.g.format_on_save ~= false); vim.notify('Format on save: ' .. (vim.g.format_on_save and 'ON' or 'OFF')) end"; options.desc = "Toggle Format on Save"; }
     { mode = "n"; key = "<leader>uh"; action = "<cmd>Hardtime toggle<cr>"; options.desc = "Toggle Hardtime"; }
+    { mode = "n"; key = "<leader>um"; action = "<cmd>MotionReport<cr>"; options.desc = "Motion Coach Report"; }
     { mode = "n"; key = "<leader>ui"; action.__raw = "function() local en = not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }); vim.lsp.inlay_hint.enable(en, { bufnr = 0 }); vim.notify('Inlay hints: ' .. (en and 'ON' or 'OFF')) end"; options.desc = "Toggle Inlay Hints"; }
     { mode = "n"; key = "<leader>un"; action = "<cmd>set number!<cr>"; options.desc = "Toggle Line Numbers"; }
     { mode = "n"; key = "<leader>uw"; action = "<cmd>set wrap!<cr>"; options.desc = "Toggle Wrap"; }

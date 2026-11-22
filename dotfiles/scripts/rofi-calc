@@ -4,7 +4,7 @@ set -euo pipefail
 HIST="${XDG_RUNTIME_DIR:-/tmp}/rofi-calc-history"
 touch "$HIST"
 
-mesg="Type an expression (e.g. 2560*1440, hex(255), sqrt(2), ans*1.15)"
+mesg="Math, hex/bin, or units (e.g. 2560*1440, hex(255), 50 km to miles, ans*1.15)"
 
 while true; do
   list="󰆴  Clear History"
@@ -32,9 +32,7 @@ while true; do
   fi
 
   eval_out=$(python3 - "$HIST" "$chosen" <<'PY'
-import math
-import re
-import sys
+import math, re, shutil, subprocess, sys
 
 hist_path, expr = sys.argv[1], sys.argv[2].strip()
 
@@ -43,59 +41,51 @@ try:
     with open(hist_path, "r", encoding="utf-8") as f:
         lines = [l.strip() for l in f if l.strip()]
     if lines:
-        m = re.search(r"=\s*([^\s(]+)", lines[-1])
+        m = re.search(r"=\s*([-+]?(?:0x[0-9a-fA-F]+|\d+(?:\.\d+)?(?:e[-+]?\d+)?))", lines[-1])
         if m:
-            last_ans = eval(m.group(1), {"__builtins__": {}}, {})
+            tok = m.group(1)
+            last_ans = int(tok, 16) if tok.lower().startswith("0x") else float(tok)
+            if isinstance(last_ans, float) and last_ans.is_integer():
+                last_ans = int(last_ans)
 except Exception:
     pass
 
 env = {
     "__builtins__": {},
-    "ans": last_ans,
-    "pi": math.pi,
-    "e": math.e,
-    "tau": math.tau,
-    "sqrt": math.sqrt,
-    "sin": math.sin,
-    "cos": math.cos,
-    "tan": math.tan,
-    "asin": math.asin,
-    "acos": math.acos,
-    "atan": math.atan,
-    "log": math.log,
-    "log2": math.log2,
-    "log10": math.log10,
-    "exp": math.exp,
-    "pow": pow,
-    "abs": abs,
-    "round": round,
-    "floor": math.floor,
-    "ceil": math.ceil,
-    "factorial": math.factorial,
-    "gcd": math.gcd,
-    "hex": hex,
-    "bin": bin,
-    "oct": oct,
-    "int": int,
-    "float": float,
+    "ans": last_ans, "pi": math.pi, "e": math.e, "tau": math.tau,
+    "sqrt": math.sqrt, "sin": math.sin, "cos": math.cos, "tan": math.tan,
+    "asin": math.asin, "acos": math.acos, "atan": math.atan,
+    "log": math.log, "log2": math.log2, "log10": math.log10, "exp": math.exp,
+    "pow": pow, "abs": abs, "round": round, "floor": math.floor, "ceil": math.ceil,
+    "factorial": math.factorial, "gcd": math.gcd,
+    "hex": hex, "bin": bin, "oct": oct, "int": int, "float": float,
 }
 
 clean = expr.replace("^", "**")
 try:
     val = eval(clean, env, {})
-    if isinstance(val, float) and val.is_integer():
-        val_str = str(int(val))
-    elif isinstance(val, float):
-        val_str = f"{val:.10g}"
-    else:
-        val_str = str(val)
-    extra = ""
-    if isinstance(val, int) and 0 <= val <= 0xFFFFFFFF and not expr.startswith(("hex(", "bin(", "oct(")):
-        extra = f" (0x{val:X})"
-    line = f"{expr} = {val_str}{extra}"
-    print("OK|" + val_str + "|" + line)
-except Exception as exc:
-    print("ERR|" + str(exc))
+    if isinstance(val, (int, float, str)):
+        if isinstance(val, float) and val.is_integer():
+            val_str = str(int(val))
+        elif isinstance(val, float):
+            val_str = f"{val:.10g}"
+        else:
+            val_str = str(val)
+        extra = ""
+        if isinstance(val, int) and 0 <= val <= 0xFFFFFFFF and not expr.startswith(("hex(", "bin(", "oct(")):
+            extra = f" (0x{val:X})"
+        print("OK|" + val_str + "|" + f"{expr} = {val_str}{extra}")
+        raise SystemExit(0)
+except Exception as py_exc:
+    # Fall back to libqalculate (qalc) for unit/currency/symbolic expressions
+    if shutil.which("qalc"):
+        qexpr = re.sub(r"\bans\b", str(last_ans), expr)
+        p = subprocess.run(["qalc", "-t", qexpr], text=True, capture_output=True, timeout=3)
+        out = p.stdout.strip().splitlines()[-1] if p.stdout.strip() else ""
+        if p.returncode == 0 and out and not out.lower().startswith("error"):
+            print("OK|" + out + "|" + f"{expr} = {out}")
+            raise SystemExit(0)
+    print("ERR|" + str(py_exc))
 PY
 )
 

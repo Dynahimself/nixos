@@ -13,6 +13,7 @@ import time
 runtime = os.environ.get("XDG_RUNTIME_DIR") or "/tmp"
 offset_file = os.path.join(runtime, "waybar-clock-offset")
 pomo_file = os.path.join(runtime, "waybar-pomo-end")
+snap_file = os.path.expanduser("~/.cache/cshub/waybar-snapshot.json")
 
 
 def read_int(path, default=0):
@@ -26,6 +27,10 @@ def read_int(path, default=0):
 def write_val(path, val):
     with open(path, "w", encoding="utf-8") as f:
         f.write(str(val))
+
+
+def esc_pango(s):
+    return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 arg = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -51,7 +56,17 @@ elif arg == "pomo":
         subprocess.run(["notify-send", "Pomodoro", "25:00 focus sprint started — right-click clock to cancel"], check=False)
     sys.exit(0)
 
+# Load offline-first CS Hub calendar snapshot (zero network latency)
+cal_map = {}
+try:
+    if os.path.exists(snap_file):
+        with open(snap_file, "r", encoding="utf-8") as f:
+            cal_map = (json.load(f) or {}).get("calendar") or {}
+except Exception:
+    cal_map = {}
+
 now = datetime.datetime.now()
+today_d = now.date()
 offset = read_int(offset_file)
 total_months = (now.year * 12 + (now.month - 1)) + offset
 y, m0 = divmod(total_months, 12)
@@ -64,16 +79,79 @@ lines = [
     "<span color='#f9e2af'><b>Su Mo Tu We Th Fr Sa</b></span>",
 ]
 
+month_events = []
 for week in cal.monthdayscalendar(y, m):
     cells = []
     for d in week:
         if d == 0:
             cells.append("  ")
-        elif y == now.year and m == now.month and d == now.day:
-            cells.append(f"<span color='#f38ba8'><b><u>{d:2d}</u></b></span>")
+            continue
+        iso = f"{y:04d}-{m:02d}-{d:02d}"
+        evs = [e for e in cal_map.get(iso, []) if e.get("status") != "done"]
+        is_today = (y == today_d.year and m == today_d.month and d == today_d.day)
+        if evs:
+            month_events.append((iso, evs))
+            kinds = {e.get("kind", "task") for e in evs}
+            has_exam = "exam" in kinds
+            has_hw = bool(kinds & {"homework", "deadline", "lab", "project"})
+            if has_exam and (has_hw or len(evs) > 1):
+                col = "#f9e2af"  # Yellow: Exam + another deadline
+            elif has_exam:
+                col = "#f38ba8"  # Red: Exam
+            elif has_hw:
+                col = "#fab387"  # Peach: Homework / Deadline / Lab / Project
+            else:
+                col = "#94e2d5"  # Teal: Task
+            inner = f"<b><u>{d:2d}</u></b>" if is_today else f"<b>{d:2d}</b>"
+            cells.append(f"<span color='{col}'>{inner}</span>")
+        elif is_today:
+            cells.append(f"<span color='#89b4fa'><b><u>{d:2d}</u></b></span>")
         else:
             cells.append(f"<span color='#cdd6f4'>{d:2d}</span>")
     lines.append(" ".join(cells))
+
+# Legend + month's CS Hub exams/homeworks/deadlines
+lines.append("")
+lines.append(
+    "<span color='#f38ba8'>■</span> Exam  "
+    "<span color='#fab387'>■</span> HW/Due  "
+    "<span color='#94e2d5'>■</span> Task  "
+    "<span color='#89b4fa'><u>Today</u></span>"
+)
+
+if month_events:
+    lines.append("")
+    kind_col = {
+        "exam": "#f38ba8", "homework": "#fab387", "deadline": "#fab387",
+        "lab": "#f9e2af", "project": "#cba6f7", "task": "#94e2d5",
+    }
+    kind_tag = {
+        "exam": "EXAM", "homework": "HW", "deadline": "DUE",
+        "lab": "LAB", "project": "PROJ", "task": "TASK",
+    }
+    shown = 0
+    for iso, evs in month_events:
+        d_obj = datetime.date.fromisoformat(iso)
+        delta = (d_obj - today_d).days
+        if delta < 0:
+            cd = f"<span color='#f38ba8'><b>{abs(delta)}d LATE</b></span>"
+        elif delta == 0:
+            cd = "<span color='#f38ba8'><b>TODAY</b></span>"
+        elif delta == 1:
+            cd = "<span color='#fab387'><b>TMR</b></span>"
+        else:
+            cd = f"<span color='#a6adc8'>in {delta}d</span>"
+        for e in evs:
+            if shown >= 8:
+                break
+            k = e.get("kind", "task")
+            col = kind_col.get(k, "#cdd6f4")
+            tag = kind_tag.get(k, "ITEM")
+            title = esc_pango((e.get("title") or "")[:24])
+            course = f" [{esc_pango(e['course'])}]" if e.get("course") else ""
+            wt = f" {e['weight']:g}%" if e.get("weight") else ""
+            lines.append(f"<span color='{col}'>● {iso[5:]} {tag:<4}</span> {title}<span color='#b4befe'>{course}</span><span color='#f5c2e7'>{wt}</span> {cd}")
+            shown += 1
 
 pomo_text = ""
 cls = "normal"
@@ -97,7 +175,7 @@ if os.path.exists(pomo_file):
 
 if not pomo_text:
     lines.append("")
-    lines.append("<span color='#a6adc8'>Scroll: month · Click: today · Right-click: 25m Pomodoro</span>")
+    lines.append("<span color='#6c7086'>Scroll: month · Click: today · Right-click: 25m Pomodoro</span>")
 
 text = now.strftime(" %a %d %b   %H:%M") + pomo_text
 tooltip = "<tt><small>" + "\n".join(lines) + "</small></tt>"

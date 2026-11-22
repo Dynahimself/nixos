@@ -27,6 +27,7 @@
 
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     settings = {
       "github.com" = {
         hostname = "ssh.github.com";
@@ -58,6 +59,7 @@
   };
 
   home.sessionPath = [ "$HOME/.local/bin" ];
+  home.packages = [ (import ./tools/cshub { inherit pkgs; }) ];
 
   programs.starship = {
     enable = true;

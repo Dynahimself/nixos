@@ -34,7 +34,7 @@ in
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks = {
+    settings = {
       "raspberrypi pi" = {
         hostname = "100.68.54.112";
         user = "dyna";

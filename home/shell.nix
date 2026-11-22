@@ -44,6 +44,9 @@
       nrd = "nh os switch --dry /etc/nixos";
       nru = "nh os switch --update /etc/nixos";
       hreload = "hyprctl reload";
+      csh = "cshub";
+      csa = "cshub agenda";
+      csc = "cshub cal";
     };
   };
 

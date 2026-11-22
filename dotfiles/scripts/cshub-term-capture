@@ -9,14 +9,19 @@ term=$(printf '%s\n' "$sel" | rofi -dmenu -p "󰑴 Term" || true)
 def=$(rofi -dmenu -p "Definition ($term)" || true)
 [ -z "${def// /}" ] && exit 0
 
-course=$(rofi -dmenu -p "Course (opt, e.g. KR-C)" || true)
+course=$(rofi -dmenu -p "Course (opt, e.g. Aoop)" || true)
 
-payload=$(jq -nc --arg t "$term" --arg d "$def" --arg c "$course" \
-  '{term:$t, definition:$d, course:$c, source:"Desktop capture"}')
-
-if curl -fsS -m 3 -X POST "http://100.68.54.112:8200/api/terms" \
-    -H "Content-Type: application/json" -d "$payload" >/dev/null; then
-  notify-send "CS Hub Term Saved" "$term"
+if command -v cshub >/dev/null 2>&1; then
+  args=(term add "$term" "$def" -s "Desktop capture")
+  [ -n "${course// /}" ] && args+=(-c "$course")
+  cshub "${args[@]}" >/dev/null 2>&1 && notify-send "CS Hub Term Saved" "$term (synced / queued offline)"
 else
-  notify-send -u critical "CS Hub" "Failed to save term (Pi unreachable)"
+  payload=$(jq -nc --arg t "$term" --arg d "$def" --arg c "$course" \
+    '{term:$t, definition:$d, course:$c, source:"Desktop capture"}')
+  if curl -fsS -m 3 -X POST "http://100.68.54.112:8200/api/terms" \
+      -H "Content-Type: application/json" -d "$payload" >/dev/null; then
+    notify-send "CS Hub Term Saved" "$term"
+  else
+    notify-send -u critical "CS Hub" "Failed to save term (Pi unreachable)"
+  fi
 fi

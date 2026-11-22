@@ -15,15 +15,26 @@ quick_actions+="󰒄  Open Network Connections (nm-connection-editor)"$'\n'
 
 if [ "$wifi_status" = "enabled" ]; then
   toggle="󰤭  Disable Wi-Fi"
-  list=$(nmcli --fields "IN-USE,SECURITY,SIGNAL,SSID" device wifi list --rescan auto 2>/dev/null | sed 1d | awk '
-    NF >= 4 {
-      inuse = ($1 == "*") ? "✓ " : "  ";
-      sec = ($2 ~ /WPA|WEP/) ? "󰌾" : "󰿆";
-      sig = $3 "%";
-      $1=""; $2=""; $3="";
-      sub(/^ +/, "");
-      if (length($0) > 0 && !seen[$0]++) printf "%s%s  %4s  %s\n", inuse, sec, sig, $0;
-    }' || true)
+  list=$(nmcli -t -f IN-USE,SECURITY,SIGNAL,SSID device wifi list --rescan auto 2>/dev/null | python3 -c '
+import re, sys
+seen = set()
+for raw in sys.stdin:
+    line = raw.rstrip("\n")
+    if not line:
+        continue
+    # Split on unescaped colons (nmcli -t escapes literal : as \:)
+    parts = re.split(r"(?<!\\):", line, maxsplit=3)
+    if len(parts) < 4:
+        continue
+    inuse, sec, sig, ssid = parts
+    ssid = ssid.replace("\\:", ":").strip()
+    if not ssid or ssid in seen:
+        continue
+    seen.add(ssid)
+    mark = "✓ " if inuse.strip() == "*" else "  "
+    lock = "󰌾" if ("WPA" in sec or "WEP" in sec or "802" in sec) else "󰿆"
+    print(f"{mark}{lock}  {sig.strip():>3}%  {ssid}")
+' || true)
   menu="${quick_actions}${toggle}"
   [ -n "$list" ] && menu+=$'\n'"${list}"
   chosen=$(printf '%s\n' "$menu" | rofi -dmenu -i -p "󰤨 Network" -mesg "$mesg" || true)
@@ -55,7 +66,7 @@ case "$chosen" in
     exit 0 ;;
 esac
 
-ssid=$(echo "$chosen" | sed -E 's/^(✓ |  )[󰌾󰿆] +[0-9]+% +//')
+ssid=$(printf '%s' "$chosen" | sed -E 's/^(✓ |  )[󰌾󰿆] +[0-9]+% +//')
 if nmcli -g NAME connection show | grep -Fxq "$ssid"; then
   if nmcli connection up id "$ssid"; then
     notify-send "Wi-Fi" "Connected to $ssid"
@@ -63,7 +74,7 @@ if nmcli -g NAME connection show | grep -Fxq "$ssid"; then
     notify-send -u critical "Wi-Fi" "Failed to connect to $ssid"
   fi
 else
-  if echo "$chosen" | grep -q "󰌾"; then
+  if printf '%s' "$chosen" | grep -q "󰌾"; then
     pw=$(rofi -dmenu -password -p "Password for $ssid" || true)
     [ -z "$pw" ] && exit 0
     nmcli device wifi connect "$ssid" password "$pw" \

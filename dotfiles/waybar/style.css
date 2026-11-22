@@ -150,6 +150,15 @@ window#waybar.empty #window {
   color: @accent;
   border-color: @accent_soft;
 }
+#custom-cshub.soon {
+  color: @peach;
+  border-color: rgba(250, 179, 135, 0.48);
+}
+#custom-cshub.urgent {
+  color: @red;
+  border-color: rgba(243, 139, 168, 0.65);
+  font-weight: 700;
+}
 #custom-fleet {
   color: @teal;
   border-color: rgba(148, 226, 213, 0.28);

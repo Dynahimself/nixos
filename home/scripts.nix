@@ -1,6 +1,7 @@
 { pkgs, ... }:
 
 let
+  cshubPkg = import ../tools/cshub { inherit pkgs; };
   mkScript = name:
     pkgs.writeShellScriptBin name (
       builtins.replaceStrings [ "#!/usr/bin/env bash\n" ] [ "" ] (
@@ -9,7 +10,7 @@ let
     );
 in
 {
-  home.packages = map mkScript [
+  home.packages = [ cshubPkg ] ++ map mkScript [
     "rofi-wifi"
     "rofi-fleet"
     "rofi-system"
@@ -18,6 +19,7 @@ in
     "rofi-clip"
     "rofi-audio"
     "rofi-workbench"
+    "rofi-cshub"
     "theme-accent"
     "study-mode"
     "game-mode"
@@ -29,6 +31,7 @@ in
     "clock-bar"
     "hw-temp-bar"
     "mode-bar"
+    "motion-coach"
     "battery-alert"
     "nas-cache-push"
   ];
@@ -46,6 +49,23 @@ in
     Timer = {
       OnBootSec = "1m";
       OnUnitActiveSec = "2m";
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
+  systemd.user.services.cshub-sync = {
+    Unit.Description = "CS Hub bidirectional Tailscale sync + deadline reminders";
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${cshubPkg}/bin/cshub sync --quiet --notify";
+    };
+  };
+
+  systemd.user.timers.cshub-sync = {
+    Unit.Description = "Sync CS Hub with Pi every 5 minutes (offline-safe)";
+    Timer = {
+      OnBootSec = "30s";
+      OnUnitActiveSec = "5m";
     };
     Install.WantedBy = [ "timers.target" ];
   };

@@ -88,8 +88,10 @@
     "exec": "cshub-bar",
     "return-type": "json",
     "interval": 30,
-    "on-click": "zen http://100.68.54.112:8200/knowledge",
-    "on-click-right": "cshub-term-capture"
+    "signal": 10,
+    "on-click": "rofi-cshub",
+    "on-click-middle": "ghostty -e bash -lc 'cshub dash; echo; read -rp \"Press Enter to close...\"'",
+    "on-click-right": "zen http://100.68.54.112:8200"
   },
 
   "custom/fleet": {
@@ -182,7 +184,7 @@
     "format": "󰌌 {}",
     "format-en": "QWE",
     "format-en-colemak_dh": "COL",
-    "on-click": "sh -c 'hyprctl getoption input:kb_variant | grep -q colemak_dh && hyprctl eval \"hl.config({ input = { kb_variant = \\\"\\\" } })\" || hyprctl eval \"hl.config({ input = { kb_variant = \\\"colemak_dh\\\" } })\"'"
+    "on-click": "hyprctl eval 'require(\"automation\").toggle_colemak()'"
   },
 
   "backlight": {

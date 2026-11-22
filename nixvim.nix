@@ -44,6 +44,7 @@ in
         (import ./nixvim/lsp.nix { inherit pkgs csBraceAttach roslynWrapper; })
         (import ./nixvim/git-debug.nix { inherit pkgs; })
         (import ./nixvim/commands.nix { inherit pkgs; })
+        (import ./nixvim/motion-coach.nix { inherit pkgs; })
       ];
 
       extraPlugins = with pkgs.vimPlugins; [

@@ -39,6 +39,7 @@ function M.setup()
     -- Fleet, Workbench, System & QoL hubs
     hl.bind(mainMod .. " + A",             hl.dsp.exec_cmd("rofi-fleet"),                                                  { desc = "Fleet & Homelab Menu" })
     hl.bind(mainMod .. " + D",             hl.dsp.exec_cmd("rofi-workbench"),                                              { desc = "Desktop Workbench & Project Hub" })
+    hl.bind(mainMod .. " + SHIFT + D",     hl.dsp.exec_cmd("rofi-cshub"),                                                  { desc = "CS Hub Menu (Exams / HW / Tasks)" })
     hl.bind(mainMod .. " + I",             hl.dsp.exec_cmd("rofi-system"),                                                 { desc = "System Control Center" })
     hl.bind(mainMod .. " + O",             hl.dsp.exec_cmd("rofi-audio"),                                                  { desc = "Audio & Mic Switcher" })
     hl.bind(mainMod .. " + W",             hl.dsp.exec_cmd("rofi-wifi"),                                                   { desc = "Network & Tailscale Menu" })

@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+snap="$HOME/.cache/cshub/waybar-snapshot.json"
+mesg="Offline-first CS Hub  ·  Tailscale merge enabled"
+if [ -f "$snap" ]; then
+  mesg=$(jq -r '
+    "Open: " + ((.open_items | length) | tostring) +
+    "  ·  Overdue: " + ((.overdue_count // 0) | tostring) +
+    "  ·  Cards due: " + ((.due_terms // 0) | tostring) +
+    "  ·  " + (if .online then "Pi synced ✓" else "Offline (" + ((.dirty_count // 0) | tostring) + " queued)" end)
+  ' "$snap" 2>/dev/null || echo "$mesg")
+fi
+
+choice=$(printf '%s\n' \
+  "󰑴  Add Exam (date, course, weight)" \
+  "󰈙  Add Homework / Deadline" \
+  "  Add Task / Todo" \
+  "  Mark Item Done…" \
+  "󰑴  Capture Flashcard Term (SUPER+SHIFT+T)" \
+  "📓  Quick Journal Note (SUPER+N)" \
+  "󰔟  Log Study Session (minutes)" \
+  "  Open CS Hub Terminal Dashboard (cshub)" \
+  "  Open CS Hub Color Calendar (cshub cal)" \
+  "󰓦  Sync with Pi Now (cshub sync)" \
+  "󰖟  Open CS Hub Web UI (Pi :8200)" | rofi -dmenu -i -p "󰑴 CS Hub" -mesg "$mesg" || true)
+
+[ -z "$choice" ] && exit 0
+
+add_via_rofi() {
+  local kind="$1"
+  local label="$2"
+  local title date_in course weight
+  title=$(rofi -dmenu -p "$label Title" || true)
+  [ -z "${title// /}" ] && exit 0
+  if [ "$kind" = "task" ]; then
+    date_in=$(rofi -dmenu -p "Due date (opt: today, tmr, +3d, fri, 12-04)" || true)
+  else
+    date_in=$(rofi -dmenu -p "Date (today, tmr, +3d, fri, 12-04, 2026-12-10)" || true)
+    [ -z "${date_in// /}" ] && exit 0
+  fi
+  course=$(rofi -dmenu -p "Course (opt, e.g. Aoop, SQL)" || true)
+  weight=""
+  if [ "$kind" = "exam" ] || [ "$kind" = "homework" ]; then
+    weight=$(rofi -dmenu -p "Grade weight % (opt, e.g. 25)" || true)
+  fi
+
+  args=()
+  if [ "$kind" = "task" ]; then
+    args=(todo "$title")
+    [ -n "${date_in// /}" ] && args+=(-d "$date_in")
+  else
+    args=("$kind" "$title" "$date_in")
+  fi
+  [ -n "${course// /}" ] && args+=(-c "$course")
+  [ -n "${weight// /}" ] && args+=(-w "$weight")
+
+  if out=$(cshub "${args[@]}" 2>&1); then
+    notify-send "CS Hub · Added $label" "$title${date_in:+ ($date_in)}"
+  else
+    notify-send -u critical "CS Hub Error" "$out"
+  fi
+}
+
+case "$choice" in
+  *"Add Exam"*) add_via_rofi "exam" "Exam" ;;
+  *"Add Homework"*) add_via_rofi "homework" "Homework" ;;
+  *"Add Task"*) add_via_rofi "task" "Task" ;;
+  *"Mark Item Done"*)
+    if [ ! -f "$snap" ]; then
+      notify-send "CS Hub" "No cached items yet"
+      exit 0
+    fi
+    list=$(jq -r '.open_items[] | "\(.short_id)  [\(.kind|ascii_upcase)]  \(.title)  (\(.course // "-") · \(.due_date // "no date"))"' "$snap" 2>/dev/null || true)
+    if [ -z "$list" ]; then
+      notify-send "CS Hub" "All items are already completed!"
+      exit 0
+    fi
+    pick=$(printf '%s\n' "$list" | rofi -dmenu -i -p " Mark Done" || true)
+    [ -z "$pick" ] && exit 0
+    sid="${pick%% *}"
+    cshub done "$sid" >/dev/null 2>&1 && notify-send "CS Hub ✓" "Marked $sid done!" ;;
+  *"Capture Flashcard"*) cshub-term-capture ;;
+  *"Quick Journal"*) quick-note ;;
+  *"Log Study Session"*)
+    mins=$(rofi -dmenu -p "Study minutes (e.g. 45)" || true)
+    [ -z "${mins// /}" ] && exit 0
+    course=$(rofi -dmenu -p "Course (opt)" || true)
+    topic=$(rofi -dmenu -p "Topic (opt)" || true)
+    args=(study "$mins")
+    [ -n "${course// /}" ] && args+=(-c "$course")
+    [ -n "${topic// /}" ] && args+=(-t "$topic")
+    cshub "${args[@]}" >/dev/null 2>&1 && notify-send "CS Hub" "Logged ${mins}m study session" ;;
+  *"Terminal Dashboard"*)
+    nohup setsid ghostty -e bash -lc 'cshub dash; echo ""; read -rp "Press Enter to close..."' >/dev/null 2>&1 </dev/null & ;;
+  *"Color Calendar"*)
+    nohup setsid ghostty -e bash -lc 'cshub cal; echo ""; read -rp "Press Enter to close..."' >/dev/null 2>&1 </dev/null & ;;
+  *"Sync with Pi"*)
+    out=$(cshub sync 2>&1 || true)
+    notify-send "CS Hub Sync" "$(printf '%s' "$out" | sed -r 's/\x1B\[[0-9;]*[mK]//g')" ;;
+  *"Web UI"*)
+    nohup setsid zen "http://100.68.54.112:8200" >/dev/null 2>&1 </dev/null & ;;
+esac

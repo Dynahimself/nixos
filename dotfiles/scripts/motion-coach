@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec python3 - "$@" <<'PY'
+import argparse, collections, json, os, sys
+
+LOG = os.path.expanduser("~/.local/share/nvim/motion-coach/sessions.jsonl")
+
+ADVICE = {
+    "repeat_e_i":         ("Holding e/i (4+ lines)",         "Use {count}e/{count}i, <C-d>/<C-u>, }/{, ]f/[f, or s (Flash)", None),
+    "repeat_n_o":         ("Holding n/o (4+ chars)",         "Use w/b/j, f/t, or s (Flash)", None),
+    "repeat_w_b_j":       ("Spamming w/b/j (4+ words)",      "Use f<char>/t<char> or s (Flash)", None),
+    "arrow_keys":         ("Arrow keys in Normal/Visual",    "Use Colemak-DH home row n/e/i/o", None),
+    "mouse_usage":        ("Mouse clicks/scrolls",           "Use s (Flash) / <C-n/e/i/o>", None),
+    "caret_l":            ("^l or 0l",                       "Use L instead of ^l / 0l", '["[%^0]l"] = { message = function() return "Use L instead of ^l / 0l" end, length = 2 },'),
+    "o_then_l":           ("ol (right + insert)",            "Use a instead of ol", '["[^fFtT]ol"] = { message = function() return "Use a instead of ol" end, length = 3 },'),
+    "dollar_a":           ("$a",                             "Use A instead of $a", '["%$a"] = { message = function() return "Use A instead of $a" end, length = 2 },'),
+    "d_dollar":           ("d$",                             "Use D instead of d$", '["d%$"] = { message = function() return "Use D instead of d$" end, length = 2 },'),
+    "c_dollar":           ("c$",                             "Use C instead of c$", '["c%$"] = { message = function() return "Use C instead of c$" end, length = 2 },'),
+    "y_dollar":           ("y$",                             "Use Y instead of y$", '["y%$"] = { message = function() return "Use Y instead of y$" end, length = 2 },'),
+    "D_then_a":           ("Da / DA",                        "Use C instead of Da/DA", '["D[aA]"] = { message = function() return "Use C instead of Da/DA" end, length = 2 },'),
+    "dd_then_h":          ("ddh / ddH",                      "Use cc to replace the whole line", '["dd[hH]"] = { message = function() return "Use cc instead of ddh/ddH" end, length = 3 },'),
+    "d_motion_then_l":    ("dwl / dbl / dlwl",               "Use c<motion> (cw / clw) instead of d<motion>l", '["d[wbj]l"] = { message = function(k) return "Use c" .. k:sub(2,2) .. " instead of " .. k end, length = 3 },'),
+    "delete_then_insert": ("Delete then insert (..dl)",      "Use c instead of d + l", '["[vV]dl"] = { message = function() return "Use c instead of visual d + l" end, length = 3 },'),
+    "x_spam":             ("Spamming x (3+)",                "Use dw / clw / df<char>", '["xxx"] = { message = function() return "Use dw / clw / df<char> instead of xxx" end, length = 3 },'),
+    "u_spam":             ("Spamming u (4+)",                "Use <leader>su (Undotree)", None),
+    "zero_w":             ("0w / ^w",                        "Use f<char> or s (Flash)", '["[0%^]w"] = { message = function() return "Jump directly with f<char> or s (Flash)" end, length = 2 },'),
+    "visual_single_op":   ("Visual select before single op", "Use operator+textobj directly (dlw, cl(, ylf)", None),
+}
+
+ap = argparse.ArgumentParser(description="Analyze Neovim Colemak-DH motion habits -> Hardtime hints")
+ap.add_argument("--last", type=int, default=0, help="Only analyze the last N sessions")
+ap.add_argument("--hardtime", action="store_true", help="Print only suggested hardtime.nvim Lua hints")
+args = ap.parse_args()
+
+if not os.path.exists(LOG):
+    print(f"No sessions logged yet at {LOG}. Code in Neovim and run again!")
+    sys.exit(0)
+
+sessions = []
+with open(LOG, "r", encoding="utf-8") as f:
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            sessions.append(json.loads(line))
+        except Exception:
+            pass
+
+if args.last > 0:
+    sessions = sessions[-args.last:]
+
+if not sessions:
+    print("No valid sessions found.")
+    sys.exit(0)
+
+pats = collections.Counter()
+goods = collections.Counter()
+trigrams = collections.Counter()
+streaks = {}
+tot_m = 0
+
+for s in sessions:
+    tot_m += s.get("total_motions", 0)
+    pats.update(s.get("patterns", {}))
+    goods.update(s.get("good_habits", {}))
+    trigrams.update(s.get("top_trigrams", {}))
+    for k, v in (s.get("streaks") or {}).items():
+        cur = streaks.setdefault(k, [0, 0, 0])
+        cur[0] += v.get("count_3plus", 0)
+        cur[1] += v.get("count_5plus", 0)
+        cur[2] = max(cur[2], v.get("max_len", 0))
+
+if args.hardtime:
+    print("-- Generated from", len(sessions), "Neovim sessions:")
+    for k, _ in pats.most_common():
+        meta = ADVICE.get(k)
+        if meta and meta[2]:
+            print("  " + meta[2])
+    sys.exit(0)
+
+print(f"=== Motion Coach ({len(sessions)} sessions | {tot_m} motions) ===\n")
+print("Top Personal Bad Habits:")
+if not pats:
+    print("  (none yet)")
+for idx, (k, cnt) in enumerate(pats.most_common(12), 1):
+    lbl, tip, _ = ADVICE.get(k, (k, "", None))
+    print(f"  {idx:2d}. {lbl:<32} {cnt:4d}x ({cnt/len(sessions):.1f}/sess)  -> {tip}")
+
+print("\nKey-Repeat Streaks:")
+for k, (c3, c5, mx) in sorted(streaks.items(), key=lambda kv: -kv[1][0])[:10]:
+    print(f"  {k:<8} 3+: {c3:3d}x   5+: {c5:3d}x   max: {mx}")
+
+print("\nPower Motions:")
+for k, cnt in goods.most_common():
+    print(f"  {k:<18} {cnt:4d}x")
+
+print("\nTop Recurring 3-Key Sequences (Unclassified):")
+for seq, cnt in trigrams.most_common(12):
+    print(f"  {seq:<10} {cnt:4d}x")
+PY

@@ -139,38 +139,69 @@
       end
     end, { desc = "Smart live preview for Markdown/Typst" })
 
-    -- :CshubTerm — Send word/selection directly to Pi CS Student Hub (:8200/api/terms)
+    -- :CshubTerm — Offline-first term capture via cshub CLI (merges with Pi over Tailscale)
     vim.api.nvim_create_user_command("CshubTerm", function()
       local default_term = vim.fn.expand("<cword>")
       vim.ui.input({ prompt = "󰑴 CS Hub Term: ", default = default_term }, function(term)
         if not term or vim.trim(term) == "" then return end
         vim.ui.input({ prompt = "Definition (" .. term .. "): " }, function(def)
           if not def or vim.trim(def) == "" then return end
-          vim.ui.input({ prompt = "Course (opt, e.g. Aoop / KR-C): " }, function(course)
-            local payload = vim.json.encode({
-              term = term,
-              definition = def,
-              course = course or "",
-              source = "Neovim (" .. vim.fn.expand("%:t") .. ")",
-            })
-            vim.system(
-              { "curl", "-fsS", "-m", "3", "-X", "POST", "http://100.68.54.112:8200/api/terms",
-                "-H", "Content-Type: application/json", "-d", payload },
-              {},
-              function(res)
-                vim.schedule(function()
-                  if res.code == 0 then
-                    vim.notify("CS Hub Term saved: " .. term, vim.log.levels.INFO)
-                  else
-                    vim.notify("CS Hub unreachable (Pi :8200)", vim.log.levels.ERROR)
-                  end
-                end)
-              end
-            )
+          vim.ui.input({ prompt = "Course (opt, e.g. Aoop / SQL): " }, function(course)
+            local cmd = { "cshub", "term", "add", term, def, "-s", "Neovim (" .. vim.fn.expand("%:t") .. ")" }
+            if course and vim.trim(course) ~= "" then
+              table.insert(cmd, "-c"); table.insert(cmd, vim.trim(course))
+            end
+            vim.system(cmd, { text = true }, function(res)
+              vim.schedule(function()
+                if res.code == 0 then
+                  vim.notify("CS Hub Term saved (synced/queued): " .. term, vim.log.levels.INFO)
+                else
+                  vim.notify("CS Hub error: " .. (res.stderr or ""), vim.log.levels.ERROR)
+                end
+              end)
+            end)
           end)
         end)
       end)
-    end, { desc = "Capture term straight to Pi CS Hub" })
+    end, { desc = "Capture flashcard term (offline-first CS Hub)" })
+
+    -- :CshubAdd — Quick-add exam/homework/task from Neovim (offline-first)
+    vim.api.nvim_create_user_command("CshubAdd", function()
+      vim.ui.select({ "exam", "homework", "deadline", "task" }, { prompt = "CS Hub Kind:" }, function(kind)
+        if not kind then return end
+        vim.ui.input({ prompt = "Title: " }, function(title)
+          if not title or vim.trim(title) == "" then return end
+          vim.ui.input({ prompt = "Date (today, tmr, +3d, fri, 12-04): " }, function(dt_in)
+            vim.ui.input({ prompt = "Course (opt): " }, function(course)
+              local cmd = (kind == "task") and { "cshub", "todo", title } or { "cshub", kind, title, dt_in or "today" }
+              if kind == "task" and dt_in and vim.trim(dt_in) ~= "" then
+                table.insert(cmd, "-d"); table.insert(cmd, vim.trim(dt_in))
+              end
+              if course and vim.trim(course) ~= "" then
+                table.insert(cmd, "-c"); table.insert(cmd, vim.trim(course))
+              end
+              vim.system(cmd, { text = true }, function(res)
+                vim.schedule(function()
+                  if res.code == 0 then
+                    vim.notify("CS Hub added " .. kind .. ": " .. title, vim.log.levels.INFO)
+                  else
+                    vim.notify("CS Hub error: " .. (res.stderr or ""), vim.log.levels.ERROR)
+                  end
+                end)
+              end)
+            end)
+          end)
+        end)
+      end)
+    end, { desc = "Add exam/homework/task to CS Hub (offline-first)" })
+
+    -- :CshubDash — Open CS Hub terminal dashboard in Snacks float
+    vim.api.nvim_create_user_command("CshubDash", function()
+      Snacks.terminal.open(
+        { "bash", "-lc", "cshub dash; echo; cshub cal; echo; read -rp '[Press Enter to close]'" },
+        { win = { style = "float", border = "rounded", width = 0.78, height = 0.78 } }
+      )
+    end, { desc = "Open CS Hub Dashboard & Calendar" })
 
     -- HTML '!' CEGEP template (triggers only at empty line start)
     vim.api.nvim_create_autocmd("FileType", {
