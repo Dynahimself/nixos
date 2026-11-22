@@ -1,35 +1,48 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+st_study=$([ -f /tmp/dyna-study-mode ] && echo "[ON]" || echo "[OFF]")
+st_game=$([ -f /tmp/dyna-game-mode ] && echo "[ON]" || echo "[OFF]")
+st_night=$(pgrep -x hyprsunset >/dev/null 2>&1 && echo "[ON 4200K]" || echo "[OFF]")
+st_rec=$(pgrep -x wf-recorder >/dev/null 2>&1 && echo "[REC]" || echo "[OFF]")
+st_pomo=$([ -f "${XDG_RUNTIME_DIR:-/tmp}/waybar-pomo-end" ] && echo "[ACTIVE]" || echo "[OFF]")
+st_kb=$(hyprctl getoption input:kb_variant 2>/dev/null | grep -q colemak_dh && echo "[Colemak-DH]" || echo "[QWERTY]")
+st_ffm=$([ "$(hyprctl getoption input:follow_mouse -j 2>/dev/null | jq -r .int)" = "1" ] && echo "[ON]" || echo "[OFF]")
+cur_acc=$(jq -r '"\(.name) (\(.primary))"' "$HOME/.cache/mocha-theme/accent.json" 2>/dev/null || echo "Mauve")
+
 choice=$(printf '%s\n' \
   "󰉋  Desktop Workbench & Project Hub (SUPER+D)" \
-  "󰏘  Catppuccin Accent Switcher" \
+  "󰏘  Catppuccin Accent Switcher [${cur_acc}]" \
+  "󰸉  Auto-Match Accent to Current Wallpaper" \
   "󰸉  Wallpaper Switcher (SUPER+SHIFT+W)" \
-  "󰕾  Audio Output Switcher (SUPER+O)" \
+  "󰔟  Pomodoro 25m Focus Timer ${st_pomo}" \
+  "󰑴  Study Mode Toggle ${st_study} (SUPER+F1)" \
+  "󰊴  Gaming Mode Toggle ${st_game} (SUPER+F2)" \
+  "󰖔  Night Light Toggle ${st_night}" \
+  "󰕾  Audio & Mic Switcher (SUPER+O)" \
   "󰃬  Calculator (SUPER+C)" \
   "󰅌  Clipboard History (SUPER+V)" \
-  "󰑴  Study Mode Toggle (SUPER+F1)" \
-  "󰊴  Gaming Mode Toggle (SUPER+F2)" \
-  "󰖔  Night Light Toggle (4200K)" \
   "󰖩  Network & Tailscale Manager (SUPER+W)" \
   "󰂯  Bluetooth Manager" \
   "󰕾  Audio Mixer (pavucontrol)" \
   "󰄀  Screenshot Region -> Annotate (SUPER+SHIFT+S)" \
   "󰄀  Screenshot Window" \
   "󰄀  Screenshot Fullscreen" \
-  "󰈬  OCR Region -> Clipboard" \
-  "󰑊  Toggle Screen Recording (MP4)" \
-  "󰌌  Toggle Colemak-DH / QWERTY (SUPER+G)" \
-  "󰍽  Toggle Focus-Follows-Mouse" \
-  "󰌌  Command Palette & Keybinds (SUPER+/)" | rofi -dmenu -i -p "⚙ System" || true)
+  "󰈋  Color Picker -> Clipboard (SUPER+SHIFT+C)" \
+  "󰈬  OCR Region eng+fra -> Clipboard (SUPER+SHIFT+O)" \
+  "󰑊  Screen Recording MP4 ${st_rec} (SUPER+SHIFT+R)" \
+  "󰌌  Keyboard Layout ${st_kb} (SUPER+G)" \
+  "󰍽  Focus-Follows-Mouse ${st_ffm}" \
+  "󰑓  Reload Hyprland & Waybar" \
+  "󰌌  Command Palette & Keybinds (SUPER+/)" | rofi -dmenu -i -p "⚙ System" -mesg "Accent: ${cur_acc}  ·  KB: ${st_kb}  ·  Study: ${st_study}  ·  Game: ${st_game}" || true)
 
 [ -z "$choice" ] && exit 0
 case "$choice" in
   *"Desktop Workbench"*) rofi-workbench ;;
   *"Accent Switcher"*) theme-accent ;;
+  *"Auto-Match Accent"*) theme-accent --auto ;;
   *"Wallpaper Switcher"*) rofi-wallpaper ;;
-  *"Audio Output Switcher"*) rofi-audio ;;
-  *"Calculator"*) rofi-calc ;;
-  *"Clipboard History"*) rofi-clip ;;
+  *"Pomodoro"*) clock-bar pomo && pkill -RTMIN+8 waybar 2>/dev/null || true ;;
   *"Study Mode"*) study-mode ;;
   *"Gaming Mode"*) game-mode ;;
   *"Night Light"*)
@@ -40,9 +53,13 @@ case "$choice" in
         nohup setsid hyprsunset -t 4200 >/dev/null 2>&1 </dev/null &
         notify-send "Night Light" "Enabled (4200K)"
       else
-        notify-send -u critical "Night Light" "hyprsunset not installed yet (rebuild needed)"
+        notify-send -u critical "Night Light" "hyprsunset not installed"
       fi
-    fi ;;
+    fi
+    pkill -RTMIN+9 waybar 2>/dev/null || true ;;
+  *"Audio & Mic"*) rofi-audio ;;
+  *"Calculator"*) rofi-calc ;;
+  *"Clipboard History"*) rofi-clip ;;
   *"Network & Tailscale"*) rofi-wifi ;;
   *"Bluetooth Manager"*) nohup setsid blueman-manager >/dev/null 2>&1 </dev/null & ;;
   *"Audio Mixer"*) nohup setsid pavucontrol >/dev/null 2>&1 </dev/null & ;;
@@ -54,12 +71,19 @@ case "$choice" in
     fi ;;
   *"Screenshot Window"*) hyprshot -m window ;;
   *"Screenshot Fullscreen"*) hyprshot -m output ;;
+  *"Color Picker"*)
+    if command -v hyprpicker >/dev/null; then
+      c=$(hyprpicker -a -n || true)
+      [ -n "$c" ] && notify-send "Color Picker" "Copied ${c} to clipboard"
+    else
+      notify-send -u critical "Color Picker" "hyprpicker needs NixOS rebuild"
+    fi ;;
   *"OCR Region"*)
     if command -v tesseract >/dev/null && command -v grim >/dev/null && command -v slurp >/dev/null; then
-      grim -g "$(slurp)" - | tesseract - - -l eng+fra 2>/dev/null | wl-copy
-      notify-send "OCR" "Copied text to clipboard"
+      txt=$(grim -g "$(slurp)" - | tesseract - - -l eng+fra 2>/dev/null || true)
+      [ -n "$txt" ] && printf '%s' "$txt" | wl-copy && notify-send "OCR Copied" "$(printf '%s' "$txt" | head -c 100)"
     else
-      notify-send -u critical "OCR" "tesseract/grim/slurp missing (rebuild needed)"
+      notify-send -u critical "OCR" "tesseract/grim/slurp missing"
     fi ;;
   *"Screen Recording"*)
     if pgrep -x wf-recorder >/dev/null; then
@@ -72,15 +96,11 @@ case "$choice" in
         nohup setsid wf-recorder -g "$(slurp)" -f "$f" >/dev/null 2>&1 </dev/null &
         notify-send "Recorder" "Recording started -> $f"
       else
-        notify-send -u critical "Recorder" "wf-recorder/slurp missing (rebuild needed)"
+        notify-send -u critical "Recorder" "wf-recorder/slurp missing"
       fi
     fi ;;
-  *"Toggle Colemak"*)
-    if hyprctl getoption input:kb_variant | grep -q colemak_dh; then
-      hyprctl eval 'hl.config({ input = { kb_variant = "" } })' >/dev/null && notify-send "Keyboard" "Switched to QWERTY"
-    else
-      hyprctl eval 'hl.config({ input = { kb_variant = "colemak_dh" } })' >/dev/null && notify-send "Keyboard" "Switched to Colemak-DH"
-    fi ;;
+  *"Keyboard Layout"*)
+    hyprctl eval 'require("automation").toggle_colemak()' >/dev/null 2>&1 || true ;;
   *"Focus-Follows-Mouse"*)
     cur=$(hyprctl getoption input:follow_mouse -j | jq .int)
     if [ "$cur" = "1" ]; then
@@ -90,5 +110,13 @@ case "$choice" in
       hyprctl eval 'hl.config({ input = { follow_mouse = 1 } })' >/dev/null
       notify-send "Hyprland" "Focus follows mouse: ON"
     fi ;;
+  *"Reload Hyprland"*)
+    hyprctl reload >/dev/null 2>&1 || true
+    pkill -x waybar 2>/dev/null || true
+    pkill -x .waybar-wrapped 2>/dev/null || true
+    sleep 0.15
+    nohup setsid waybar >/tmp/waybar.log 2>&1 </dev/null &
+    swaync-client -rs >/dev/null 2>&1 || true
+    notify-send "Desktop" "Reloaded Hyprland, Waybar & SwayNC" ;;
   *"Command Palette"*) rofi-binds ;;
 esac

@@ -28,6 +28,7 @@ in
     "fleet-bar"
     "clock-bar"
     "hw-temp-bar"
+    "mode-bar"
     "battery-alert"
     "nas-cache-push"
   ];

@@ -6,30 +6,34 @@ import calendar
 import datetime
 import json
 import os
+import subprocess
 import sys
+import time
 
-offset_file = os.path.join(os.environ.get("XDG_RUNTIME_DIR") or "/tmp", "waybar-clock-offset")
+runtime = os.environ.get("XDG_RUNTIME_DIR") or "/tmp"
+offset_file = os.path.join(runtime, "waybar-clock-offset")
+pomo_file = os.path.join(runtime, "waybar-pomo-end")
 
 
-def read_offset():
+def read_int(path, default=0):
     try:
-        with open(offset_file, "r", encoding="utf-8") as f:
-            return int(f.read().strip() or "0")
+        with open(path, "r", encoding="utf-8") as f:
+            return int(float(f.read().strip()))
     except Exception:
-        return 0
+        return default
 
 
-def write_offset(val):
-    with open(offset_file, "w", encoding="utf-8") as f:
+def write_val(path, val):
+    with open(path, "w", encoding="utf-8") as f:
         f.write(str(val))
 
 
 arg = sys.argv[1] if len(sys.argv) > 1 else ""
 if arg == "+1":
-    write_offset(read_offset() + 1)
+    write_val(offset_file, read_int(offset_file) + 1)
     sys.exit(0)
 elif arg == "-1":
-    write_offset(read_offset() - 1)
+    write_val(offset_file, read_int(offset_file) - 1)
     sys.exit(0)
 elif arg == "reset":
     try:
@@ -37,10 +41,18 @@ elif arg == "reset":
     except FileNotFoundError:
         pass
     sys.exit(0)
+elif arg == "pomo":
+    if os.path.exists(pomo_file):
+        os.remove(pomo_file)
+        subprocess.run(["notify-send", "Pomodoro", "Focus timer cancelled"], check=False)
+    else:
+        end_ts = int(time.time()) + 25 * 60
+        write_val(pomo_file, end_ts)
+        subprocess.run(["notify-send", "Pomodoro", "25:00 focus sprint started — right-click clock to cancel"], check=False)
+    sys.exit(0)
 
 now = datetime.datetime.now()
-offset = read_offset()
-
+offset = read_int(offset_file)
 total_months = (now.year * 12 + (now.month - 1)) + offset
 y, m0 = divmod(total_months, 12)
 m = m0 + 1
@@ -48,8 +60,8 @@ m = m0 + 1
 cal = calendar.Calendar(calendar.SUNDAY)
 header = f"{calendar.month_name[m]} {y}".center(20)
 lines = [
-    f"<span color=\x27#cba6f7\x27><b>{header}</b></span>",
-    "<span color=\x27#f9e2af\x27><b>Su Mo Tu We Th Fr Sa</b></span>",
+    f"<span color='#cba6f7'><b>{header}</b></span>",
+    "<span color='#f9e2af'><b>Su Mo Tu We Th Fr Sa</b></span>",
 ]
 
 for week in cal.monthdayscalendar(y, m):
@@ -58,12 +70,36 @@ for week in cal.monthdayscalendar(y, m):
         if d == 0:
             cells.append("  ")
         elif y == now.year and m == now.month and d == now.day:
-            cells.append(f"<span color=\x27#f38ba8\x27><b><u>{d:2d}</u></b></span>")
+            cells.append(f"<span color='#f38ba8'><b><u>{d:2d}</u></b></span>")
         else:
-            cells.append(f"<span color=\x27#cdd6f4\x27>{d:2d}</span>")
+            cells.append(f"<span color='#cdd6f4'>{d:2d}</span>")
     lines.append(" ".join(cells))
 
-text = now.strftime(" %a %d %b   %H:%M")
+pomo_text = ""
+cls = "normal"
+if os.path.exists(pomo_file):
+    rem = read_int(pomo_file) - int(time.time())
+    if rem <= 0:
+        try:
+            os.remove(pomo_file)
+        except FileNotFoundError:
+            pass
+        subprocess.run(
+            ["notify-send", "-u", "critical", "Pomodoro Complete!", "25-minute sprint finished — take a 5-minute break."],
+            check=False,
+        )
+    else:
+        mm, ss = divmod(rem, 60)
+        pomo_text = f"  ·  󰔟 {mm:02d}:{ss:02d}"
+        cls = "pomo"
+        lines.append("")
+        lines.append(f"<span color='#fab387'><b>Pomodoro:</b> {mm:02d}:{ss:02d} left (right-click to stop)</span>")
+
+if not pomo_text:
+    lines.append("")
+    lines.append("<span color='#a6adc8'>Scroll: month · Click: today · Right-click: 25m Pomodoro</span>")
+
+text = now.strftime(" %a %d %b   %H:%M") + pomo_text
 tooltip = "<tt><small>" + "\n".join(lines) + "</small></tt>"
-print(json.dumps({"text": text, "tooltip": tooltip}, ensure_ascii=False))
+print(json.dumps({"text": text, "tooltip": tooltip, "class": cls}, ensure_ascii=False))
 PY

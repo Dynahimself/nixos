@@ -7,7 +7,10 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     initContent = ''
-      fastfetch
+      # Only show fastfetch on top-level interactive shells (not inside nvim :term or quick popups)
+      if [[ -o interactive ]] && [[ -z "''${NVIM:-}" ]] && [[ "''${SHLVL:-1}" -le 2 ]] && [[ -t 1 ]]; then
+        fastfetch
+      fi
       export PATH="$HOME/.local/bin:$PATH"
 
       # Jump to Windows home (WSL)
@@ -16,10 +19,31 @@
           || cd /mnt/c/Users/*/ 2>/dev/null \
           || echo "Not in WSL or Windows drive not mounted"
       }
+
+      # Jump to latest CEGEP C# homework folder
+      tp() {
+        local latest
+        latest=$(ls -1dt "$HOME/cswip/Aoop/homeworks"/TP* 2>/dev/null | head -n1)
+        if [[ -n "$latest" ]]; then
+          cd "$latest" && pwd
+        else
+          cd "$HOME/cswip/Aoop" 2>/dev/null || echo "Homework dir not found"
+        fi
+      }
     '';
     shellAliases = {
-      ll = "ls -la";
+      ls = "eza --icons --group-directories-first";
+      ll = "eza -la --icons --git --group-directories-first";
+      lt = "eza --tree --level=2 --icons";
+      cat = "bat --style=plain";
+      v = "nvim";
+      lg = "lazygit";
+      ld = "lazydocker";
       npush = "nas-cache-push";
+      nr = "nh os switch /etc/nixos";
+      nrd = "nh os switch --dry /etc/nixos";
+      nru = "nh os switch --update /etc/nixos";
+      hreload = "hyprctl reload";
     };
   };
 
@@ -38,6 +62,40 @@
   };
 
   programs.bat.enable = true;
+
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      side-by-side = true;
+      line-numbers = true;
+      syntax-theme = "Catppuccin Mocha";
+      hyperlinks = true;
+    };
+  };
+
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+    defaultCommand = "fd --type f --hidden --follow --exclude .git";
+    defaultOptions = [
+      "--height=55%"
+      "--layout=reverse"
+      "--border=rounded"
+      "--info=inline"
+      "--bind=ctrl-e:down,ctrl-i:up"
+    ];
+    historyWidget.command = ""; # Keep Atuin on Ctrl-R
+    fileWidget = {
+      command = "fd --type f --hidden --follow --exclude .git";
+      options = [ "--preview='bat --color=always --style=numbers --line-range=:200 {}'" ];
+    };
+    changeDirWidget = {
+      command = "fd --type d --hidden --follow --exclude .git";
+      options = [ "--preview='eza --tree --level=2 --icons --color=always {}'" ];
+    };
+  };
 
   programs.atuin = {
     enable = true;

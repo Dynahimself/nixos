@@ -7,11 +7,49 @@ if [ -z "$entries" ]; then
   exit 0
 fi
 
-chosen=$(printf '%s\n%s\n' "󰆴  Clear Clipboard History" "$entries" | rofi -dmenu -i -p "󰅌 Clipboard" || true)
+thumb_dir="${XDG_RUNTIME_DIR:-/tmp}/cliphist-thumbs"
+mkdir -p "$thumb_dir"
+
+chosen=$(python3 - "$thumb_dir" "$entries" <<'PY'
+import os, re, subprocess, sys
+
+thumb_dir, raw = sys.argv[1], sys.argv[2]
+lines = [l for l in raw.splitlines() if l.strip()]
+
+rofi_in = ["󰆴  Clear Clipboard History"]
+for l in lines[:80]:
+    m = re.match(r"^(\d+)\t\[\[\s*binary data.*?(png|jpg|jpeg|webp|bmp)", l, re.I)
+    if m:
+        cid, ext = m.group(1), m.group(2).lower()
+        tpath = os.path.join(thumb_dir, f"{cid}.{ext}")
+        if not os.path.exists(tpath):
+            try:
+                data = subprocess.check_output(["cliphist", "decode"], input=l.encode(), timeout=2)
+                with open(tpath, "wb") as f:
+                    f.write(data)
+            except Exception:
+                tpath = ""
+        if tpath:
+            rofi_in.append(f"{l}\0icon\x1f{tpath}")
+            continue
+    rofi_in.append(l)
+
+p = subprocess.run(
+    ["rofi", "-dmenu", "-show-icons", "-i", "-p", "󰅌 Clipboard",
+     "-mesg", "Select to copy (images previewed inline)"],
+    input="\n".join(rofi_in),
+    text=True,
+    capture_output=True,
+)
+print(p.stdout.strip())
+PY
+)
+
 [ -z "$chosen" ] && exit 0
 
 if [ "$chosen" = "󰆴  Clear Clipboard History" ]; then
   cliphist wipe
+  rm -rf "$thumb_dir"
   notify-send "Clipboard" "Cleared clipboard history"
 else
   printf '%s' "$chosen" | cliphist decode | wl-copy

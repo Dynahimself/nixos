@@ -1,26 +1,47 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-st_up=0
-if ss -ltn 2>/dev/null | grep -q ':8000 '; then
-  st_up=1
-fi
+st_up=$(ss -ltn 2>/dev/null | grep -q ':8000 ' && echo 1 || echo 0)
+comfy_up=$(ss -ltn 2>/dev/null | grep -q ':8188 ' && echo 1 || echo 0)
 
 latest_tp_dir=$(ls -1dt "$HOME/cswip/Aoop/homeworks"/TP* 2>/dev/null | head -n1 || true)
 [ -z "$latest_tp_dir" ] && latest_tp_dir="$HOME/cswip/Aoop"
 latest_tp_name=$(basename "$latest_tp_dir")
 latest_tp_pdf=$(ls -1t "$HOME/Downloads"/*TP*.pdf "$HOME/Downloads"/*.pdf 2>/dev/null | head -n1 || true)
 
+git_badge() {
+  local dir="$1"
+  if [ -d "$dir/.git" ]; then
+    local br dirty
+    br=$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "?")
+    dirty=$(git -C "$dir" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$dirty" -gt 0 ]; then
+      echo "[${br} · ${dirty}✎]"
+    else
+      echo "[${br} · ✓]"
+    fi
+  else
+    echo ""
+  fi
+}
+
+nix_badge=$(git_badge "/etc/nixos")
+cswip_badge=$(git_badge "$HOME/cswip")
+
 st_label="󰚩  SillyTavern (:8000) — Start & Open in Zen"
 [ "$st_up" = "1" ] && st_label="󰚩  SillyTavern (:8000 RUNNING) — Open in Zen"
 
 items=(
-  "󰑴  CEGEP Study Split (${latest_tp_name} Neovim + PDF + CS Hub)"
-  "  Open ${latest_tp_name} C# Homework in Neovim"
+  "󰑴  CEGEP Study Split (WS3 Nvim ${latest_tp_name} + WS4 PDF + WS2 CS Hub)"
+  "  Open ${latest_tp_name} C# Homework in Neovim ${cswip_badge}"
+  "  Edit /etc/nixos Config in Neovim ${nix_badge}"
+  "󱄅  NixOS Rebuild Dry-Run Preview (nh os switch --dry)"
+  "  Launch Zellij Dev Session (Ghostty)"
   "󰈦  Open Latest Assignment PDF in Zathura"
   "$st_label"
 )
 [ "$st_up" = "1" ] && items+=("󰓛  Stop SillyTavern Server (:8000)")
+[ "$comfy_up" = "1" ] && items+=("󰋩  Open ComfyUI (:8188 RUNNING) in Zen")
 
 items+=(
   "󰍳  Launch PrismLauncher (Minecraft GTNH / JJK)"
@@ -29,21 +50,28 @@ items+=(
   "󰆼  DBeaver SQL Workbench"
   "📓  Open Quick Notes in Neovim"
   "󰑴  Capture Term to CS Hub (SUPER+SHIFT+T)"
-  "󰏗  Git Status & Pull /etc/nixos"
+  "󰊢  Lazygit on /etc/nixos ${nix_badge}"
 )
 
-mesg="Aoop: ${latest_tp_name}  ·  SillyTavern: $([ "$st_up" = "1" ] && echo "UP :8000" || echo "stopped")"
+mesg="Aoop: ${latest_tp_name} ${cswip_badge}  ·  NixOS ${nix_badge}  ·  ST: $([ "$st_up" = "1" ] && echo "UP" || echo "off")"
 chosen=$(printf '%s\n' "${items[@]}" | rofi -dmenu -i -p "󰉋 Workbench" -mesg "$mesg" || true)
 [ -z "$chosen" ] && exit 0
 
 case "$chosen" in
   *"CEGEP Study Split"*)
+    hyprctl dispatch 'hl.dsp.focus({ workspace = 3 })' >/dev/null 2>&1 || true
     nohup setsid ghostty -e bash -lc "cd '$latest_tp_dir' && exec nvim" >/dev/null 2>&1 </dev/null &
     [ -n "$latest_tp_pdf" ] && nohup setsid zathura "$latest_tp_pdf" >/dev/null 2>&1 </dev/null &
     nohup setsid zen "http://100.68.54.112:8200" >/dev/null 2>&1 </dev/null &
-    notify-send "Study Workbench" "Opened ${latest_tp_name}, PDF, and CS Hub" ;;
+    notify-send "Study Workbench" "Opened ${latest_tp_name} (WS3), PDF (WS4), and CS Hub" ;;
   *"C# Homework in Neovim"*)
     nohup setsid ghostty -e bash -lc "cd '$latest_tp_dir' && exec nvim" >/dev/null 2>&1 </dev/null & ;;
+  *"Edit /etc/nixos Config"*)
+    nohup setsid ghostty -e bash -lc "cd /etc/nixos && exec nvim" >/dev/null 2>&1 </dev/null & ;;
+  *"NixOS Rebuild Dry-Run"*)
+    nohup setsid ghostty -e bash -lc 'cd /etc/nixos && git status -s && echo "" && nh os switch --dry /etc/nixos; echo ""; read -rp "Press Enter to close..."' >/dev/null 2>&1 </dev/null & ;;
+  *"Zellij Dev Session"*)
+    nohup setsid ghostty -e bash -lc 'zellij attach -c main' >/dev/null 2>&1 </dev/null & ;;
   *"Latest Assignment PDF"*)
     if [ -n "$latest_tp_pdf" ]; then
       nohup setsid zathura "$latest_tp_pdf" >/dev/null 2>&1 </dev/null &
@@ -73,6 +101,8 @@ case "$chosen" in
   *"Stop SillyTavern"*)
     pkill -f "SillyTavern.*server\.js" 2>/dev/null || pkill -f "node server.js" 2>/dev/null || true
     notify-send "SillyTavern" "Stopped server on :8000" ;;
+  *"Open ComfyUI"*)
+    nohup setsid zen "http://127.0.0.1:8188" >/dev/null 2>&1 </dev/null & ;;
   *"PrismLauncher"*)
     nohup setsid prismlauncher >/dev/null 2>&1 </dev/null & ;;
   *"amdgpu_top"*)
@@ -86,6 +116,6 @@ case "$chosen" in
     nohup setsid ghostty -e nvim "$HOME/Documents/quick-notes.md" >/dev/null 2>&1 </dev/null & ;;
   *"Capture Term"*)
     cshub-term-capture ;;
-  *"/etc/nixos"*)
-    nohup setsid ghostty -e bash -lc 'cd /etc/nixos && git status; echo ""; git log -n 5 --oneline; echo ""; read -rp "Press Enter to close..."' >/dev/null 2>&1 </dev/null & ;;
+  *"Lazygit on /etc/nixos"*)
+    nohup setsid ghostty -e bash -lc 'cd /etc/nixos && exec lazygit' >/dev/null 2>&1 </dev/null & ;;
 esac

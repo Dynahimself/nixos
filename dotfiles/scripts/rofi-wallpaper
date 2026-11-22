@@ -11,21 +11,43 @@ fi
 cur="none"
 [ -e "$HOME/.cache/current-wallpaper" ] && cur=$(basename "$(readlink -f "$HOME/.cache/current-wallpaper" 2>/dev/null || echo "$HOME/.cache/current-wallpaper")")
 
-chosen=$(for f in "${imgs[@]}"; do printf '%s\0icon\x1f%s\n' "$(basename "$f")" "$f"; done | rofi -dmenu -show-icons -i -p "󰸉 Wallpaper" -mesg "Current: ${cur}" || true)
+chosen=$(
+  {
+    printf '%s\n' "  Random Wallpaper"
+    printf '%s\n' "󰏘  Auto-Match Mocha Accent to Current Wallpaper"
+    for f in "${imgs[@]}"; do
+      printf '%s\0icon\x1f%s\n' "$(basename "$f")" "$f"
+    done
+  } | rofi -dmenu -show-icons -i -p "󰸉 Wallpaper" -mesg "Current: ${cur}" \
+      -theme-str 'element-icon { size: 56px; } listview { lines: 6; }' || true
+)
+
 [ -z "$chosen" ] && exit 0
+
+if [ "$chosen" = "󰏘  Auto-Match Mocha Accent to Current Wallpaper" ]; then
+  theme-accent --auto
+  exit 0
+fi
+
 full=""
-for f in "${imgs[@]}"; do
-  [ "$(basename "$f")" = "$chosen" ] && full="$f" && break
-done
+if [ "$chosen" = "  Random Wallpaper" ]; then
+  idx=$(( RANDOM % ${#imgs[@]} ))
+  full="${imgs[$idx]}"
+  chosen=$(basename "$full")
+else
+  for f in "${imgs[@]}"; do
+    [ "$(basename "$f")" = "$chosen" ] && full="$f" && break
+  done
+fi
 [ -z "$full" ] && exit 0
 
 mkdir -p "$HOME/.cache"
 ln -sf "$full" "$HOME/.cache/current-wallpaper"
 if command -v awww >/dev/null; then
   pgrep -x awww-daemon >/dev/null || (nohup setsid awww-daemon >/dev/null 2>&1 </dev/null & sleep 0.4)
-  awww img "$full" --transition-type grow --transition-duration 0.7
+  awww img "$full" --transition-type grow --transition-duration 0.7 --transition-fps 144
 else
   hyprctl hyprpaper preload "$full" >/dev/null 2>&1 || true
   hyprctl hyprpaper wallpaper ",$full" >/dev/null 2>&1 || true
 fi
-notify-send "Wallpaper" "Applied $chosen (synced to hyprlock)"
+notify-send "Wallpaper" "Applied ${chosen} (synced to hyprlock)"

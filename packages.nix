@@ -114,6 +114,8 @@
     slurp
     grim
     hyprsunset
+    hyprpicker
+    imagemagick
     cava
     nh
     nvd

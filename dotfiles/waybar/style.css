@@ -1,4 +1,4 @@
-/* Catppuccin Mocha — Unified Floating Pill Waybar */
+/* Catppuccin Mocha — Frosted Glass Floating Pill Waybar (dynamic accent) */
 @define-color crust    #11111b;
 @define-color mantle   #181825;
 @define-color base     #1e1e2e;
@@ -17,6 +17,13 @@
 @define-color peach    #fab387;
 @define-color red      #f38ba8;
 
+@define-color accent      #cba6f7;
+@define-color accent_alt  #89b4fa;
+@define-color accent_soft rgba(203, 166, 247, 0.25);
+@define-color accent_glow rgba(203, 166, 247, 0.40);
+
+@import "/home/dyna/.cache/mocha-theme/accent.css";
+
 * {
   font-family: "JetBrainsMono Nerd Font", monospace;
   font-size: 12px;
@@ -30,21 +37,23 @@ window#waybar {
 }
 
 tooltip {
-  background: @mantle;
-  border: 1px solid @surface1;
-  border-radius: 10px;
+  background: rgba(24, 24, 37, 0.94);
+  border: 1px solid @accent_soft;
+  border-radius: 11px;
   color: @text;
 }
 tooltip label {
   color: @text;
-  padding: 4px 6px;
+  padding: 5px 8px;
 }
 
-/* Shared pill styling */
+/* Shared frosted-glass pill styling */
 #workspaces,
+#submap,
 #window,
 #custom-cshub,
 #custom-fleet,
+#custom-mode,
 #custom-recording,
 #mpris,
 #clock,
@@ -59,12 +68,12 @@ tooltip label {
 #tray,
 #custom-notification,
 #custom-power {
-  background: rgba(24, 24, 37, 0.92);
-  border: 1px solid @surface0;
-  border-radius: 10px;
+  background: rgba(24, 24, 37, 0.78);
+  border: 1px solid rgba(69, 71, 90, 0.55);
+  border-radius: 11px;
   padding: 0 10px;
   margin: 0;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
 }
 
 #window {
@@ -77,6 +86,35 @@ window#waybar.empty #window {
   padding: 0;
 }
 
+/* Submap live mode badge */
+#submap {
+  color: @crust;
+  background: @peach;
+  border-color: @yellow;
+  font-weight: 800;
+  padding: 0 12px;
+}
+
+/* Active context mode badge (Study / Game / Night / Screenshare) */
+#custom-mode {
+  color: @peach;
+  border-color: rgba(250, 179, 135, 0.40);
+  font-weight: 700;
+}
+#custom-mode.share {
+  color: @crust;
+  background: @red;
+  border-color: @red;
+}
+#custom-mode.study {
+  color: @teal;
+  border-color: rgba(148, 226, 213, 0.45);
+}
+#custom-mode.game {
+  color: @green;
+  border-color: rgba(166, 227, 161, 0.45);
+}
+
 /* Workspaces */
 #workspaces {
   padding: 3px 5px;
@@ -84,19 +122,22 @@ window#waybar.empty #window {
 #workspaces button {
   color: @overlay0;
   background: transparent;
-  border-radius: 7px;
+  border-radius: 8px;
   padding: 0 7px;
   margin: 0 2px;
   transition: all 0.16s ease;
 }
+#workspaces button:not(.empty) {
+  color: @subtext0;
+}
 #workspaces button:hover {
   color: @text;
-  background: @surface0;
+  background: rgba(49, 50, 68, 0.85);
 }
 #workspaces button.active {
   color: @crust;
-  background: @mauve;
-  padding: 0 11px;
+  background: linear-gradient(135deg, @accent, @accent_alt);
+  padding: 0 12px;
   font-weight: 700;
 }
 #workspaces button.urgent {
@@ -106,12 +147,12 @@ window#waybar.empty #window {
 
 /* Custom Hub & Fleet pills */
 #custom-cshub {
-  color: @mauve;
-  border-color: rgba(203, 166, 247, 0.25);
+  color: @accent;
+  border-color: @accent_soft;
 }
 #custom-fleet {
   color: @teal;
-  border-color: rgba(148, 226, 213, 0.25);
+  border-color: rgba(148, 226, 213, 0.28);
 }
 #custom-recording {
   color: @crust;
@@ -123,17 +164,21 @@ window#waybar.empty #window {
 /* Center */
 #mpris {
   color: @green;
-  border-color: rgba(166, 227, 161, 0.25);
+  border-color: rgba(166, 227, 161, 0.28);
 }
 #mpris.paused {
   color: @subtext0;
-  border-color: @surface0;
+  border-color: rgba(69, 71, 90, 0.55);
 }
 
 #clock,
 #custom-clock {
   color: @text;
-  border-color: rgba(203, 166, 247, 0.3);
+  border-color: @accent_soft;
+}
+#custom-clock.pomo {
+  color: @peach;
+  border-color: rgba(250, 179, 135, 0.55);
 }
 
 /* System group */
@@ -166,7 +211,7 @@ window#waybar.empty #window {
 
 /* Hardware pills */
 #language {
-  color: @mauve;
+  color: @accent;
 }
 #backlight {
   color: @yellow;
@@ -192,15 +237,15 @@ window#waybar.empty #window {
 }
 #custom-cshub:hover,
 #custom-fleet:hover,
+#custom-mode:hover,
 #custom-clock:hover,
 #language:hover,
 #network:hover,
 #bluetooth:hover,
 #pulseaudio:hover,
-#custom-notification:hover,
-#custom-power:hover {
-  background: @surface0;
-  border-color: @mauve;
+#custom-notification:hover {
+  background: rgba(49, 50, 68, 0.88);
+  border-color: @accent;
 }
 
 /* Battery */
@@ -234,7 +279,7 @@ window#waybar.empty #window {
   padding: 0 9px;
 }
 #custom-notification {
-  color: @mauve;
+  color: @accent;
   padding: 0 10px;
 }
 #custom-power {
@@ -242,6 +287,6 @@ window#waybar.empty #window {
   padding: 0 11px;
 }
 #custom-power:hover {
-  background: rgba(243, 139, 168, 0.18);
+  background: rgba(243, 139, 168, 0.22);
   border-color: @red;
 }

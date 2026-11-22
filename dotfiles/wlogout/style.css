@@ -1,22 +1,25 @@
-/* Catppuccin Mocha Mauve — Wlogout Power Menu */
+/* Catppuccin Mocha — Frosted Glass Wlogout Power Menu (dynamic accent) */
+@define-color accent #cba6f7;
+@import "/home/dyna/.cache/mocha-theme/accent.css";
+
 * {
   font-family: "JetBrainsMono Nerd Font", sans-serif;
   box-shadow: none;
 }
 
 window {
-  background-color: rgba(17, 17, 27, 0.85);
+  background-color: rgba(17, 17, 27, 0.72);
 }
 
 button {
   color: #cdd6f4;
-  background-color: #181825;
+  background-color: rgba(24, 24, 37, 0.86);
   background-repeat: no-repeat;
   background-position: center 36%;
   background-size: 26%;
   border: 2px solid #313244;
-  border-radius: 14px;
-  margin: 12px;
+  border-radius: 16px;
+  margin: 14px;
   padding-top: 90px;
   font-size: 15px;
   font-weight: 700;
@@ -26,35 +29,25 @@ button {
 button:focus,
 button:active,
 button:hover {
-  background-color: #313244;
-  border-color: #cba6f7;
-  color: #cba6f7;
+  background-color: rgba(49, 50, 68, 0.92);
+  border-color: @accent;
+  color: @accent;
 }
 
-#lock {
-  background-image: image(url("/home/dyna/.config/wlogout/icons/lock.png"));
-}
-#logout {
-  background-image: image(url("/home/dyna/.config/wlogout/icons/logout.png"));
-}
-#suspend {
-  background-image: image(url("/home/dyna/.config/wlogout/icons/suspend.png"));
-}
-#reboot {
-  background-image: image(url("/home/dyna/.config/wlogout/icons/reboot.png"));
-}
-#shutdown {
-  background-image: image(url("/home/dyna/.config/wlogout/icons/shutdown.png"));
-}
+#lock     { background-image: image(url("/home/dyna/.config/wlogout/icons/lock.png")); }
+#logout   { background-image: image(url("/home/dyna/.config/wlogout/icons/logout.png")); }
+#suspend  { background-image: image(url("/home/dyna/.config/wlogout/icons/suspend.png")); }
+#reboot   { background-image: image(url("/home/dyna/.config/wlogout/icons/reboot.png")); }
+#shutdown { background-image: image(url("/home/dyna/.config/wlogout/icons/shutdown.png")); }
 
 #shutdown:hover,
 #shutdown:focus {
-  border-color: #cba6f7;
+  border-color: #f38ba8;
   color: #f38ba8;
 }
 
 #reboot:hover,
 #reboot:focus {
-  border-color: #cba6f7;
+  border-color: #fab387;
   color: #fab387;
 }

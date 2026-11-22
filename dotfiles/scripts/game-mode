@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
-anim=$(hyprctl getoption animations:enabled -j | jq .int)
+STATE="/tmp/dyna-game-mode"
 
-if [ "$anim" = "1" ]; then
-  hyprctl eval "hl.config({ animations = { enabled = false }, decoration = { rounding = 0, blur = { enabled = false }, shadow = { enabled = false } }, general = { gaps_in = 0, gaps_out = 0 } })" >/dev/null
+if [ ! -f "$STATE" ]; then
+  touch "$STATE"
+  hyprctl eval "hl.config({ animations = { enabled = false }, decoration = { rounding = 0, blur = { enabled = false }, shadow = { enabled = false }, glow = { enabled = false } }, general = { gaps_in = 0, gaps_out = 0 } })" >/dev/null 2>&1 || true
   pkill -x hypridle 2>/dev/null || true
-  notify-send "Gaming Mode" "ON — blur/animations/hypridle disabled"
+  pkill -RTMIN+9 waybar 2>/dev/null || true
+  notify-send "Gaming Mode" "ON — zero-overhead compositor + hypridle paused"
 else
-  hyprctl reload >/dev/null
+  rm -f "$STATE"
+  hyprctl reload >/dev/null 2>&1 || true
   pgrep -x hypridle >/dev/null || (nohup setsid hypridle >/tmp/hypridle.log 2>&1 </dev/null &)
-  notify-send "Gaming Mode" "OFF — Mocha visuals & hypridle restored"
+  pkill -RTMIN+9 waybar 2>/dev/null || true
+  notify-send "Gaming Mode" "OFF — Mocha glass visuals & hypridle restored"
 fi

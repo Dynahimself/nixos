@@ -1,68 +1,189 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cur="default (#cba6f7)"
-[ -f "$HOME/.cache/mocha-accent" ] && cur=$(cat "$HOME/.cache/mocha-accent")
 
-choice=$(printf '%s\n' \
-  "Mauve #cba6f7" \
-  "Blue #89b4fa" \
-  "Lavender #b4befe" \
-  "Sapphire #74c7ec" \
-  "Teal #94e2d5" \
-  "Green #a6e3a1" \
-  "Peach #fab387" \
-  "Red #f38ba8" \
-  "Pink #f5c2e7" | rofi -dmenu -i -p "󰏘 Mocha Accent" -mesg "Current: ${cur}" || true)
+CACHE_DIR="${HOME}/.cache/mocha-theme"
+ACCENT_JSON="${CACHE_DIR}/accent.json"
+mkdir -p "$CACHE_DIR"
 
-[ -z "$choice" ] && exit 0
-name="${choice%% *}"
-hex="${choice##* }"
-hex_nohash="${hex#\#}"
+apply_accent() {
+  local name="$1"
+  local hex="$2"
+  local alt="$3"
+  local quiet="${4:-0}"
+  local p="${hex#\#}"
+  local s="${alt#\#}"
 
-mkdir -p "$HOME/.cache"
-echo "$name ($hex)" > "$HOME/.cache/mocha-accent"
+  python3 - "$CACHE_DIR" "$name" "$p" "$s" <<'PY'
+import json, os, sys
+cache_dir, name, p, s = sys.argv[1], sys.argv[2], sys.argv[3].lower(), sys.argv[4].lower()
+r, g, b = int(p[0:2], 16), int(p[2:4], 16), int(p[4:6], 16)
 
-hyprctl eval "hl.config({ general = { col = { active_border = { colors = { \"rgba(${hex_nohash}ff)\", \"rgba(89b4faff)\" }, angle = 45 } } } })" >/dev/null 2>&1 || true
+with open(os.path.join(cache_dir, "accent.json"), "w", encoding="utf-8") as f:
+    json.dump({"name": name, "primary": f"#{p}", "secondary": f"#{s}"}, f)
+    f.write("\n")
 
-for f in "$HOME/.config/waybar/style.css" "$HOME/.config/swaync/style.css"; do
-  target=$(readlink -f "$f" 2>/dev/null || echo "$f")
-  [ -w "$target" ] && sed -i -E "s|(@define-color mauve[[:space:]]+)#[0-9a-fA-F]{6};|\1${hex};|" "$target"
-done
+with open(os.path.join(cache_dir, "accent.css"), "w", encoding="utf-8") as f:
+    f.write(
+        f"@define-color accent      #{p};\n"
+        f"@define-color accent_alt  #{s};\n"
+        f"@define-color accent_soft rgba({r}, {g}, {b}, 0.25);\n"
+        f"@define-color accent_glow rgba({r}, {g}, {b}, 0.40);\n"
+    )
 
-rofi_cfg=$(readlink -f "$HOME/.config/rofi/config.rasi" 2>/dev/null || echo "$HOME/.config/rofi/config.rasi")
-[ -w "$rofi_cfg" ] && sed -i -E "s|(mauve:[[:space:]]+)#[0-9a-fA-F]{8};|\1${hex}ff;|" "$rofi_cfg"
+with open(os.path.join(cache_dir, "accent.rasi"), "w", encoding="utf-8") as f:
+    f.write(f"* {{\n    accent:     #{p}ff;\n    accent-alt: #{s}ff;\n}}\n")
 
-for f in "$HOME/.config/wlogout/style.css" "$HOME/.config/swayosd/style.css"; do
-  target=$(readlink -f "$f" 2>/dev/null || echo "$f")
-  [ -w "$target" ] && sed -i -E "s|border-color:[[:space:]]*#[0-9a-fA-F]{6};|border-color: ${hex};|g" "$target"
-done
-
-swayosd_css=$(readlink -f "$HOME/.config/swayosd/style.css" 2>/dev/null || echo "$HOME/.config/swayosd/style.css")
-if [ -w "$swayosd_css" ]; then
-  sed -i -E "s|(border:[[:space:]]*1\.5px solid )#[0-9a-fA-F]{6};|\1${hex};|" "$swayosd_css"
-  sed -i -E "s|(background:[[:space:]]*)#[0-9a-fA-F]{6};|\1${hex};|" "$swayosd_css"
-  # Keep trough surface0 color intact
-  python3 - "$swayosd_css" "$hex" <<'PY'
-import re, sys
-p, hexv = sys.argv[1], sys.argv[2]
-with open(p, "r", encoding="utf-8") as f:
-    s = f.read()
-s = re.sub(r"(trough\s*\{[^}]*background:\s*)#[0-9a-fA-F]{6};", r"\g<1>#313244;", s, flags=re.S)
-s = re.sub(r"(progress\s*\{[^}]*background:\s*)#[0-9a-fA-F]{6};", rf"\g<1>{hexv};", s, flags=re.S)
-with open(p, "w", encoding="utf-8") as f:
-    f.write(s)
+with open(os.path.join(cache_dir, "accent-hyprlock.conf"), "w", encoding="utf-8") as f:
+    f.write(f"$accent = rgba({p}ff)\n$accentAlt = rgba({s}ff)\n")
 PY
+
+  if [ "$quiet" = "1" ]; then
+    return 0
+  fi
+
+  # Live update Hyprland Lua theme engine (borders, glow, groupbars)
+  hyprctl eval "local t=require('theme'); t.apply_accent('${p}','${s}')" >/dev/null 2>&1 || true
+
+  # Reload Waybar, SwayNC, SwayOSD
+  pkill -x waybar 2>/dev/null || true
+  pkill -x .waybar-wrapped 2>/dev/null || true
+  sleep 0.15
+  nohup setsid waybar >/tmp/waybar.log 2>&1 </dev/null &
+  swaync-client -rs >/dev/null 2>&1 || true
+
+  pkill -x swayosd-server 2>/dev/null || true
+  pkill -x .swayosd-server 2>/dev/null || true
+  sleep 0.1
+  nohup setsid swayosd-server >/dev/null 2>&1 </dev/null &
+
+  notify-send "Catppuccin Mocha" "Accent -> ${name} (#${p} / #${s})"
+}
+
+auto_from_wallpaper() {
+  local wp="${HOME}/.cache/current-wallpaper"
+  [ -e "$wp" ] || wp="${HOME}/backgrounds/main.png"
+  if [ ! -e "$wp" ]; then
+    notify-send -u critical "Theme Accent" "No wallpaper found to sample"
+    exit 1
+  fi
+  local res
+  res=$(python3 - "$wp" <<'PY'
+import colorsys, math, subprocess, sys
+
+PALETTE = [
+    ("Rosewater", "f5e0dc", "f5c2e7"),
+    ("Flamingo",  "f2cdcd", "fab387"),
+    ("Pink",      "f5c2e7", "cba6f7"),
+    ("Mauve",     "cba6f7", "89b4fa"),
+    ("Red",       "f38ba8", "fab387"),
+    ("Maroon",    "eba0ac", "f38ba8"),
+    ("Peach",     "fab387", "f9e2af"),
+    ("Yellow",    "f9e2af", "fab387"),
+    ("Green",     "a6e3a1", "94e2d5"),
+    ("Teal",      "94e2d5", "89dceb"),
+    ("Sky",       "89dceb", "89b4fa"),
+    ("Sapphire",  "74c7ec", "b4befe"),
+    ("Blue",      "89b4fa", "cba6f7"),
+    ("Lavender",  "b4befe", "89b4fa"),
+]
+
+def hex_rgb(h):
+    return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
+samples = []
+try:
+    from PIL import Image
+    im = Image.open(sys.argv[1]).convert("RGB").resize((64, 64))
+    samples = list(im.getdata())
+except Exception:
+    try:
+        raw = subprocess.check_output(
+            ["magick", sys.argv[1], "-resize", "48x48!", "-depth", "8", "rgb:-"],
+            stderr=subprocess.DEVNULL,
+        )
+        samples = [(raw[i], raw[i+1], raw[i+2]) for i in range(0, len(raw) - 2, 3)]
+    except Exception:
+        pass
+
+if not samples:
+    print("Mauve|cba6f7|89b4fa")
+    raise SystemExit(0)
+
+# Weight pixels by saturation so vibrant highlights drive the accent instead of dark Mocha bg
+wr = wg = wb = wsum = 0.0
+for r, g, b in samples:
+    h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+    if s > 0.22 and v > 0.25:
+        w = (s ** 2) * v
+        wr += r * w
+        wg += g * w
+        wb += b * w
+        wsum += w
+
+if wsum == 0:
+    print("Mauve|cba6f7|89b4fa")
+    raise SystemExit(0)
+
+ar, ag, ab = wr / wsum, wg / wsum, wb / wsum
+ah, _, _ = colorsys.rgb_to_hsv(ar / 255.0, ag / 255.0, ab / 255.0)
+
+best = min(
+    PALETTE,
+    key=lambda item: (
+        min(abs(ah - colorsys.rgb_to_hsv(*(c / 255.0 for c in hex_rgb(item[1])))[0]),
+            1.0 - abs(ah - colorsys.rgb_to_hsv(*(c / 255.0 for c in hex_rgb(item[1])))[0])) * 260.0
+        + math.dist((ar, ag, ab), hex_rgb(item[1])) * 0.25
+    ),
+)
+print(f"{best[0]}|{best[1]}|{best[2]}")
+PY
+)
+  IFS='|' read -r name p s <<< "$res"
+  apply_accent "$name" "#$p" "#$s" 0
+}
+
+if [ "${1:-}" = "--init" ]; then
+  if [ ! -f "${CACHE_DIR}/accent.css" ]; then
+    apply_accent "Mauve" "#cba6f7" "#89b4fa" 1
+  fi
+  exit 0
 fi
 
-pkill -x waybar 2>/dev/null || true
-pkill -x .waybar-wrapped 2>/dev/null || true
-sleep 0.2
-hyprctl dispatch 'hl.dsp.exec_cmd("waybar >/tmp/waybar.log 2>&1")' >/dev/null 2>&1 || nohup setsid waybar >/tmp/waybar.log 2>&1 </dev/null &
-swaync-client -rs >/dev/null 2>&1 || true
+if [ "${1:-}" = "--auto" ]; then
+  auto_from_wallpaper
+  exit 0
+fi
 
-pkill -x swayosd-server 2>/dev/null || true
-pkill -x .swayosd-server 2>/dev/null || true
-sleep 0.1
-hyprctl dispatch 'hl.dsp.exec_cmd("swayosd-server")' >/dev/null 2>&1 || nohup setsid swayosd-server >/dev/null 2>&1 </dev/null &
+cur="Mauve (#cba6f7)"
+if [ -f "$ACCENT_JSON" ]; then
+  cur=$(jq -r '"\(.name) (\(.primary))"' "$ACCENT_JSON" 2>/dev/null || echo "$cur")
+fi
 
-notify-send "Catppuccin Mocha" "Accent switched to $name ($hex)"
+choice=$(printf '%s\n' \
+  "󰸉  Auto-Match Current Wallpaper" \
+  "Mauve     #cba6f7  -> #89b4fa" \
+  "Lavender  #b4befe  -> #89b4fa" \
+  "Blue      #89b4fa  -> #cba6f7" \
+  "Sapphire  #74c7ec  -> #b4befe" \
+  "Sky       #89dceb  -> #89b4fa" \
+  "Teal      #94e2d5  -> #89dceb" \
+  "Green     #a6e3a1  -> #94e2d5" \
+  "Yellow    #f9e2af  -> #fab387" \
+  "Peach     #fab387  -> #f9e2af" \
+  "Maroon    #eba0ac  -> #f38ba8" \
+  "Red       #f38ba8  -> #fab387" \
+  "Pink      #f5c2e7  -> #cba6f7" \
+  "Flamingo  #f2cdcd  -> #fab387" \
+  "Rosewater #f5e0dc  -> #f5c2e7" | rofi -dmenu -i -p "󰏘 Mocha Accent" -mesg "Current: ${cur}  (zero git-dirty)" || true)
+
+[ -z "$choice" ] && exit 0
+
+if [[ "$choice" == *"Auto-Match"* ]]; then
+  auto_from_wallpaper
+  exit 0
+fi
+
+name=$(awk '{print $1}' <<< "$choice")
+hex=$(awk '{print $2}' <<< "$choice")
+alt=$(awk '{print $4}' <<< "$choice")
+apply_accent "$name" "$hex" "$alt" 0

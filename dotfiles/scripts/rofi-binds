@@ -2,6 +2,7 @@
 set -euo pipefail
 
 exec python3 - <<'PY'
+import glob
 import json
 import os
 import re
@@ -22,15 +23,25 @@ def format_mods(mask):
 
 
 exec_by_desc = {}
-lua_path = os.path.expanduser("~/.config/hypr/hyprland.lua")
-if os.path.exists(lua_path):
-    with open(lua_path, "r", encoding="utf-8") as f:
+submap_by_desc = {}
+lua_files = [os.path.expanduser("~/.config/hypr/hyprland.lua")] + sorted(
+    glob.glob(os.path.expanduser("~/.config/hypr/lua/*.lua"))
+)
+for path in lua_files:
+    if not os.path.exists(path):
+        continue
+    with open(path, "r", encoding="utf-8") as f:
         for line in f:
-            m_cmd = re.search(r'hl\.dsp\.exec_cmd\("((?:[^"\\]|\\.)*)"\)', line)
             m_desc = re.search(r'desc\s*=\s*"([^"]+)"', line)
-            if m_cmd and m_desc:
-                cmd = m_cmd.group(1).replace('\\"', '"').replace("\\\\", "\\")
-                exec_by_desc[m_desc.group(1)] = cmd
+            if not m_desc:
+                continue
+            desc = m_desc.group(1)
+            m_cmd = re.search(r'hl\.dsp\.exec_cmd\("((?:[^"\\]|\\.)*)"\)', line)
+            if m_cmd:
+                exec_by_desc[desc] = m_cmd.group(1).replace('\\"', '"').replace("\\\\", "\\")
+            m_sub = re.search(r'hl\.dsp\.submap\("([^"]+)"\)', line)
+            if m_sub and m_sub.group(1) != "reset":
+                submap_by_desc[desc] = m_sub.group(1)
 
 rows = []
 seen = set()
@@ -41,54 +52,46 @@ try:
         key = b.get("key") or ""
         if not key:
             continue
+        submap = (b.get("submap") or "").strip()
         mods = format_mods(int(b.get("modmask") or 0))
         combo = f"{mods} + {key}" if mods else key
+        tag = f"[{submap.upper()}]" if submap else "[MAIN]"
         desc = (b.get("description") or "").strip()
         if not desc:
             disp = (b.get("dispatcher") or "").replace("HL.Dispatcher(", "").rstrip(")")
             desc = disp
-        # Collapse repetitive 1..10 workspace entries into clean summary once
-        if desc.startswith("Workspace ") and key not in ("1", "0"):
+        if not submap and desc.startswith("Workspace ") and key not in ("1", "0"):
             if key == "2":
-                rows.append((f"{mods} + 1..0", "Switch to Workspace 1..10", None))
+                rows.append(("[MAIN]", f"{mods} + 1..0", "Switch to Workspace 1..10", None, None))
             continue
-        if desc.startswith("Move Window to WS ") and key not in ("1", "0"):
+        if not submap and desc.startswith("Move Window to WS ") and key not in ("1", "0"):
             if key == "2":
-                rows.append((f"{mods} + SHIFT + 1..0", "Move Window to Workspace 1..10", None))
+                rows.append(("[MAIN]", f"{mods} + SHIFT + 1..0", "Move Window to Workspace 1..10", None, None))
             continue
-        sig = (combo, desc)
+        if not submap and desc.startswith("Silently Move Window to WS ") and key not in ("1", "0"):
+            if key == "2":
+                rows.append(("[MAIN]", f"{mods} + ALT + 1..0", "Silently Move Window to Workspace 1..10", None, None))
+            continue
+        sig = (tag, combo, desc)
         if sig in seen:
             continue
         seen.add(sig)
-        rows.append((combo, desc, exec_by_desc.get(desc)))
+        rows.append((tag, combo, desc, exec_by_desc.get(desc), submap_by_desc.get(desc)))
 except Exception:
     pass
 
-cs_path = os.path.expanduser("~/cheatsheet.txt")
-if os.path.exists(cs_path):
-    with open(cs_path, "r", encoding="utf-8") as f:
-        for line in f:
-            s = line.strip()
-            if s and not s.startswith("#"):
-                rows.append(("NOTE", s, None))
-
 display_lines = []
 row_map = {}
-for combo, desc, cmd in rows:
-    marker = "▸" if cmd else "·"
-    label = f"{combo:<24} {marker} {desc}"
+for tag, combo, desc, cmd, sub in rows:
+    marker = "▸" if (cmd or sub) else "·"
+    label = f"{tag:<8} {combo:<25} {marker} {desc}"
     display_lines.append(label)
-    row_map[label] = (combo, desc, cmd)
+    row_map[label] = (tag, combo, desc, cmd, sub)
 
 proc = subprocess.run(
     [
-        "rofi",
-        "-dmenu",
-        "-i",
-        "-p",
-        "󰌌 Keybinds",
-        "-mesg",
-        "Select any ▸ command to run it immediately, or inspect shortcuts",
+        "rofi", "-dmenu", "-i", "-p", "󰌌 Command Palette",
+        "-mesg", "Select any ▸ entry to run or enter submap — filter by [RESIZE], [GROUP], [LAYOUT]",
     ],
     input="\n".join(display_lines),
     text=True,
@@ -99,7 +102,7 @@ chosen = proc.stdout.strip()
 if not chosen or chosen not in row_map:
     raise SystemExit(0)
 
-combo, desc, cmd = row_map[chosen]
+tag, combo, desc, cmd, sub = row_map[chosen]
 if cmd:
     subprocess.Popen(
         ["bash", "-lc", cmd],
@@ -108,6 +111,8 @@ if cmd:
         stderr=subprocess.DEVNULL,
         start_new_session=True,
     )
+elif sub:
+    subprocess.run(["hyprctl", "dispatch", f'hl.dsp.submap("{sub}")'], check=False)
 else:
-    subprocess.run(["notify-send", "Keybind", f"{combo} -> {desc}"], check=False)
+    subprocess.run(["notify-send", "Keybind", f"{tag} {combo} -> {desc}"], check=False)
 PY

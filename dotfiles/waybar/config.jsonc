@@ -12,6 +12,7 @@
 
   "modules-left": [
     "hyprland/workspaces",
+    "hyprland/submap",
     "hyprland/window",
     "custom/cshub",
     "custom/fleet"
@@ -21,6 +22,7 @@
     "custom/clock"
   ],
   "modules-right": [
+    "custom/mode",
     "custom/recording",
     "group/sys",
     "hyprland/language",
@@ -43,20 +45,43 @@
       "3": " ",
       "4": " 󰑴",
       "5": " 󰙯",
+      "6": " 󰈙",
+      "7": " 󰒍",
+      "8": " 󰚩",
+      "9": " 󰊴",
+      "10": " 󰇘",
       "default": ""
     },
-    "all-outputs": true,
+    "all-outputs": false,
     "disable-scroll": false,
     "active-only": false,
     "persistent-workspaces": {
-      "*": 5
+      "DP-3": [1, 2, 3, 4, 5],
+      "HDMI-A-1": [6, 7, 8, 9, 10],
+      "eDP-1": [1, 2, 3, 4, 5]
     }
+  },
+
+  "hyprland/submap": {
+    "format": "󰌌 {}",
+    "max-length": 18,
+    "tooltip": false
   },
 
   "hyprland/window": {
     "format": "{title}",
     "max-length": 36,
-    "separate-outputs": true
+    "separate-outputs": true,
+    "rewrite": {
+      "(.*) — Zen Browser": "󰈹 $1",
+      "(.*) - Discord": "󰙯 $1",
+      "nvim(.*)": " nvim$1",
+      "(.*) - ghostty": " $1",
+      "Steam": " Steam",
+      "Spotify(.*)": " Spotify$1",
+      "(.*) — Dolphin": " $1",
+      "(.*)\\.pdf(.*)": "󰈦 $1.pdf"
+    }
   },
 
   "custom/cshub": {
@@ -72,6 +97,14 @@
     "return-type": "json",
     "interval": 30,
     "on-click": "rofi-fleet"
+  },
+
+  "custom/mode": {
+    "exec": "mode-bar",
+    "return-type": "json",
+    "interval": 5,
+    "signal": 9,
+    "on-click": "rofi-system"
   },
 
   "custom/recording": {
@@ -102,11 +135,12 @@
   "custom/clock": {
     "exec": "clock-bar",
     "return-type": "json",
-    "interval": 15,
+    "interval": 5,
     "signal": 8,
     "on-scroll-up": "clock-bar +1 && pkill -RTMIN+8 waybar",
     "on-scroll-down": "clock-bar -1 && pkill -RTMIN+8 waybar",
-    "on-click": "clock-bar reset && pkill -RTMIN+8 waybar"
+    "on-click": "clock-bar reset && pkill -RTMIN+8 waybar",
+    "on-click-right": "clock-bar pomo && pkill -RTMIN+8 waybar && pkill -RTMIN+9 waybar"
   },
 
   "group/sys": {

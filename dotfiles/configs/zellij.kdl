@@ -1,16 +1,41 @@
 theme "catppuccin-mocha"
+default_layout "compact"
+pane_frames false
+mouse_mode true
+copy_on_select true
+scroll_buffer_size 50000
 
 keybinds {
     shared_except "locked" {
-        bind "Alt n" { MoveFocus "Left"; }
+        bind "Alt n" { MoveFocusOrTab "Left"; }
         bind "Alt e" { MoveFocus "Down"; }
         bind "Alt i" { MoveFocus "Up"; }
-        bind "Alt o" { MoveFocus "Right"; }
+        bind "Alt o" { MoveFocusOrTab "Right"; }
+        bind "Alt N" { Resize "Increase Left"; }
+        bind "Alt E" { Resize "Increase Down"; }
+        bind "Alt I" { Resize "Increase Up"; }
+        bind "Alt O" { Resize "Increase Right"; }
+        bind "Alt [" { GoToPreviousTab; }
+        bind "Alt ]" { GoToNextTab; }
+        bind "Alt f" { ToggleFloatingPanes; }
+        bind "Alt z" { ToggleFocusFullscreen; }
     }
     scroll {
         bind "e" { ScrollDown; }
         bind "i" { ScrollUp; }
         bind "d" { HalfPageScrollDown; }
         bind "u" { HalfPageScrollUp; }
+    }
+    pane {
+        bind "n" { MoveFocus "Left"; }
+        bind "e" { MoveFocus "Down"; }
+        bind "i" { MoveFocus "Up"; }
+        bind "o" { MoveFocus "Right"; }
+    }
+    resize {
+        bind "n" { Resize "Increase Left"; }
+        bind "e" { Resize "Increase Down"; }
+        bind "i" { Resize "Increase Up"; }
+        bind "o" { Resize "Increase Right"; }
     }
 }

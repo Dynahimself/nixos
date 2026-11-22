@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+badges=()
+tips=()
+cls="normal"
+
+if [ -f /tmp/dyna-screenshare ]; then
+  badges+=("󰍹 SHARE")
+  tips+=("Screenshare Privacy Guard ACTIVE (DND on)")
+  cls="share"
+fi
+if [ -f /tmp/dyna-game-mode ]; then
+  badges+=("󰊴 GAME")
+  tips+=("Gaming Mode ON (blur/animations/hypridle paused)")
+  [ "$cls" = "normal" ] && cls="game"
+fi
+if [ -f /tmp/dyna-study-mode ]; then
+  badges+=("󰑴 STUDY")
+  tips+=("Study Mode ON (DND + tight gaps)")
+  [ "$cls" = "normal" ] && cls="study"
+fi
+if pgrep -x hyprsunset >/dev/null 2>&1; then
+  badges+=("󰖔 4200K")
+  tips+=("Night Light ON (4200K)")
+fi
+
+if [ ${#badges[@]} -eq 0 ]; then
+  echo '{"text":"","tooltip":""}'
+  exit 0
+fi
+
+text=$(IFS=' · '; echo "${badges[*]}")
+tip=$(printf '%s\n' "${tips[@]}" | paste -sd '\n' -)
+jq -nc --arg t "$text" --arg tip "${tip}\nClick to open System Control Center" --arg c "$cls" \
+  '{text:$t, tooltip:$tip, class:$c}'

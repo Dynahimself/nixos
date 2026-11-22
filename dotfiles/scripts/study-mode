@@ -6,11 +6,13 @@ if [ -f "$STATE" ]; then
   rm -f "$STATE"
   swaync-client -df >/dev/null 2>&1 || true
   hyprctl reload >/dev/null 2>&1 || true
+  pkill -RTMIN+9 waybar 2>/dev/null || true
   notify-send "Study Mode" "OFF — notifications & gaps restored"
 else
   touch "$STATE"
   swaync-client -dn >/dev/null 2>&1 || true
-  hyprctl eval "hl.config({ general = { gaps_in = 2, gaps_out = 4 } })" >/dev/null 2>&1 || true
+  hyprctl eval "hl.config({ general = { gaps_in = 2, gaps_out = 4 }, decoration = { inactive_opacity = 1.0 } })" >/dev/null 2>&1 || true
   nohup setsid zen "http://100.68.54.112:8200" >/dev/null 2>&1 </dev/null &
-  notify-send "Study Mode" "ON — DND active, CS Hub ready"
+  pkill -RTMIN+9 waybar 2>/dev/null || true
+  notify-send "Study Mode" "ON — DND active, tight gaps, CS Hub ready"
 fi

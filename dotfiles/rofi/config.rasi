@@ -1,45 +1,54 @@
-/* Catppuccin Mocha Mauve — Sleek Spotlight-style Rofi (zero beige bleed) */
+/* Catppuccin Mocha — Frosted Glass Spotlight Rofi (Dynamic Accent + Colemak-DH) */
 configuration {
-    modi:                "drun,run,window";
-    show-icons:          true;
-    icon-theme:          "Papirus-Dark";
-    display-drun:        "";
-    display-run:         "";
-    display-window:      "";
-    drun-display-format: "{name}";
-    disable-history:     false;
-    hover-select:        true;
-    me-select-entry:     "";
-    me-accept-entry:     "MousePrimary";
+    modi:                 "drun,window,run";
+    show-icons:           true;
+    icon-theme:           "Papirus-Dark";
+    display-drun:         " Apps";
+    display-window:       " Windows";
+    display-run:          " Run";
+    drun-display-format:  "{name}";
+    window-format:        "{w}  ·  {c}  —  {t}";
+    disable-history:      false;
+    hover-select:         true;
+    me-select-entry:      "";
+    me-accept-entry:      "MousePrimary";
+    kb-row-down:          "Down,Control+e,Control+j";
+    kb-row-up:            "Up,Control+i,Control+k";
+    kb-remove-to-eol:     "";
+    kb-accept-entry:      "Return,KP_Enter";
+    kb-mode-next:         "Shift+Right,Control+Tab";
+    kb-mode-previous:     "Shift+Left,Control+ISO_Left_Tab";
 }
 
 * {
-    crust:     #11111bff;
-    mantle:    #181825ff;
-    base:      #1e1e2eff;
-    surface0:  #313244ff;
-    surface1:  #45475aff;
-    overlay0:  #6c7086ff;
-    subtext0:  #a6adc8ff;
-    text:      #cdd6f4ff;
-    mauve:     #cba6f7ff;
-    blue:      #89b4faff;
-    green:     #a6e3a1ff;
-    red:       #f38ba8ff;
+    crust:       #11111bff;
+    mantle:      #181825e6;
+    base:        #1e1e2ed9;
+    surface0:    #313244cc;
+    surface1:    #45475aff;
+    overlay0:    #6c7086ff;
+    subtext0:    #a6adc8ff;
+    text:        #cdd6f4ff;
+    accent:      #cba6f7ff;
+    accent-alt:  #89b4faff;
+    green:       #a6e3a1ff;
+    red:         #f38ba8ff;
 
     font: "JetBrainsMono Nerd Font 11.5";
     background-color: transparent;
     text-color: @text;
 }
 
+@import "/home/dyna/.cache/mocha-theme/accent.rasi"
+
 window {
     transparency:     "real";
     location:         center;
     anchor:           center;
-    width:            640px;
+    width:            680px;
     border:           2px solid;
-    border-color:     @mauve;
-    border-radius:    14px;
+    border-color:     @accent;
+    border-radius:    16px;
     background-color: @base;
     padding:          16px;
 }
@@ -47,29 +56,29 @@ window {
 mainbox {
     spacing:          12px;
     background-color: transparent;
-    children:         [ "inputbar", "message", "listview" ];
+    children:         [ "inputbar", "message", "listview", "mode-switcher" ];
 }
 
 inputbar {
     spacing:          10px;
-    padding:          10px 14px;
+    padding:          11px 14px;
     border:           1px solid;
-    border-color:     @surface0;
-    border-radius:    10px;
+    border-color:     @surface1;
+    border-radius:    11px;
     background-color: @mantle;
     children:         [ "prompt", "entry" ];
 }
 
 prompt {
     background-color: transparent;
-    text-color:       @mauve;
+    text-color:       @accent;
     vertical-align:   0.5;
 }
 
 entry {
     background-color:  transparent;
     text-color:        @text;
-    placeholder:       "Search…";
+    placeholder:       "Type to search… (Ctrl+e/i to move)";
     placeholder-color: @overlay0;
     vertical-align:    0.5;
     cursor:            text;
@@ -77,8 +86,9 @@ entry {
 
 message {
     padding:          8px 12px;
-    border:           0px;
-    border-radius:    8px;
+    border:           1px solid;
+    border-color:     @surface0;
+    border-radius:    9px;
     background-color: @mantle;
 }
 
@@ -89,7 +99,7 @@ textbox {
 
 listview {
     columns:          1;
-    lines:            8;
+    lines:            9;
     cycle:            true;
     dynamic:          true;
     scrollbar:        false;
@@ -103,7 +113,7 @@ element {
     spacing:          12px;
     padding:          9px 12px;
     border:           0px;
-    border-radius:    9px;
+    border-radius:    10px;
     background-color: transparent;
     text-color:       @subtext0;
     orientation:      horizontal;
@@ -131,7 +141,7 @@ element alternate.urgent {
 element selected.normal,
 element selected.active {
     background-color: @surface0;
-    text-color:       @mauve;
+    text-color:       @accent;
 }
 
 element selected.urgent {
@@ -149,4 +159,22 @@ element-text {
     background-color: transparent;
     vertical-align:   0.5;
     text-color:       inherit;
+}
+
+mode-switcher {
+    spacing:          8px;
+    background-color: transparent;
+}
+
+button {
+    padding:          7px 10px;
+    border-radius:    9px;
+    background-color: @mantle;
+    text-color:       @subtext0;
+    cursor:           pointer;
+}
+
+button selected {
+    background-color: @accent;
+    text-color:       @crust;
 }

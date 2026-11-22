@@ -1,9 +1,12 @@
-/* Catppuccin Mocha Mauve — SwayOSD */
+/* Catppuccin Mocha — Frosted Glass SwayOSD (dynamic accent) */
+@define-color accent #cba6f7;
+@import "/home/dyna/.cache/mocha-theme/accent.css";
+
 window#osd {
-  padding: 12px 20px;
-  border-radius: 14px;
-  border: 1.5px solid #cba6f7;
-  background: rgba(24, 24, 37, 0.94);
+  padding: 12px 22px;
+  border-radius: 15px;
+  border: 1.5px solid @accent;
+  background: rgba(24, 24, 37, 0.82);
 }
 
 #container {
@@ -40,5 +43,5 @@ progress {
   min-height: inherit;
   border-radius: inherit;
   border: none;
-  background: #cba6f7;
+  background: @accent;
 }
