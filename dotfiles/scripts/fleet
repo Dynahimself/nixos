@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+exec python3 - <<'PY'
+import json
+import sys
+import urllib.request
+
+URL = "http://100.68.54.112:8210/api/status"
+
+try:
+    with urllib.request.urlopen(URL, timeout=2.5) as r:
+        st = json.loads(r.read().decode("utf-8"))
+except Exception as e:
+    print(f"\033[33mFleet API unreachable ({URL}): {e}\033[0m")
+    sys.exit(1)
+
+print(
+    f"\n\033[1;35m  Fleet Status\033[0m  "
+    f"\033[90m(Pi {st.get('pi_temp', '?')} · RAM {st.get('pi_mem', '?')} · Backup: {st.get('backup', '?')})\033[0m"
+)
+print("  " + "-" * 64)
+for n in st.get("nodes", []):
+    up = bool(n.get("online"))
+    col = "\033[32m" if up else "\033[90m"
+    tag = "[UP]  " if up else "[DOWN]"
+    print(f"  {col}{tag} {n.get('name', '?'):<18} {n.get('ip', ''):<16} {n.get('detail', '')}\033[0m")
+
+h = st.get("cshub") or {}
+open_cnt = len(h.get("open_items") or [])
+print(
+    f"\n\033[36m  CS Hub: {open_cnt} open · {h.get('due_count', 0)} due cards · "
+    f"{h.get('streak', 0)}d streak · {h.get('today_minutes', 0)}m today\033[0m\n"
+)
+PY

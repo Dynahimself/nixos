@@ -1,0 +1,191 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions":
+    [
+        { "command": { "action": "splitPane", "split": "right" }, "id": "User.SplitRight" },
+        { "command": { "action": "splitPane", "split": "down" }, "id": "User.SplitDown" },
+        { "command": { "action": "moveFocus", "direction": "left" }, "id": "User.FocusLeft" },
+        { "command": { "action": "moveFocus", "direction": "down" }, "id": "User.FocusDown" },
+        { "command": { "action": "moveFocus", "direction": "up" }, "id": "User.FocusUp" },
+        { "command": { "action": "moveFocus", "direction": "right" }, "id": "User.FocusRight" },
+        { "command": "togglePaneZoom", "id": "User.ToggleZoom" },
+        { "command": "closePane", "id": "User.ClosePane" },
+        { "command": "newTab", "id": "User.NewTab" }
+    ],
+    "alwaysOnTop": false,
+    "copyFormatting": "none",
+    "copyOnSelect": false,
+    "defaultProfile": "{f1e13cdf-b108-5a64-93d2-383599b3332f}",
+    "keybindings":
+    [
+        { "id": "Terminal.CopyToClipboard", "keys": "ctrl+c" },
+        { "id": "Terminal.PasteFromClipboard", "keys": "ctrl+v" },
+        { "id": "Terminal.DuplicatePaneAuto", "keys": "alt+shift+d" },
+        { "id": "User.SplitRight", "keys": "alt+shift+v" },
+        { "id": "User.SplitDown", "keys": "alt+shift+s" },
+        { "id": "User.FocusLeft", "keys": "ctrl+shift+n" },
+        { "id": "User.FocusDown", "keys": "ctrl+shift+e" },
+        { "id": "User.FocusUp", "keys": "ctrl+shift+i" },
+        { "id": "User.FocusRight", "keys": "ctrl+shift+o" },
+        { "id": "User.ToggleZoom", "keys": "ctrl+shift+z" },
+        { "id": "User.ClosePane", "keys": "ctrl+shift+w" },
+        { "id": "User.NewTab", "keys": "ctrl+shift+t" }
+    ],
+    "language": "en-US",
+    "newTabMenu":
+    [
+        { "type": "remainingProfiles" }
+    ],
+    "profiles":
+    {
+        "defaults":
+        {
+            "bellStyle": "none",
+            "colorScheme": "Catppuccin Mocha",
+            "cursorShape": "bar",
+            "font":
+            {
+                "face": "JetBrainsMono Nerd Font Mono",
+                "features":
+                {
+                    "calt": 1,
+                    "liga": 1
+                },
+                "size": 12
+            },
+            "opacity": 82,
+            "padding": "10, 10, 10, 10",
+            "scrollbarState": "hidden",
+            "unfocusedAppearance":
+            {
+                "opacity": 76
+            },
+            "useAcrylic": true
+        },
+        "list":
+        [
+            {
+                "guid": "{f1e13cdf-b108-5a64-93d2-383599b3332f}",
+                "hidden": false,
+                "name": "NixOS",
+                "source": "Microsoft.WSL",
+                "startingDirectory": "~"
+            },
+            {
+                "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoLogo",
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "hidden": false,
+                "name": "Windows PowerShell"
+            },
+            {
+                "commandline": "%SystemRoot%\\System32\\cmd.exe",
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": false,
+                "name": "Command Prompt"
+            },
+            {
+                "guid": "{cf23b585-c1e9-54e2-ac9c-1865fd607243}",
+                "hidden": false,
+                "name": "Developer Command Prompt for VS 18",
+                "source": "Windows.Terminal.VisualStudio"
+            },
+            {
+                "guid": "{10eda38b-4000-5204-981c-5e6fe4b01457}",
+                "hidden": false,
+                "name": "Developer PowerShell for VS 18",
+                "source": "Windows.Terminal.VisualStudio"
+            },
+            {
+                "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
+                "hidden": true,
+                "name": "Azure Cloud Shell",
+                "source": "Windows.Terminal.Azure"
+            },
+            {
+                "guid": "{df9d7bea-2e52-5b3f-8ef4-dd7aecd73361}",
+                "hidden": true,
+                "name": "Ubuntu",
+                "source": "Microsoft.WSL"
+            },
+            {
+                "guid": "{a7daf198-56f4-5bef-bb1e-c9ab1b251ca2}",
+                "hidden": true,
+                "name": "Debian",
+                "source": "Microsoft.WSL"
+            },
+            {
+                "guid": "{e8fd8b93-46e7-59af-a2da-e9454be4abce}",
+                "hidden": true,
+                "name": "archlinux",
+                "source": "Microsoft.WSL"
+            },
+            {
+                "guid": "{16208362-94fc-5b1f-a491-5b2624d5ab56}",
+                "hidden": true,
+                "name": "Visual Studio Debug Console",
+                "source": "VSDebugConsole"
+            },
+            {
+                "guid": "{f0db5e40-5264-57a9-8155-69441203083c}",
+                "hidden": true,
+                "name": "NixOS (old)",
+                "source": "Microsoft.WSL"
+            }
+        ]
+    },
+    "schemes":
+    [
+        {
+            "background": "#1E1E2E",
+            "black": "#45475A",
+            "blue": "#89B4FA",
+            "brightBlack": "#585B70",
+            "brightBlue": "#89B4FA",
+            "brightCyan": "#94E2D5",
+            "brightGreen": "#A6E3A1",
+            "brightPurple": "#F5C2E7",
+            "brightRed": "#F38BA8",
+            "brightWhite": "#A6ADC8",
+            "brightYellow": "#F9E2AF",
+            "cursorColor": "#CBA6F7",
+            "cyan": "#94E2D5",
+            "foreground": "#CDD6F4",
+            "green": "#A6E3A1",
+            "name": "Catppuccin Mocha",
+            "purple": "#F5C2E7",
+            "red": "#F38BA8",
+            "selectionBackground": "#585B70",
+            "white": "#BAC2DE",
+            "yellow": "#F9E2AF"
+        }
+    ],
+    "theme": "Catppuccin Mocha",
+    "themes":
+    [
+        {
+            "name": "Catppuccin Mocha",
+            "tab":
+            {
+                "background": "#1E1E2EFF",
+                "iconStyle": "default",
+                "showCloseButton": "hover",
+                "unfocusedBackground": "#181825FF"
+            },
+            "tabRow":
+            {
+                "background": "#181825FF",
+                "unfocusedBackground": "#11111BFF"
+            },
+            "window":
+            {
+                "applicationTheme": "dark",
+                "experimental.rainbowFrame": false,
+                "frame": "#181825FF",
+                "unfocusedFrame": "#11111BFF",
+                "useMica": false
+            }
+        }
+    ],
+    "useAcrylicInTabRow": true
+}

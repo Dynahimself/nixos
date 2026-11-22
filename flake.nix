@@ -112,6 +112,7 @@
                     ./home-wsl.nix
                     ./nixvim.nix
                     nixvim.homeModules.nixvim
+                    catppuccin.homeModules.catppuccin
                   ];
                 };
               };

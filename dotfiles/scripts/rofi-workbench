@@ -109,6 +109,8 @@ case "$chosen" in
     nohup setsid ghostty -e amdgpu_top >/dev/null 2>&1 </dev/null & ;;
   *"btop"*)
     nohup setsid ghostty -e btop >/dev/null 2>&1 </dev/null & ;;
+  *"Disk Health & Usage"*)
+    nohup setsid ghostty -e bash -lc 'df -h /; echo; echo "=== Top ~ dirs ==="; du -sh ~/* ~/.cache ~/.local/share 2>/dev/null | sort -hr | head -n 15; echo; echo "=== /nix/store & logs ==="; du -sh /nix/store 2>/dev/null; ls -lh ~/steam-*.log ~/nixbuild-*.log ~/nixos.iso 2>/dev/null || true; echo; read -rp "[Press Enter to close]"' >/dev/null 2>&1 </dev/null & ;;
   *"DBeaver"*)
     nohup setsid dbeaver >/dev/null 2>&1 </dev/null & ;;
   *"Quick Notes"*)

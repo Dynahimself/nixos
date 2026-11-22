@@ -65,7 +65,7 @@ case "$choice" in
   *"Audio Mixer"*) nohup setsid pavucontrol >/dev/null 2>&1 </dev/null & ;;
   *"Screenshot Region"*)
     if command -v satty >/dev/null && command -v grim >/dev/null && command -v slurp >/dev/null; then
-      grim -g "$(slurp)" - | satty -f -
+      geom=$(slurp 2>/dev/null) || exit 0; [ -z "$geom" ] && exit 0; grim -g "$geom" - | satty -f -
     else
       hyprshot -m region
     fi ;;
@@ -80,7 +80,7 @@ case "$choice" in
     fi ;;
   *"OCR Region"*)
     if command -v tesseract >/dev/null && command -v grim >/dev/null && command -v slurp >/dev/null; then
-      txt=$(grim -g "$(slurp)" - | tesseract - - -l eng+fra 2>/dev/null || true)
+      geom=$(slurp 2>/dev/null) || exit 0; [ -z "$geom" ] && exit 0; txt=$(grim -g "$geom" - | tesseract - - -l eng+fra 2>/dev/null || true)
       [ -n "$txt" ] && printf '%s' "$txt" | wl-copy && notify-send "OCR Copied" "$(printf '%s' "$txt" | head -c 100)"
     else
       notify-send -u critical "OCR" "tesseract/grim/slurp missing"
@@ -93,7 +93,7 @@ case "$choice" in
       if command -v wf-recorder >/dev/null && command -v slurp >/dev/null; then
         mkdir -p "$HOME/Videos"
         f="$HOME/Videos/rec_$(date +%Y%m%d_%H%M%S).mp4"
-        nohup setsid wf-recorder -g "$(slurp)" -f "$f" >/dev/null 2>&1 </dev/null &
+        geom=$(slurp 2>/dev/null) || exit 0; [ -z "$geom" ] && exit 0; nohup setsid wf-recorder -g "$geom" -f "$f" >/dev/null 2>&1 </dev/null &
         notify-send "Recorder" "Recording started -> $f"
       else
         notify-send -u critical "Recorder" "wf-recorder/slurp missing"

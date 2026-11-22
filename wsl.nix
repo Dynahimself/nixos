@@ -1,14 +1,14 @@
 { config, pkgs, ... }:
 
 {
-  # WSL — minimal dev environment, no GUI
+  # WSL — full terminal dev environment, no GUI
 
   imports = [ ./base.nix ];
 
   # the actual NixOS-WSL module (without wsl.enable, no WSL system gets built)
   wsl.enable = true;
   wsl.defaultUser = "dyna";
-  # dyna is really UID 1001 in the WSL filesystem (tarball nixos user owns 1000) â
+  # dyna is really UID 1001 in the WSL filesystem (tarball nixos user owns 1000) —
   # without this pin, home-manager activation fails: UID is 1001, expected 1000
   users.users.dyna.uid = 1001;
 
@@ -22,10 +22,10 @@
   # Disable Python docs (sphinx build broken in nixpkgs)
   documentation.enable = false;
 
-  # No GUI stuff — just dev tools
+  # No GUI stuff — terminal dev workbench parity
   environment.systemPackages = with pkgs; [
     # Core CLI
-    wget curl tree unzip zip tldr fastfetch
+    wget curl tree unzip zip tldr fastfetch jq bc
 
     # Dev tools
     gcc clang-tools gopls rust-analyzer
@@ -36,13 +36,13 @@
     go zig dotnet-sdk_10 nodejs python311 lua
 
     # CLI tools
-    ripgrep fd cmake cargo rustc
+    ripgrep fd cmake cargo rustc nh nvd
 
     # Git
-    gh lazygit
+    gh lazygit delta
 
-    # Shell
-    bash zsh starship zellij
+    # Shell & terminal UX
+    bash zsh starship zellij yazi atuin direnv
 
     # System utilities
     btop duf dust sd eza zoxide fzf

@@ -20,14 +20,14 @@
           || echo "Not in WSL or Windows drive not mounted"
       }
 
-      # Jump to latest CEGEP C# homework folder
+      # Jump to latest CEGEP homework folder (desktop or laptop)
       tp() {
         local latest
-        latest=$(ls -1dt "$HOME/cswip/Aoop/homeworks"/TP* 2>/dev/null | head -n1)
+        latest=$(ls -1dt "$HOME/cswip/Aoop/homeworks"/TP* "$HOME/neoCS"/*/TP* "$HOME/neoCS"/TP* 2>/dev/null | head -n1)
         if [[ -n "$latest" ]]; then
           cd "$latest" && pwd
         else
-          cd "$HOME/cswip/Aoop" 2>/dev/null || echo "Homework dir not found"
+          cd "$HOME/cswip/Aoop" 2>/dev/null || cd "$HOME/neoCS" 2>/dev/null || echo "Homework dir not found"
         fi
       }
     '';
@@ -47,6 +47,7 @@
       csh = "cshub";
       csa = "cshub agenda";
       csc = "cshub cal";
+      csd = "cshub dash";
     };
   };
 

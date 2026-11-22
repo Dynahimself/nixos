@@ -1,4 +1,4 @@
-{ pkgs, csBraceAttach, roslynWrapper }:
+{ pkgs, csBraceAttach, roslynWrapper, hyprStubs ? true }:
 {
   plugins = {
     lazydev = {
@@ -53,7 +53,7 @@
             diagnostics.globals = [ "vim" "hl" "Snacks" ];
             workspace = {
               checkThirdParty = false;
-              library = [ "${pkgs.hyprland}/share/hypr/stubs" ];
+              library = pkgs.lib.optionals hyprStubs [ "${pkgs.hyprland}/share/hypr/stubs" ];
             };
             hint.enable = true;
             telemetry.enable = false;

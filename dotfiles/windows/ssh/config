@@ -1,0 +1,24 @@
+Host raspberrypi pi
+  HostName 100.68.54.112
+  User dyna
+
+Host nas
+  HostName 100.97.162.110
+  User dyna
+
+Host desktop desktop-1
+  HostName 100.89.63.116
+  User dyna
+
+Host laptop
+  HostName 100.116.179.60
+  User dyna
+
+Host github.com
+  HostName ssh.github.com
+  Port 443
+  User git
+
+Host *
+  ServerAliveInterval 60
+  ServerAliveCountMax 3

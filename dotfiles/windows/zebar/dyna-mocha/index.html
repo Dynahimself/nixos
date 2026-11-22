@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dyna Mocha Topbar</title>
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+  </head>
+  <body>
+    <div id="bar" class="bar">
+      <div class="zone left">
+        <div class="island ws-island">
+          <button id="btn-home" class="brand-btn" title="Open Fleet Startpage (:8210)"></button>
+          <div id="workspaces" class="workspaces"></div>
+          <button id="btn-tiling" class="icon-btn" title="Toggle Tiling Direction (F24+J)">󰯌</button>
+        </div>
+        <div id="mode-pill" class="island mode-pill hidden"></div>
+        <div id="win-pill" class="island win-pill hidden">
+          <span id="win-icon" class="win-icon"></span>
+          <span id="win-title" class="win-title"></span>
+        </div>
+      </div>
+
+      <div class="zone center">
+        <button id="media-pill" class="island pill media-pill hidden" title="Left: Play/Pause · Right: Next · Middle: Prev">
+          <span id="media-icon" class="pill-icon">󰎆</span>
+          <span id="media-text" class="media-text"></span>
+        </button>
+
+        <button id="clock-pill" class="island pill clock-pill" title="Left: Toggle seconds · Right: Start/Pause 25m Pomodoro · Middle: Reset Pomodoro">
+          <span id="clock-icon" class="pill-icon">󰥔</span>
+          <span id="clock-text"></span>
+        </button>
+
+        <button id="cshub-pill" class="island pill cshub-pill" title="Click: Open CS Student Hub (:8200)">
+          <span class="pill-icon">󰑴</span>
+          <span id="cshub-text">Hub</span>
+        </button>
+      </div>
+
+      <div class="zone right">
+        <button id="fleet-pill" class="island pill fleet-pill" title="Click: Open Fleet Startpage (:8210)">
+          <span id="fleet-dots" class="fleet-dots"></span>
+          <span id="fleet-text">Fleet</span>
+        </button>
+
+        <div class="island sys-island">
+          <span id="cpu-item" class="metric" title="CPU Usage">
+            <span class="m-ico cpu-ico"></span><span id="cpu-val">--%</span>
+          </span>
+          <span class="sep">·</span>
+          <span id="mem-item" class="metric" title="RAM Usage">
+            <span class="m-ico mem-ico"></span><span id="mem-val">--%</span>
+          </span>
+          <span class="sep">·</span>
+          <button id="audio-item" class="metric metric-btn" title="Click: Mute/Unmute · Scroll: Volume ±4%">
+            <span id="audio-ico" class="m-ico audio-ico">󰕾</span><span id="audio-val">--%</span>
+          </button>
+          <span class="sep">·</span>
+          <span id="net-item" class="metric" title="Network">
+            <span id="net-ico" class="m-ico net-ico">󰤨</span><span id="net-val"></span>
+          </span>
+          <span id="bat-sep" class="sep hidden">·</span>
+          <span id="bat-item" class="metric hidden" title="Battery">
+            <span id="bat-ico" class="m-ico bat-ico">󰁹</span><span id="bat-val">--%</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

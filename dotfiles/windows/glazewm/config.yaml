@@ -1,0 +1,254 @@
+# GlazeWM v3.9.1 — Dyna's Catppuccin Mocha + Colemak-DH (Hyprland parity)
+# SUPER (Windows key / CapsLock via PowerToys KBM) is mapped to F24.
+# All WM chords use F24 + Colemak-DH (n=left, e=down, i=up, o=right) alongside arrow keys.
+
+general:
+  # Automatically focus windows underneath the cursor.
+  focus_follows_cursor: true
+
+  # Toggle back to previous workspace when focusing the current workspace.
+  toggle_workspace_on_refocus: true
+
+  cursor_jump:
+    enabled: true
+    trigger: "window_focus"
+
+  # Use native Windows cloaking to avoid taskbar flicker on workspace switch.
+  hide_method: "cloak"
+  show_all_in_taskbar: false
+
+gaps:
+  scale_with_dpi: true
+  inner_gap: "6px"
+  outer_gap:
+    top: "46px"
+    right: "10px"
+    bottom: "10px"
+    left: "10px"
+
+window_effects:
+  focused_window:
+    border:
+      enabled: true
+      color: "#cba6f7" # Catppuccin Mocha Mauve
+    corner_style:
+      enabled: true
+      style: "rounded"
+
+  other_windows:
+    border:
+      enabled: true
+      color: "#45475a" # Catppuccin Mocha Surface1
+    corner_style:
+      enabled: true
+      style: "rounded"
+
+window_behavior:
+  initial_state: "tiling"
+  state_defaults:
+    floating:
+      centered: true
+      shown_on_top: true
+    fullscreen:
+      maximized: false
+      shown_on_top: false
+
+workspaces:
+  - name: "1"
+  - name: "2"
+  - name: "3"
+  - name: "4"
+  - name: "5"
+  - name: "6"
+  - name: "7"
+  - name: "8"
+  - name: "9"
+  - name: "10"
+
+binding_modes:
+  # Resize mode (F24+R) — Colemak-DH (n/e/i/o) or Arrow keys; Shift for big steps
+  - name: "resize"
+    display_name: "RESIZE"
+    keybindings:
+      - commands: ["resize --width -3%"]
+        bindings: ["n", "left"]
+      - commands: ["resize --width +3%"]
+        bindings: ["o", "right"]
+      - commands: ["resize --height +3%"]
+        bindings: ["i", "up"]
+      - commands: ["resize --height -3%"]
+        bindings: ["e", "down"]
+      - commands: ["resize --width -8%"]
+        bindings: ["shift+n", "shift+left"]
+      - commands: ["resize --width +8%"]
+        bindings: ["shift+o", "shift+right"]
+      - commands: ["resize --height +8%"]
+        bindings: ["shift+i", "shift+up"]
+      - commands: ["resize --height -8%"]
+        bindings: ["shift+e", "shift+down"]
+      - commands: ["wm-disable-binding-mode --name resize"]
+        bindings: ["escape", "enter", "f24+r"]
+
+window_rules:
+  # Ignore bars, overlays, PowerToys popups, snipping & PiP
+  - commands: ["ignore"]
+    match:
+      - window_process: { equals: "zebar" }
+      - window_process: { equals: "OverKeys" }
+      - window_process: { equals: "PowerToys.PowerAccent" }
+      - window_process: { equals: "PowerToys.PowerLauncher" }
+      - window_process: { equals: "PowerToys.Peek.UI" }
+      - window_process: { equals: "PowerToys.ColorPickerUI" }
+      - window_process: { equals: "PowerToys.CropAndLock" }
+      - window_process: { equals: "PowerToys.AlwaysOnTop" }
+      - window_process: { equals: "PowerToys.QuickAccess" }
+      - window_process: { equals: "Microsoft.CmdPal.Ext.PowerToys" }
+      - window_process: { equals: "ScreenClippingHost" }
+      - window_process: { equals: "SnippingTool" }
+      - window_title: { regex: "[Pp]icture.in.[Pp]icture" }
+        window_class: { regex: "Chrome_WidgetWin_1|MozillaDialogClass|MozillaWindowClass" }
+      - window_process: { equals: "Lively" }
+        window_class: { regex: "HwndWrapper.*" }
+
+  # Utility & dialog windows float cleanly centered
+  - commands: ["set-floating"]
+    match:
+      - window_process: { equals: "Taskmgr" }
+      - window_process: { equals: "CalculatorApp" }
+      - window_process: { equals: "CredentialUIBroker" }
+      - window_process: { equals: "msiexec" }
+      - window_title: { regex: "^(Open|Save As|Confirm|Properties|Run)$" }
+        window_class: { equals: "#32770" }
+
+keybindings:
+  # --- Focus (Colemak-DH n/e/i/o + Arrows) ---
+  - commands: ["focus --direction left"]
+    bindings: ["f24+n", "f24+left"]
+  - commands: ["focus --direction down"]
+    bindings: ["f24+e", "f24+down"]
+  - commands: ["focus --direction up"]
+    bindings: ["f24+i", "f24+up"]
+  - commands: ["focus --direction right"]
+    bindings: ["f24+o", "f24+right"]
+
+  # --- Move window (Shift + Colemak-DH n/e/i/o + Arrows) ---
+  - commands: ["move --direction left"]
+    bindings: ["f24+shift+n", "f24+shift+left"]
+  - commands: ["move --direction down"]
+    bindings: ["f24+shift+e", "f24+shift+down"]
+  - commands: ["move --direction up"]
+    bindings: ["f24+shift+i", "f24+shift+up"]
+  - commands: ["move --direction right"]
+    bindings: ["f24+shift+o", "f24+shift+right"]
+
+  # --- Workspace cycling (Ctrl + n/o or Ctrl + Left/Right, Tab = recent) ---
+  - commands: ["focus --prev-active-workspace"]
+    bindings: ["f24+ctrl+n", "f24+ctrl+left"]
+  - commands: ["focus --next-active-workspace"]
+    bindings: ["f24+ctrl+o", "f24+ctrl+right"]
+  - commands: ["focus --recent-workspace"]
+    bindings: ["f24+tab"]
+
+  # --- Window state & layout ---
+  - commands: ["close"]
+    bindings: ["f24+q"]
+  - commands: ["toggle-floating"]
+    bindings: ["f24+t"]
+  - commands: ["toggle-fullscreen"]
+    bindings: ["f24+f"]
+  - commands: ["toggle-tiling-direction"]
+    bindings: ["f24+j"]
+  - commands: ["wm-cycle-focus"]
+    bindings: ["f24+space"]
+  - commands: ["toggle-minimized"]
+    bindings: ["f24+alt+m"]
+
+  # --- Modes & WM lifecycle ---
+  - commands: ["wm-enable-binding-mode --name resize"]
+    bindings: ["f24+r"]
+  - commands: ["wm-toggle-pause"]
+    bindings: ["f24+shift+p"]
+  - commands: ["wm-reload-config"]
+    bindings: ["f24+shift+r"]
+  - commands: ["wm-redraw"]
+    bindings: ["f24+shift+w"]
+  - commands: ["wm-exit"]
+    bindings: ["f24+m"]
+
+  # --- App launchers (Hyprland parity) ---
+  - commands: ["shell-exec wt"]
+    bindings: ["f24+enter"]
+  - commands: ["shell-exec C:\\Program Files\\Zen Browser\\zen.exe"]
+    bindings: ["f24+b"]
+  - commands: ["shell-exec explorer.exe"]
+    bindings: ["f24+alt+e"]
+  - commands: ["shell-exec explorer.exe Shell:::{2559A1F3-21D7-11D4-BDAF-00C04F60B9F0}"]
+    bindings: ["f24+ctrl+enter"]
+  - commands: ["shell-exec cmd /c taskkill /F /IM zebar.exe & start \"\" \"C:\\Program Files\\glzr.io\\Zebar\\zebar.exe\""]
+    bindings: ["f24+shift+b"]
+
+  # --- Focus workspace 1..10 ---
+  - commands: ["focus --workspace 1"]
+    bindings: ["f24+1"]
+  - commands: ["focus --workspace 2"]
+    bindings: ["f24+2"]
+  - commands: ["focus --workspace 3"]
+    bindings: ["f24+3"]
+  - commands: ["focus --workspace 4"]
+    bindings: ["f24+4"]
+  - commands: ["focus --workspace 5"]
+    bindings: ["f24+5"]
+  - commands: ["focus --workspace 6"]
+    bindings: ["f24+6"]
+  - commands: ["focus --workspace 7"]
+    bindings: ["f24+7"]
+  - commands: ["focus --workspace 8"]
+    bindings: ["f24+8"]
+  - commands: ["focus --workspace 9"]
+    bindings: ["f24+9"]
+  - commands: ["focus --workspace 10"]
+    bindings: ["f24+0"]
+
+  # --- Move window to workspace 1..10 & follow ---
+  - commands: ["move --workspace 1", "focus --workspace 1"]
+    bindings: ["f24+shift+1"]
+  - commands: ["move --workspace 2", "focus --workspace 2"]
+    bindings: ["f24+shift+2"]
+  - commands: ["move --workspace 3", "focus --workspace 3"]
+    bindings: ["f24+shift+3"]
+  - commands: ["move --workspace 4", "focus --workspace 4"]
+    bindings: ["f24+shift+4"]
+  - commands: ["move --workspace 5", "focus --workspace 5"]
+    bindings: ["f24+shift+5"]
+  - commands: ["move --workspace 6", "focus --workspace 6"]
+    bindings: ["f24+shift+6"]
+  - commands: ["move --workspace 7", "focus --workspace 7"]
+    bindings: ["f24+shift+7"]
+  - commands: ["move --workspace 8", "focus --workspace 8"]
+    bindings: ["f24+shift+8"]
+  - commands: ["move --workspace 9", "focus --workspace 9"]
+    bindings: ["f24+shift+9"]
+  - commands: ["move --workspace 10", "focus --workspace 10"]
+    bindings: ["f24+shift+0"]
+
+  # --- Move window silently to workspace 1..10 ---
+  - commands: ["move --workspace 1"]
+    bindings: ["f24+alt+1"]
+  - commands: ["move --workspace 2"]
+    bindings: ["f24+alt+2"]
+  - commands: ["move --workspace 3"]
+    bindings: ["f24+alt+3"]
+  - commands: ["move --workspace 4"]
+    bindings: ["f24+alt+4"]
+  - commands: ["move --workspace 5"]
+    bindings: ["f24+alt+5"]
+  - commands: ["move --workspace 6"]
+    bindings: ["f24+alt+6"]
+  - commands: ["move --workspace 7"]
+    bindings: ["f24+alt+7"]
+  - commands: ["move --workspace 8"]
+    bindings: ["f24+alt+8"]
+  - commands: ["move --workspace 9"]
+    bindings: ["f24+alt+9"]
+  - commands: ["move --workspace 10"]
+    bindings: ["f24+alt+0"]

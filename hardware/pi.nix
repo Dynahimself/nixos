@@ -15,6 +15,10 @@
 
   # refined on install day (raspi firmware + bootloader)
   boot.loader.systemd-boot.enable = true;
+  fileSystems."/" = lib.mkDefault {
+    device = "/dev/disk/by-label/NIXOS_SD";
+    fsType = "ext4";
+  };
 
   services.tailscale.enable = true;
 

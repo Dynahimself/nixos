@@ -2,21 +2,37 @@
 set -euo pipefail
 
 entries=$(cliphist list || true)
-if [ -z "$entries" ]; then
-  notify-send "Clipboard" "Clipboard history is empty"
-  exit 0
-fi
-
 thumb_dir="${XDG_RUNTIME_DIR:-/tmp}/cliphist-thumbs"
 mkdir -p "$thumb_dir"
 
-chosen=$(python3 - "$thumb_dir" "$entries" <<'PY'
+fleet_meta=$(python3 - <<'PY'
+import json, urllib.request
+try:
+    with urllib.request.urlopen("http://100.68.54.112:8210/api/clip", timeout=1.2) as r:
+        d = json.loads(r.read().decode("utf-8"))
+    txt = (d.get("text") or "").replace("\n", " ").strip()
+    if txt:
+        print(f"{d.get('source','?')}: {txt[:42]}")
+except Exception:
+    pass
+PY
+)
+
+chosen=$(python3 - "$thumb_dir" "$entries" "$fleet_meta" <<'PY'
 import os, re, subprocess, sys
 
-thumb_dir, raw = sys.argv[1], sys.argv[2]
+thumb_dir, raw, fmeta = sys.argv[1], sys.argv[2], sys.argv[3].strip()
 lines = [l for l in raw.splitlines() if l.strip()]
 
-rofi_in = ["󰆴  Clear Clipboard History"]
+rofi_in = ["󰅌  Push Clipboard -> Fleet (Desktop / Laptop / Win)"]
+if fmeta:
+    rofi_in.append(f"󰅍  Pull Fleet Clipboard  [{fmeta}]")
+else:
+    rofi_in.append("󰅍  Pull Fleet Clipboard  [empty]")
+
+if lines:
+    rofi_in.append("󰆴  Clear Clipboard History")
+
 for l in lines[:80]:
     m = re.match(r"^(\d+)\t\[\[\s*binary data.*?(png|jpg|jpeg|webp|bmp)", l, re.I)
     if m:
@@ -36,7 +52,7 @@ for l in lines[:80]:
 
 p = subprocess.run(
     ["rofi", "-dmenu", "-show-icons", "-i", "-p", "󰅌 Clipboard",
-     "-mesg", "Select to copy (images previewed inline)"],
+     "-mesg", "Select to copy · Push/Pull syncs across Desktop, Laptop, Win & Phone"],
     input="\n".join(rofi_in),
     text=True,
     capture_output=True,
@@ -47,11 +63,20 @@ PY
 
 [ -z "$chosen" ] && exit 0
 
-if [ "$chosen" = "󰆴  Clear Clipboard History" ]; then
-  cliphist wipe
-  rm -rf "$thumb_dir"
-  notify-send "Clipboard" "Cleared clipboard history"
-else
-  printf '%s' "$chosen" | cliphist decode | wl-copy
-  notify-send "Clipboard" "Copied selection to clipboard"
-fi
+case "$chosen" in
+  "󰅌  Push Clipboard -> Fleet"*)
+    fleet-clip push || true
+    ;;
+  "󰅍  Pull Fleet Clipboard"*)
+    fleet-clip pull || true
+    ;;
+  "󰆴  Clear Clipboard History")
+    cliphist wipe
+    rm -rf "$thumb_dir"
+    notify-send "Clipboard" "Cleared clipboard history"
+    ;;
+  *)
+    printf '%s' "$chosen" | cliphist decode | wl-copy
+    notify-send "Clipboard" "Copied selection to clipboard"
+    ;;
+esac

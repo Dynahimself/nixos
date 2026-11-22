@@ -10,7 +10,7 @@ status_json=$(curl -fsS -m 1.5 "http://${PI_IP}:8210/api/status" 2>/dev/null || 
 if [ -n "$status_json" ]; then
   mesg=$(echo "$status_json" | jq -r '
     "Pi: " + (.pi_temp // "?") + " (" + (.pi_mem // "?") + ")" +
-    "  ·  " + ([.nodes[] | (if (.name|startswith("Raspberry")) then "Pi" elif (.name|startswith("TerraMaster")) then "NAS" else (.name|split(" ")[0]) end) + ":" + (if .online then "UP" else "DOWN" end)] | join(" · ")) +
+    "  ·  " + ([.nodes[] | (if (.name|startswith("Raspberry")) then "Pi" elif (.name|startswith("TerraMaster")) then "NAS" elif (.name|contains("Windows")) then "LapWin" elif (.name|contains("NixOS")) then "LapNix" else (.name|split(" ")[0]) end) + ":" + (if .online then "UP" else "DOWN" end)] | join(" · ")) +
     "  ·  Backup: " + (.backup // "?")
   ' 2>/dev/null || echo "Fleet API online")
 else

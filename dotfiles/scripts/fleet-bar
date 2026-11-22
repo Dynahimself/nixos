@@ -8,7 +8,14 @@ if [ -z "$st" ]; then
   jq -nc --arg txt "󰒍 Pi:${pi_ok}" --arg tip "$tip" '{text:$txt, tooltip:$tip}'
   exit 0
 fi
-online=$(echo "$st" | jq -r '[.nodes[] | select(.online) | (if (.name|startswith("Raspberry")) then "Pi" elif (.name|startswith("TerraMaster")) then "NAS" else (.name|split(" ")[0]) end)] | join("·")')
+online=$(echo "$st" | jq -r '[.nodes[] | select(.online) | (
+  if (.name | startswith("Raspberry")) then "Pi"
+  elif (.name | startswith("TerraMaster")) then "NAS"
+  elif (.name | contains("Windows")) then "LapWin"
+  elif (.name | contains("NixOS")) then "LapNix"
+  else (.name | split(" ")[0])
+  end
+)] | join("·")')
 backup=$(echo "$st" | jq -r '.backup // "?"')
 temp=$(echo "$st" | jq -r '.pi_temp // "?"')
 tip=$(printf 'Online: %s\nPi temp: %s\nBackup: %s\nClick for Fleet menu' "$online" "$temp" "$backup")

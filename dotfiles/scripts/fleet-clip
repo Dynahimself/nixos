@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+URL="http://100.68.54.112:8210/api/clip"
+CMD="${1:-show}"
+HOST=$(hostname 2>/dev/null || echo "linux")
+
+notify() {
+  if command -v notify-send >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ]; then
+    notify-send "$1" "$2" >/dev/null 2>&1 || true
+  fi
+}
+
+case "$CMD" in
+  push)
+    if [ ! -t 0 ]; then
+      text=$(cat)
+    elif [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-paste >/dev/null 2>&1; then
+      text=$(wl-paste --no-newline 2>/dev/null || true)
+    elif command -v powershell.exe >/dev/null 2>&1; then
+      text=$(powershell.exe -NoProfile -Command 'Get-Clipboard -Raw' 2>/dev/null | tr -d '\r' || true)
+    elif command -v xclip >/dev/null 2>&1; then
+      text=$(xclip -o -selection clipboard 2>/dev/null || true)
+    else
+      echo "No clipboard tool available (pipe text via stdin)" >&2
+      exit 1
+    fi
+    if [ -z "$text" ]; then
+      echo "Clipboard is empty" >&2
+      notify "Fleet Clipboard" "Local clipboard is empty"
+      exit 1
+    fi
+    res=$(python3 - "$URL" "$HOST" "$text" <<'PY'
+import json, sys, urllib.request
+url, src, txt = sys.argv[1], sys.argv[2], sys.argv[3]
+req = urllib.request.Request(
+    url,
+    data=json.dumps({"text": txt, "source": src}).encode("utf-8"),
+    headers={"Content-Type": "application/json"},
+    method="POST",
+)
+with urllib.request.urlopen(req, timeout=3) as r:
+    print(r.read().decode("utf-8"))
+PY
+)
+    preview=$(printf '%s' "$text" | tr '\n' ' ' | cut -c1-60)
+    echo "Pushed ${#text} chars from ${HOST} -> Fleet: ${preview}"
+    notify "Fleet Clipboard -> Pushed" "${preview}"
+    ;;
+
+  pull)
+    text=$(python3 - "$URL" <<'PY'
+import json, sys, urllib.request
+with urllib.request.urlopen(sys.argv[1], timeout=3) as r:
+    d = json.loads(r.read().decode("utf-8"))
+sys.stdout.write(d.get("text", ""))
+PY
+)
+    if [ -z "$text" ]; then
+      echo "Fleet clipboard is empty" >&2
+      notify "Fleet Clipboard" "Fleet clipboard is empty"
+      exit 1
+    fi
+    if [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-copy >/dev/null 2>&1; then
+      printf '%s' "$text" | wl-copy
+    elif command -v clip.exe >/dev/null 2>&1; then
+      printf '%s' "$text" | clip.exe
+    elif command -v xclip >/dev/null 2>&1; then
+      printf '%s' "$text" | xclip -i -selection clipboard
+    fi
+    preview=$(printf '%s' "$text" | tr '\n' ' ' | cut -c1-60)
+    echo "Pulled ${#text} chars from Fleet: ${preview}"
+    notify "Fleet Clipboard <- Pulled" "${preview}"
+    ;;
+
+  show|status)
+    python3 - "$URL" <<'PY'
+import json, sys, urllib.request
+with urllib.request.urlopen(sys.argv[1], timeout=3) as r:
+    d = json.loads(r.read().decode("utf-8"))
+txt = d.get("text", "")
+if not txt:
+    print("Fleet clipboard is empty.")
+else:
+    print(f"Source: {d.get('source','?')} | Updated: {d.get('updated_at','?')} | {len(txt)} chars")
+    print("-" * 60)
+    print(txt)
+PY
+    ;;
+
+  *)
+    echo "Usage: fleet-clip [push|pull|show]" >&2
+    exit 2
+    ;;
+esac

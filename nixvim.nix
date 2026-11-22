@@ -1,7 +1,7 @@
 # =====================================================================
 # Nixvim — Dyna's Colemak-DH Catppuccin Mocha Neovim 0.12 Workbench
 # =====================================================================
-# Modularized under ./nixvim/{options,keymaps,ui,coding,lsp,git-debug,commands}.nix
+# Modularized under ./nixvim/{options,keymaps,ui,coding,lsp,git-debug,commands,motion-coach}.nix
 # Activation: `dyna.nixvim.enable = true` in home.nix / home-wsl.nix.
 # =====================================================================
 { config, lib, pkgs, ... }:
@@ -30,6 +30,11 @@ in
 {
   options.dyna.nixvim = {
     enable = lib.mkEnableOption "Nixvim editor (Colemak-DH workbench)";
+    hyprStubs = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Include Hyprland Lua LSP stubs (disable on headless WSL to avoid pulling Wayland/Hyprland)";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -41,7 +46,7 @@ in
         (import ./nixvim/keymaps.nix { inherit pkgs; })
         (import ./nixvim/ui.nix { inherit pkgs; })
         (import ./nixvim/coding.nix { inherit pkgs; })
-        (import ./nixvim/lsp.nix { inherit pkgs csBraceAttach roslynWrapper; })
+        (import ./nixvim/lsp.nix { inherit pkgs csBraceAttach roslynWrapper; hyprStubs = cfg.hyprStubs; })
         (import ./nixvim/git-debug.nix { inherit pkgs; })
         (import ./nixvim/commands.nix { inherit pkgs; })
         (import ./nixvim/motion-coach.nix { inherit pkgs; })
