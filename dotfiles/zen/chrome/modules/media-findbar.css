@@ -1,0 +1,100 @@
+/* Media controls card, floating top-right pill findbar, and statuspanel pill */
+@media (prefers-color-scheme: dark) {
+  /* Sidebar media controls */
+  #zen-media-controls-toolbar {
+    background-color: var(--ctp-crust) !important;
+    border: 1px solid var(--ctp-surface0) !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
+  }
+
+  #zen-media-controls-toolbar .zen-media-progress-bar::-moz-range-track {
+    background: var(--ctp-surface0) !important;
+  }
+
+  #zen-media-controls-toolbar .zen-media-progress-bar::-moz-range-progress {
+    background: linear-gradient(90deg, var(--mocha-accent), var(--mocha-accent-alt)) !important;
+  }
+
+  #zen-media-controls-toolbar .zen-media-progress-bar::-moz-range-thumb {
+    background: var(--mocha-accent) !important;
+  }
+
+  /* Anchor floating findbar cleanly inside each tab's browserContainer */
+  .browserContainer {
+    position: relative !important;
+  }
+
+  findbar {
+    position: absolute !important;
+    top: 12px !important;
+    right: 16px !important;
+    z-index: 100 !important;
+    width: fit-content !important;
+    max-width: calc(100% - 32px) !important;
+    margin: 0 !important;
+    padding: 5px 10px !important;
+    background-color: color-mix(in srgb, var(--ctp-mantle) 96%, var(--ctp-crust)) !important;
+    color: var(--ctp-text) !important;
+    border: 1.5px solid color-mix(in srgb, var(--mocha-accent) 62%, var(--ctp-surface1)) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 14px 36px rgba(17, 17, 27, 0.72), 0 0 16px var(--mocha-accent-soft) !important;
+  }
+
+  findbar[hidden] {
+    display: flex !important;
+    margin-bottom: 0 !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    pointer-events: none !important;
+    visibility: collapse !important;
+  }
+
+  findbar:not([hidden]) {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+
+  .findbar-container {
+    margin-inline-start: 0 !important;
+  }
+
+  .findbar-textbox {
+    background-color: var(--ctp-base) !important;
+    color: var(--ctp-text) !important;
+    border: 1px solid var(--ctp-surface1) !important;
+    border-radius: 8px !important;
+    font-family: var(--mocha-mono) !important;
+  }
+
+  .findbar-textbox:focus {
+    border-color: var(--mocha-accent) !important;
+  }
+
+  .findbar-textbox[status="notfound"] {
+    background-color: rgba(243, 139, 168, 0.16) !important;
+    border-color: var(--ctp-red) !important;
+    color: var(--ctp-red) !important;
+  }
+
+  .findbar-find-status[status="wrapped"] {
+    color: var(--ctp-yellow) !important;
+  }
+
+  .found-matches {
+    font-family: var(--mocha-mono) !important;
+    color: var(--ctp-subtext1) !important;
+  }
+
+  /* Bottom link status pill */
+  #statuspanel-label {
+    background-color: var(--ctp-crust) !important;
+    color: var(--ctp-subtext1) !important;
+    border: 1px solid var(--ctp-surface1) !important;
+    border-radius: 8px !important;
+    font-family: var(--mocha-mono) !important;
+    font-size: 11px !important;
+    padding: 3px 8px !important;
+    box-shadow: 0 6px 18px rgba(17, 17, 27, 0.55) !important;
+  }
+}

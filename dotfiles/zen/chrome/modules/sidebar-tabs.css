@@ -1,0 +1,114 @@
+/* Vertical tabs, active left accent bar, unloaded dim, audio badges, essentials, folders */
+@media (prefers-color-scheme: dark) {
+  /* Active tab card + vertical gradient accent indicator */
+  #tabbrowser-tabs .tabbrowser-tab[selected] > .tab-stack > .tab-background {
+    position: relative !important;
+    background: color-mix(in srgb, var(--mocha-accent) 14%, var(--ctp-surface0)) !important;
+    border: 1px solid color-mix(in srgb, var(--mocha-accent) 42%, transparent) !important;
+    box-shadow: 0 4px 14px rgba(17, 17, 27, 0.35) !important;
+  }
+
+  :root[zen-sidebar-expanded="true"]
+    #tabbrowser-tabs .tabbrowser-tab[selected]:not([zen-essential="true"]) > .tab-stack > .tab-background::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 20%;
+    height: 60%;
+    width: 3px;
+    border-radius: 99px;
+    background: linear-gradient(180deg, var(--mocha-accent), var(--mocha-accent-alt));
+  }
+
+  #tabbrowser-tabs .tabbrowser-tab[selected] .tab-label {
+    color: var(--ctp-text) !important;
+    font-weight: 600 !important;
+  }
+
+  #tabbrowser-tabs .tabbrowser-tab:not([selected]):hover > .tab-stack > .tab-background {
+    background-color: var(--ctp-surface0) !important;
+  }
+
+  /* Unloaded / pending / discarded tabs: clear visual separation */
+  #tabbrowser-tabs .tabbrowser-tab:is([pending="true"], [discarded="true"]):not([selected]):not([zen-essential="true"]) {
+    opacity: 0.56 !important;
+  }
+
+  #tabbrowser-tabs .tabbrowser-tab:is([pending="true"], [discarded="true"]):not([selected]):not([zen-essential="true"]) .tab-icon-image {
+    filter: grayscale(65%) !important;
+  }
+
+  #tabbrowser-tabs .tabbrowser-tab:is([pending="true"], [discarded="true"]):not([selected]):not([zen-essential="true"]) .tab-label {
+    color: var(--ctp-subtext0) !important;
+    font-style: italic !important;
+  }
+
+  #tabbrowser-tabs .tabbrowser-tab:is([pending="true"], [discarded="true"]):not([selected]):not([zen-essential="true"]):hover {
+    opacity: 0.9 !important;
+  }
+
+  /* Audio playing & muted badges */
+  #tabbrowser-tabs .tabbrowser-tab[soundplaying]:not([muted]) .tab-audio-button {
+    color: var(--ctp-green) !important;
+    fill: var(--ctp-green) !important;
+  }
+
+  #tabbrowser-tabs .tabbrowser-tab[soundplaying]:not([muted]):not([selected]) > .tab-stack > .tab-background {
+    border: 1px solid rgba(166, 227, 161, 0.35) !important;
+  }
+
+  #tabbrowser-tabs .tabbrowser-tab[muted] .tab-audio-button {
+    color: var(--ctp-peach) !important;
+    fill: var(--ctp-peach) !important;
+  }
+
+  /* Essentials tiles */
+  #zen-essentials .tabbrowser-tab[zen-essential="true"] > .tab-stack > .tab-background {
+    background: var(--ctp-surface0) !important;
+    border: 1px solid color-mix(in srgb, var(--ctp-surface1) 80%, transparent) !important;
+  }
+
+  #zen-essentials .tabbrowser-tab[zen-essential="true"][selected] > .tab-stack > .tab-background {
+    background: color-mix(in srgb, var(--mocha-accent) 20%, var(--ctp-surface0)) !important;
+    border: 1.5px solid var(--mocha-accent) !important;
+    box-shadow: 0 0 14px var(--mocha-accent-soft) !important;
+  }
+
+  /* Pinned tabs separator & Clear button */
+  .pinned-tabs-container-separator {
+    --zen-pinned-separator-color: var(--ctp-surface1) !important;
+  }
+
+  .pinned-tabs-container-separator toolbarbutton {
+    color: var(--ctp-subtext0) !important;
+  }
+
+  .pinned-tabs-container-separator toolbarbutton:hover {
+    color: var(--mocha-accent) !important;
+  }
+
+  /* Zen Folders */
+  :root,
+  zen-folder {
+    --zen-folder-behind-bgcolor: color-mix(in srgb, var(--mocha-accent) 55%, var(--ctp-surface1)) !important;
+    --zen-folder-front-bgcolor: color-mix(in srgb, var(--mocha-accent) 28%, var(--ctp-surface0)) !important;
+    --zen-folder-stroke: var(--mocha-accent) !important;
+  }
+
+  zen-folder[collapsed][has-active] > .tab-group-label-container::before {
+    background-color: color-mix(in srgb, var(--mocha-accent) 18%, var(--ctp-surface0)) !important;
+    border: 1px solid color-mix(in srgb, var(--mocha-accent) 45%, transparent) !important;
+  }
+
+  /* Workspace switcher icons */
+  #zen-workspaces-button toolbarbutton[active="true"] {
+    background-color: color-mix(in srgb, var(--mocha-accent) 22%, var(--ctp-surface0)) !important;
+    color: var(--mocha-accent) !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  #zen-workspaces-button toolbarbutton[active="true"] .zen-workspace-icon[no-icon="true"] {
+    background: var(--mocha-accent) !important;
+  }
+}

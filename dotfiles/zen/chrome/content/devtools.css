@@ -1,0 +1,39 @@
+/* Catppuccin Mocha DevTools toolbox */
+@media (prefers-color-scheme: dark) {
+  @-moz-document url-prefix("chrome://devtools/"), url-prefix("about:devtools-toolbox") {
+    :root.theme-dark,
+    .theme-dark {
+      --theme-body-background: var(--ctp-base) !important;
+      --theme-sidebar-background: var(--ctp-mantle) !important;
+      --theme-toolbar-background: var(--ctp-mantle) !important;
+      --theme-tab-toolbar-background: var(--ctp-crust) !important;
+      --theme-toolbar-hover: var(--ctp-surface0) !important;
+      --theme-toolbar-selected-color: var(--mocha-accent) !important;
+      --theme-selection-background: var(--ctp-surface0) !important;
+      --theme-selection-background-hover: var(--ctp-surface1) !important;
+      --theme-selection-color: var(--ctp-text) !important;
+      --theme-splitter-color: var(--ctp-surface0) !important;
+      --theme-comment: var(--ctp-overlay1) !important;
+
+      --theme-body-color: var(--ctp-text) !important;
+      --theme-text-color-alt: var(--ctp-subtext0) !important;
+      --theme-text-color-inactive: var(--ctp-overlay0) !important;
+      --theme-text-color-strong: var(--ctp-text) !important;
+
+      --theme-highlight-blue: var(--ctp-blue) !important;
+      --theme-highlight-purple: var(--ctp-mauve) !important;
+      --theme-highlight-pink: var(--ctp-pink) !important;
+      --theme-highlight-green: var(--ctp-green) !important;
+      --theme-highlight-red: var(--ctp-red) !important;
+      --theme-highlight-orange: var(--ctp-peach) !important;
+      --theme-highlight-yellow: var(--ctp-yellow) !important;
+      --theme-highlight-cyan: var(--ctp-teal) !important;
+
+      --monospace-font-family: var(--mocha-mono) !important;
+    }
+
+    .devtools-tab.selected .devtools-tab-line {
+      background-color: var(--mocha-accent) !important;
+    }
+  }
+}

@@ -1,0 +1,291 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PYTHONPATH=""
+
+open_url() {
+  local url="$1"
+  [ -z "$url" ] && exit 0
+  nohup setsid zen "$url" >/dev/null 2>&1 </dev/null &
+}
+
+run_py_list() {
+  local kind="$1"
+  python3 - "$kind" <<'PY'
+import configparser, json, os, shutil, signal, sqlite3, struct, sys, tempfile, urllib.parse
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+kind = sys.argv[1]
+
+def get_profile_dir():
+    base = os.path.expanduser("~/.zen")
+    ini = os.path.join(base, "profiles.ini")
+    if os.path.exists(ini):
+        cp = configparser.ConfigParser()
+        cp.read(ini)
+        for sec in cp.sections():
+            if cp.has_option(sec, "Default") and cp.get(sec, "Default") == "1" and cp.has_option(sec, "Path"):
+                p = cp.get(sec, "Path")
+                return p if os.path.isabs(p) else os.path.join(base, p)
+        for sec in cp.sections():
+            if cp.has_option(sec, "Path"):
+                p = cp.get(sec, "Path")
+                return p if os.path.isabs(p) else os.path.join(base, p)
+    return os.path.join(base, "dynas")
+
+def lz4_decompress_block(src):
+    out = bytearray()
+    i = 0
+    n = len(src)
+    while i < n:
+        token = src[i]; i += 1
+        lit_len = token >> 4
+        if lit_len == 15:
+            while True:
+                b = src[i]; i += 1
+                lit_len += b
+                if b != 255:
+                    break
+        out.extend(src[i:i + lit_len]); i += lit_len
+        if i >= n:
+            break
+        offset = src[i] | (src[i + 1] << 8); i += 2
+        match_len = (token & 0x0F) + 4
+        if (token & 0x0F) == 15:
+            while True:
+                b = src[i]; i += 1
+                match_len += b
+                if b != 255:
+                    break
+        start = len(out) - offset
+        for k in range(match_len):
+            out.append(out[start + k])
+    return bytes(out)
+
+def read_mozlz4(path):
+    with open(path, "rb") as f:
+        raw = f.read()
+    if raw[:8] != b"mozLz40\x00":
+        raise ValueError("invalid mozLz40 header")
+    return json.loads(lz4_decompress_block(raw[12:]).decode("utf-8"))
+
+def domain_of(url):
+    try:
+        return urllib.parse.urlparse(url).netloc or url.split("/")[0]
+    except Exception:
+        return ""
+
+prof = get_profile_dir()
+rows = []
+
+if kind == "tabs":
+    candidates = [
+        os.path.join(prof, "zen-sessions.jsonlz4"),
+        os.path.join(prof, "sessionstore-backups", "recovery.jsonlz4"),
+    ]
+    data = None
+    for c in candidates:
+        if os.path.exists(c):
+            try:
+                data = read_mozlz4(c)
+                break
+            except Exception:
+                pass
+    if data:
+        raw_tabs = list(data.get("tabs", []))
+        for win in data.get("windows", []):
+            raw_tabs.extend(win.get("tabs", []))
+        seen = set()
+        for t in raw_tabs:
+            if t.get("zenIsEmpty"):
+                continue
+            entries = t.get("entries") or []
+            if not entries:
+                continue
+            idx = max(0, min(len(entries) - 1, (t.get("index") or len(entries)) - 1))
+            ent = entries[idx]
+            url = (ent.get("url") or "").strip()
+            if not url or url in ("about:blank", "about:newtab") or url in seen:
+                continue
+            seen.add(url)
+            title = (ent.get("title") or url).replace("\n", " ").strip()[:80]
+            if t.get("zenEssential"):
+                tag = "★ ESS "
+            elif t.get("pinned"):
+                tag = "󰐃 PIN "
+            else:
+                tag = "󰈹 TAB "
+            dom = domain_of(url)
+            rows.append((f"{tag} {title}  [{dom}]", url))
+
+elif kind in ("bookmarks", "history"):
+    places = os.path.join(prof, "places.sqlite")
+    if os.path.exists(places):
+        with tempfile.TemporaryDirectory(prefix="rofi-zen-") as tmp:
+            for suffix in ("", "-wal", "-shm"):
+                src = places + suffix
+                if os.path.exists(src):
+                    shutil.copy2(src, os.path.join(tmp, "places.sqlite" + suffix))
+            con = sqlite3.connect(os.path.join(tmp, "places.sqlite"))
+            if kind == "bookmarks":
+                sql = (
+                    "SELECT COALESCE(NULLIF(b.title, ''), p.title, p.url), p.url "
+                    "FROM moz_bookmarks b JOIN moz_places p ON b.fk = p.id "
+                    "WHERE b.type = 1 AND p.url NOT LIKE 'place:%' "
+                    "ORDER BY b.lastModified DESC LIMIT 400"
+                )
+                icon = " BMK "
+            else:
+                sql = (
+                    "SELECT COALESCE(NULLIF(title, ''), url), url "
+                    "FROM moz_places "
+                    "WHERE hidden = 0 AND visit_count > 0 AND url NOT LIKE 'place:%' "
+                    "ORDER BY last_visit_date DESC LIMIT 200"
+                )
+                icon = "󰋚 HIS "
+            seen = set()
+            for title, url in con.execute(sql):
+                if not url or url in seen:
+                    continue
+                seen.add(url)
+                t = (title or url).replace("\n", " ").strip()[:80]
+                dom = domain_of(url)
+                rows.append((f"{icon} {t}  [{dom}]", url))
+            con.close()
+
+for disp, url in rows:
+    print(f"{disp}\t{url}")
+PY
+}
+
+pick_from_list() {
+  local kind="$1"
+  local prompt="$2"
+  local data
+  data=$(run_py_list "$kind")
+  if [ -z "$data" ]; then
+    notify-send "Zen Browser" "No ${kind} entries found"
+    exit 0
+  fi
+  local idx
+  idx=$(printf '%s\n' "$data" | cut -f1 | rofi -dmenu -i -format i -p "$prompt" || true)
+  [ -z "$idx" ] && exit 0
+  local url
+  url=$(printf '%s\n' "$data" | sed -n "$((idx + 1))p" | cut -f2-)
+  open_url "$url"
+}
+
+bang_search() {
+  local bangs=(
+    "@nix   NixOS Packages|https://search.nixos.org/packages?channel=unstable&query="
+    "@no    NixOS Options|https://search.nixos.org/options?channel=unstable&query="
+    "@hm    Home Manager Options|https://home-manager-options.extranix.com/?query="
+    "@nv    Nixvim Options|https://nix-community.github.io/nixvim/?search="
+    "@gh    GitHub Search|https://github.com/search?q="
+    "@mdn   MDN Web Docs|https://developer.mozilla.org/en-US/search?q="
+    "@cs    .NET / C# Docs|https://learn.microsoft.com/en-us/search/?terms="
+    "@aw    Arch Wiki|https://wiki.archlinux.org/index.php?search="
+    "@yt    YouTube|https://www.youtube.com/results?search_query="
+    "@rd    Reddit|https://www.reddit.com/search/?q="
+    "@ddg   DuckDuckGo|https://duckduckgo.com/?q="
+  )
+  local idx
+  idx=$(printf '%s\n' "${bangs[@]}" | cut -d'|' -f1 | rofi -dmenu -i -format i -p " Bang Search" || true)
+  [ -z "$idx" ] && exit 0
+  local tpl label q enc
+  tpl="${bangs[$idx]#*|}"
+  label="${bangs[$idx]%%|*}"
+  q=$(rofi -dmenu -p "$label" || true)
+  [ -z "${q// /}" ] && exit 0
+  enc=$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote_plus(sys.argv[1]))' "$q")
+  open_url "${tpl}${enc}"
+}
+
+open_clipboard() {
+  local clip enc
+  clip=$(wl-paste -n 2>/dev/null || true)
+  clip="${clip#"${clip%%[![:space:]]*}"}"
+  clip="${clip%"${clip##*[![:space:]]}"}"
+  if [ -z "$clip" ]; then
+    notify-send "Zen Browser" "Clipboard is empty"
+    exit 0
+  fi
+  if [[ "$clip" =~ ^https?:// ]]; then
+    open_url "$clip"
+  else
+    enc=$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote_plus(sys.argv[1]))' "$clip")
+    open_url "https://duckduckgo.com/?q=${enc}"
+  fi
+}
+
+restart_zen() {
+  local pids
+  pids=$(pgrep -xo .zen-wrapped || pgrep -xo zen || true)
+  if [ -n "$pids" ]; then
+    notify-send "Zen Browser" "Gracefully restarting Zen…"
+    kill -TERM $pids 2>/dev/null || true
+    for _ in $(seq 1 50); do
+      if ! kill -0 $pids 2>/dev/null; then
+        break
+      fi
+      sleep 0.1
+    done
+  fi
+  nohup setsid zen >/dev/null 2>&1 </dev/null &
+  notify-send "Zen Browser" "Zen restarted"
+}
+
+case "${1:-}" in
+  --list-tabs)      run_py_list tabs | awk -F'\t' '{print $1 "  -> " $2}'; exit 0 ;;
+  --list-bookmarks) run_py_list bookmarks | awk -F'\t' '{print $1 "  -> " $2}'; exit 0 ;;
+  --list-history)   run_py_list history | awk -F'\t' '{print $1 "  -> " $2}'; exit 0 ;;
+  --tabs)           pick_from_list tabs "󰈹 Open Tabs"; exit 0 ;;
+  --bookmarks)      pick_from_list bookmarks " Bookmarks"; exit 0 ;;
+  --history)        pick_from_list history "󰋚 History"; exit 0 ;;
+  --bang)           bang_search; exit 0 ;;
+  --clip)           open_clipboard; exit 0 ;;
+  --restart)        restart_zen; exit 0 ;;
+esac
+
+choice=$(printf '%s\n' \
+  "󰈹  Search Open Tabs" \
+  "  Fuzzy Bookmarks" \
+  "󰋚  Fuzzy History" \
+  "  Quick Bang Search (@nix / @no / @hm / @nv / @gh / @mdn / @cs)" \
+  "  Open Clipboard URL / Search" \
+  "󰒋  Fleet Startpage (Pi :8210)" \
+  "󰑴  CS Student Hub (Pi :8200)" \
+  "󰚩  Open WebUI (Pi :3000)" \
+  "󰭹  Chub AI Gems (Pi :5123)" \
+  "󰍛  Pi Glances (Pi :61208)" \
+  "󰒍  NAS Launcher (NAS :8300)" \
+  "󰿎  Jellyfin (NAS :8096)" \
+  "󰗃  SillyTavern (Local :8000)" \
+  "󰸉  ComfyUI (Local :8188)" \
+  "󰖟  New Zen Window" \
+  "󰗹  New Private Window" \
+  "󰏘  Sync Live Mocha Accent" \
+  "󰜉  Graceful Restart Zen (Apply CSS / user.js)" | rofi -dmenu -i -p "󰈹 Zen Command Center" || true)
+
+[ -z "$choice" ] && exit 0
+
+case "$choice" in
+  *"Open Tabs"*)      pick_from_list tabs "󰈹 Open Tabs" ;;
+  *"Bookmarks"*)      pick_from_list bookmarks " Bookmarks" ;;
+  *"History"*)        pick_from_list history "󰋚 History" ;;
+  *"Bang Search"*)    bang_search ;;
+  *"Clipboard"*)      open_clipboard ;;
+  *"Fleet Startpage"*) open_url "http://100.68.54.112:8210" ;;
+  *"CS Student Hub"*) open_url "http://100.68.54.112:8200" ;;
+  *"Open WebUI"*)     open_url "http://100.68.54.112:3000" ;;
+  *"Chub AI"*)        open_url "http://100.68.54.112:5123" ;;
+  *"Glances"*)        open_url "http://100.68.54.112:61208" ;;
+  *"NAS Launcher"*)   open_url "http://100.97.162.110:8300" ;;
+  *"Jellyfin"*)       open_url "http://100.97.162.110:8096" ;;
+  *"SillyTavern"*)    open_url "http://127.0.0.1:8000" ;;
+  *"ComfyUI"*)        open_url "http://127.0.0.1:8188" ;;
+  *"New Zen Window"*) nohup setsid zen --new-window >/dev/null 2>&1 </dev/null & ;;
+  *"Private Window"*) nohup setsid zen --private-window >/dev/null 2>&1 </dev/null & ;;
+  *"Mocha Accent"*)   rm -f ~/.cache/mocha-theme/zen-accent.css && theme-accent --init && notify-send "Zen Browser" "Synced live Mocha accent" ;;
+  *"Restart Zen"*)    restart_zen ;;
+esac

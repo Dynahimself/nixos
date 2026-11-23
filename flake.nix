@@ -65,10 +65,18 @@
             };
           };
 
-          environment.systemPackages = [
-            zen-browser.packages.${system}.default
-          ];
         }
+        (
+          { pkgs, ... }:
+          {
+            environment.systemPackages = [
+              (pkgs.wrapFirefox zen-browser.packages.${system}.zen-browser-unwrapped {
+                pname = "zen-browser";
+                extraPolicies = import ./modules/zen-policies.nix;
+              })
+            ];
+          }
+        )
       ];
     in
     {

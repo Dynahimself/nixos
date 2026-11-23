@@ -120,6 +120,26 @@ function M.setup()
         opacity           = "1.0 override 1.0 override",
     })
 
+    -- Zen Browser
+    hl.window_rule({
+        name         = "zen-media-idle",
+        match        = { class = "^(zen)$" },
+        idle_inhibit = "fullscreen",
+    })
+
+    hl.window_rule({
+        name    = "zen-media-opaque",
+        match   = { class = "^(zen)$", title = ".*(YouTube|Jellyfin|Twitch|Netflix|Prime Video|Crunchyroll).*" },
+        opacity = "1.0 override 1.0 override",
+    })
+
+    hl.window_rule({
+        name   = "zen-dialogs-float",
+        match  = { class = "^(zen)$", title = "^(Library|About Zen Browser|Extension:.*|Opening .*|Enter name of file.*|Page Info.*|Clear Recent History)$" },
+        float  = true,
+        center = true,
+    })
+
     -- Media
     hl.window_rule({
         name         = "mpv-opaque",

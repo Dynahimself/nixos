@@ -1,0 +1,83 @@
+/* Resting URL bar + Rofi-style floating command-palette URL bar */
+@media (prefers-color-scheme: dark) {
+  #urlbar:not([breakout-extend]) > .urlbar-background {
+    background-color: var(--ctp-base) !important;
+    border: 1px solid var(--ctp-surface0) !important;
+  }
+
+  #urlbar:not([breakout-extend]):hover > .urlbar-background {
+    background-color: var(--ctp-surface0) !important;
+    border-color: var(--ctp-surface1) !important;
+  }
+
+  #urlbar-input,
+  .urlbarView-url {
+    font-family: var(--mocha-mono) !important;
+  }
+
+  #urlbar-input {
+    color: var(--ctp-text) !important;
+  }
+
+  #urlbar-input::placeholder {
+    color: var(--ctp-overlay1) !important;
+  }
+
+  /* Floating / expanded omnibox */
+  #urlbar:is([breakout-extend], [zen-floating-urlbar="true"]) > .urlbar-background {
+    background: color-mix(in srgb, var(--ctp-base) 96%, var(--ctp-crust)) !important;
+    border: 1.5px solid color-mix(in srgb, var(--mocha-accent) 78%, var(--mocha-accent-alt)) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 22px 58px rgba(17, 17, 27, 0.78), 0 0 26px var(--mocha-accent-soft) !important;
+  }
+
+  /* Search engine / mode pill */
+  #urlbar-label-box,
+  #urlbar-search-mode-indicator {
+    background: var(--mocha-accent) !important;
+    color: var(--ctp-crust) !important;
+    font-weight: 700 !important;
+  }
+
+  #urlbar-search-mode-indicator-title {
+    color: var(--ctp-crust) !important;
+  }
+
+  /* Results rows with crisp Mocha contrast */
+  .urlbarView-row {
+    border-radius: 10px !important;
+    border-left: 3px solid transparent !important;
+    color: var(--ctp-subtext1) !important;
+  }
+
+  .urlbarView-row:hover {
+    background-color: color-mix(in srgb, var(--ctp-surface0) 65%, transparent) !important;
+  }
+
+  .urlbarView-row[selected] {
+    background-color: var(--ctp-surface0) !important;
+    border-left: 3px solid var(--mocha-accent) !important;
+  }
+
+  .urlbarView-row[selected] .urlbarView-title {
+    color: var(--ctp-text) !important;
+    font-weight: 600 !important;
+  }
+
+  .urlbarView-url {
+    color: var(--mocha-accent) !important;
+  }
+
+  .urlbarView-row[selected] .urlbarView-url {
+    color: var(--mocha-accent-alt) !important;
+  }
+
+  .urlbarView-row[selected] .urlbarView-title-separator::before {
+    color: var(--ctp-overlay1) !important;
+  }
+
+  .urlbarView-row[selected] :is(.urlbarView-prettyName, .urlbarView-tabGroup) {
+    background-color: var(--ctp-surface1) !important;
+    color: var(--ctp-text) !important;
+  }
+}

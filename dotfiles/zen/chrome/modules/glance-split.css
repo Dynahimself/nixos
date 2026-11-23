@@ -1,0 +1,53 @@
+/* Zen Glance modal & Zen Split View active-pane accent borders */
+@media (prefers-color-scheme: dark) {
+  /* Zen Glance frame & circular side controls */
+  :is(.browserSidebarContainer.zen-glance-overlay, #zen-glance-detached) .browserStack {
+    border: 1.5px solid color-mix(in srgb, var(--mocha-accent) 70%, var(--mocha-accent-alt)) !important;
+    box-shadow: 0 24px 60px rgba(17, 17, 27, 0.8), 0 0 26px var(--mocha-accent-soft) !important;
+  }
+
+  :is(.browserSidebarContainer.zen-glance-overlay, #zen-glance-detached) .browserContainer browser {
+    background-color: var(--ctp-base) !important;
+  }
+
+  .zen-glance-sidebar-container toolbarbutton {
+    background-color: var(--ctp-base) !important;
+    border: 1px solid var(--ctp-surface1) !important;
+    color: var(--mocha-accent) !important;
+    box-shadow: 0 8px 20px rgba(17, 17, 27, 0.55) !important;
+  }
+
+  .zen-glance-sidebar-container toolbarbutton:hover {
+    background-color: var(--ctp-surface0) !important;
+    border-color: var(--mocha-accent) !important;
+  }
+
+  .zen-glance-sidebar-container .zen-glance-sidebar-close[waitconfirmation] {
+    background-color: var(--ctp-red) !important;
+    border-color: var(--ctp-red) !important;
+    color: var(--ctp-crust) !important;
+    fill: var(--ctp-crust) !important;
+  }
+
+  .zen-glance-sidebar-container .zen-glance-sidebar-close[waitconfirmation] label {
+    color: var(--ctp-crust) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Split View: mirror Hyprland active vs inactive border */
+  :root:not([inDOMFullscreen="true"]):not([popup-window])
+    #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer[zen-split="true"] {
+    border: 1.5px solid var(--ctp-surface1) !important;
+  }
+
+  :root:not([inDOMFullscreen="true"]):not([popup-window])
+    #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer[zen-split="true"].deck-selected {
+    border: 2px solid var(--mocha-accent) !important;
+    box-shadow: 0 0 18px var(--mocha-accent-soft) !important;
+  }
+
+  tab-group[split-view-group] .tab-group-container {
+    background-color: color-mix(in srgb, var(--ctp-surface0) 55%, transparent) !important;
+    outline-color: color-mix(in srgb, var(--mocha-accent) 45%, var(--ctp-surface1)) !important;
+  }
+}

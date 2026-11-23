@@ -20,6 +20,7 @@ in
     "rofi-audio"
     "rofi-workbench"
     "rofi-cshub"
+    "rofi-zen"
     "theme-accent"
     "study-mode"
     "game-mode"

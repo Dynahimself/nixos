@@ -1,0 +1,43 @@
+/* Catppuccin Mocha PDF.js viewer chrome (leaves rendered PDF pages untouched) */
+@media (prefers-color-scheme: dark) {
+  @-moz-document regexp("^.*\\.pdf(\\?.*|#.*)?$"), url-prefix("resource://pdf.js/") {
+    :root {
+      --main-color: var(--ctp-text) !important;
+      --body-bg-color: var(--ctp-crust) !important;
+      --toolbar-bg-color: var(--ctp-mantle) !important;
+      --sidebar-bg-color: var(--ctp-mantle) !important;
+      --doorhanger-bg-color: var(--ctp-base) !important;
+      --doorhanger-border-color: var(--ctp-surface1) !important;
+      --field-bg-color: var(--ctp-base) !important;
+      --field-color: var(--ctp-text) !important;
+      --field-border-color: var(--ctp-surface1) !important;
+      --button-hover-color: var(--ctp-surface0) !important;
+      --toggled-btn-bg-color: var(--mocha-accent-soft) !important;
+      --toggled-btn-color: var(--mocha-accent) !important;
+      --toolbar-border-color: var(--ctp-surface0) !important;
+    }
+
+    #outerContainer,
+    #viewerContainer {
+      background-color: var(--ctp-crust) !important;
+      scrollbar-color: var(--ctp-surface1) transparent;
+      scrollbar-width: thin;
+    }
+
+    #toolbarContainer,
+    #secondaryToolbar,
+    #sidebarContent {
+      background-color: var(--ctp-mantle) !important;
+      border-color: var(--ctp-surface0) !important;
+    }
+
+    #pageNumber,
+    #scaleSelect,
+    #findInput {
+      background-color: var(--ctp-base) !important;
+      color: var(--ctp-text) !important;
+      border-color: var(--ctp-surface1) !important;
+      font-family: var(--mocha-mono) !important;
+    }
+  }
+}

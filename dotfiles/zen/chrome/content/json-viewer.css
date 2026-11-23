@@ -1,0 +1,57 @@
+/* Catppuccin Mocha Firefox built-in JSON viewer */
+@media (prefers-color-scheme: dark) {
+  @-moz-document regexp("^.*\\.json(\\?.*|#.*)?$"), url-prefix("resource://devtools/client/jsonview/") {
+    body,
+    .tabs,
+    .panelContent,
+    .jsonPanelBox,
+    .textPanelBox,
+    .headersPanelBox {
+      background-color: var(--ctp-base) !important;
+      color: var(--ctp-text) !important;
+      font-family: var(--mocha-mono) !important;
+    }
+
+    .toolbar {
+      background-color: var(--ctp-mantle) !important;
+      border-bottom: 1px solid var(--ctp-surface0) !important;
+    }
+
+    .tabs-menu-item.is-active a {
+      color: var(--mocha-accent) !important;
+      border-bottom: 2px solid var(--mocha-accent) !important;
+    }
+
+    .searchBox {
+      background-color: var(--ctp-mantle) !important;
+      color: var(--ctp-text) !important;
+      border: 1px solid var(--ctp-surface1) !important;
+    }
+
+    .treeTable .treeRow:hover {
+      background-color: var(--ctp-surface0) !important;
+    }
+
+    .treeTable .treeLabel {
+      color: var(--ctp-blue) !important;
+    }
+
+    .objectBox-string {
+      color: var(--ctp-green) !important;
+    }
+
+    .objectBox-number {
+      color: var(--ctp-peach) !important;
+    }
+
+    .objectBox-bool,
+    .objectBox-boolean {
+      color: var(--ctp-mauve) !important;
+    }
+
+    .objectBox-null,
+    .objectBox-undefined {
+      color: var(--ctp-red) !important;
+    }
+  }
+}

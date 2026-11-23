@@ -57,33 +57,52 @@ function M.ensure_cache_files()
     local p = M.current.primary
     local s = M.current.secondary
     local r, g, b = hex_to_rgb(p)
+    local sr, sg, sb = hex_to_rgb(s)
 
     local f = io.open(cache_dir .. "/accent.css", "r")
-    if f then
-        f:close()
-        return
-    end
+    local has_accent = f ~= nil
+    if f then f:close() end
 
-    write_file(accent_file, string.format(
-        '{"name":"%s","primary":"#%s","secondary":"#%s"}\n',
-        M.current.name, p, s
-    ))
-    write_file(cache_dir .. "/accent.css", string.format([[
+    local zf = io.open(cache_dir .. "/zen-accent.css", "r")
+    local has_zen = zf ~= nil
+    if zf then zf:close() end
+
+    if not has_accent then
+        write_file(accent_file, string.format(
+            '{"name":"%s","primary":"#%s","secondary":"#%s"}\n',
+            M.current.name, p, s
+        ))
+        write_file(cache_dir .. "/accent.css", string.format([[
 @define-color accent       #%s;
 @define-color accent_alt   #%s;
 @define-color accent_soft  rgba(%d, %d, %d, 0.25);
 @define-color accent_glow  rgba(%d, %d, %d, 0.40);
 ]], p, s, r, g, b, r, g, b))
-    write_file(cache_dir .. "/accent.rasi", string.format([[
+        write_file(cache_dir .. "/accent.rasi", string.format([[
 * {
     accent:     #%sff;
     accent-alt: #%sff;
 }
 ]], p, s))
-    write_file(cache_dir .. "/accent-hyprlock.conf", string.format([[
+        write_file(cache_dir .. "/accent-hyprlock.conf", string.format([[
 $accent = rgba(%sff)
 $accentAlt = rgba(%sff)
 ]], p, s))
+    end
+
+    if not has_zen then
+        write_file(cache_dir .. "/zen-accent.css", string.format([[
+:root,
+:host(:is(.anonymous-content-host, notification-message)) {
+  --mocha-accent: #%s;
+  --mocha-accent-alt: #%s;
+  --mocha-accent-rgb: %d, %d, %d;
+  --mocha-accent-alt-rgb: %d, %d, %d;
+  --mocha-accent-soft: rgba(%d, %d, %d, 0.22);
+  --mocha-accent-glow: rgba(%d, %d, %d, 0.40);
+}
+]], p, s, r, g, b, sr, sg, sb, r, g, b, r, g, b))
+    end
 end
 
 function M.load_accent()

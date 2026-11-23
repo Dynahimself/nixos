@@ -1,13 +1,7 @@
-{ pkgs, ... }:
+{ config, lib, ... }:
 
 let
-  catppuccin-zen = pkgs.fetchFromGitHub {
-    owner = "catppuccin";
-    repo = "zen-browser";
-    rev = "main";
-    sha256 = "5A57Lyctq497SSph7B+ucuEyF1gGVTsuI3zuBItGfg4=";
-  };
-  themePath = "${catppuccin-zen}/themes/Mocha/Mauve";
+  dot = p: config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/${p}";
   profileName = "dynas";
 in
 {
@@ -23,17 +17,31 @@ in
     Default=1
   '';
 
-  home.file.".zen/${profileName}/chrome/userChrome.css".source = "${themePath}/userChrome.css";
-  home.file.".zen/${profileName}/chrome/userContent.css".source = ../dotfiles/userContent.css;
-  home.file.".zen/${profileName}/chrome/zen-logo-mocha.svg".source = "${themePath}/zen-logo-mocha.svg";
+  home.file.".zen/${profileName}/user.js".source = dot "zen/user.js";
+  home.file.".zen/${profileName}/chrome/userChrome.css".source = dot "zen/chrome/userChrome.css";
+  home.file.".zen/${profileName}/chrome/userContent.css".source = dot "zen/chrome/userContent.css";
+  home.file.".zen/${profileName}/chrome/modules".source = dot "zen/chrome/modules";
+  home.file.".zen/${profileName}/chrome/content".source = dot "zen/chrome/content";
+  home.file.".zen/${profileName}/chrome/assets".source = dot "zen/chrome/assets";
+  home.file.".zen/${profileName}/chrome/zen-logo-mocha.svg".source = dot "zen/chrome/assets/zen-logo-mocha.svg";
+  home.file.".zen/${profileName}/chrome/accent.css".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.cache/mocha-theme/zen-accent.css";
 
-  home.file.".zen/${profileName}/user.js".text = ''
-    user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-    user_pref("browser.tabs.drawInTitlebar", true);
-    user_pref("browser.compactmode.show", true);
-    user_pref("zen.view.compact", false);
-    user_pref("browser.startup.homepage", "http://100.68.54.112:8210");
+  home.activation.ensureZenMochaAccent = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    cache_dir="$HOME/.cache/mocha-theme"
+    mkdir -p "$cache_dir"
+    if [ ! -f "$cache_dir/zen-accent.css" ]; then
+      cat > "$cache_dir/zen-accent.css" <<'CSS'
+:root,
+:host(:is(.anonymous-content-host, notification-message)) {
+  --mocha-accent: #cba6f7;
+  --mocha-accent-alt: #89b4fa;
+  --mocha-accent-rgb: 203, 166, 247;
+  --mocha-accent-alt-rgb: 137, 180, 250;
+  --mocha-accent-soft: rgba(203, 166, 247, 0.22);
+  --mocha-accent-glow: rgba(203, 166, 247, 0.40);
+}
+CSS
+    fi
   '';
-
-  home.file.".zen/${profileName}/zen-themes.json".source = ../dotfiles/zen-themes.json;
 }

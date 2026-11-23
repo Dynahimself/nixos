@@ -1,0 +1,197 @@
+/* Catppuccin Mocha across about:* pages (dynamic accent aware) */
+@media (prefers-color-scheme: dark) {
+  @-moz-document url-prefix("about:") {
+    :root {
+      --in-content-page-color: var(--ctp-text) !important;
+      --in-content-page-background: var(--ctp-base) !important;
+      --in-content-box-background: var(--ctp-mantle) !important;
+      --in-content-box-background-odd: rgba(49, 50, 68, 0.35) !important;
+      --in-content-box-border-color: var(--ctp-surface1) !important;
+      --in-content-item-hover: var(--ctp-surface0) !important;
+      --in-content-item-selected: var(--ctp-surface1) !important;
+      --in-content-accent-color: var(--mocha-accent) !important;
+      --in-content-accent-color-active: var(--mocha-accent-alt) !important;
+      --color-accent-primary: var(--mocha-accent) !important;
+      --color-accent-primary-hover: color-mix(in srgb, var(--mocha-accent) 85%, white) !important;
+      --color-accent-primary-active: color-mix(in srgb, var(--mocha-accent) 75%, var(--mocha-accent-alt)) !important;
+      --in-content-primary-button-background: var(--mocha-accent) !important;
+      --in-content-primary-button-background-hover: color-mix(in srgb, var(--mocha-accent) 85%, white) !important;
+      --in-content-primary-button-text-color: var(--ctp-crust) !important;
+      --in-content-button-background: var(--ctp-surface0) !important;
+      --in-content-button-background-hover: var(--ctp-surface1) !important;
+      --in-content-button-text-color: var(--ctp-text) !important;
+      --link-color: var(--mocha-accent) !important;
+      --link-color-hover: var(--mocha-accent-alt) !important;
+      background-color: var(--ctp-base) !important;
+      color: var(--ctp-text) !important;
+    }
+
+    * {
+      scrollbar-color: var(--ctp-surface1) transparent;
+      scrollbar-width: thin;
+    }
+  }
+
+  @-moz-document url("about:blank") {
+    html,
+    body {
+      background-color: var(--ctp-base) !important;
+    }
+  }
+
+  @-moz-document url("about:newtab"), url("about:home") {
+    :root {
+      --newtab-background-color: var(--ctp-base) !important;
+      --newtab-background-color-secondary: var(--ctp-surface0) !important;
+      --newtab-element-hover-color: var(--ctp-surface0) !important;
+      --newtab-text-primary-color: var(--ctp-text) !important;
+      --newtab-wordmark-color: var(--ctp-text) !important;
+      --newtab-primary-action-background: var(--mocha-accent) !important;
+    }
+
+    .icon {
+      color: var(--mocha-accent) !important;
+    }
+
+    .search-wrapper .logo-and-wordmark .logo {
+      background: url("../assets/zen-logo-mocha.svg") no-repeat center !important;
+      display: inline-block !important;
+      height: 82px !important;
+      width: 82px !important;
+      background-size: 82px !important;
+    }
+
+    @media (max-width: 609px) {
+      .search-wrapper .logo-and-wordmark .logo {
+        background-size: 64px !important;
+        height: 64px !important;
+        width: 64px !important;
+      }
+    }
+
+    .card-outer:is(:hover, :focus, .active):not(.placeholder) .card-title {
+      color: var(--mocha-accent) !important;
+    }
+
+    .top-site-outer .search-topsite {
+      background-color: var(--mocha-accent-alt) !important;
+    }
+
+    .compact-cards .card-outer .card-context .card-context-icon.icon-download {
+      fill: var(--ctp-green) !important;
+    }
+  }
+
+  @-moz-document url-prefix("about:preferences"), url-prefix("about:customkeys") {
+    :root {
+      --zen-colors-tertiary: var(--ctp-mantle) !important;
+      --zen-colors-primary: var(--ctp-surface0) !important;
+      --zen-primary-color: var(--mocha-accent) !important;
+    }
+
+    groupbox,
+    moz-card {
+      background: var(--ctp-base) !important;
+      border-color: var(--ctp-surface0) !important;
+    }
+
+    button,
+    groupbox menulist {
+      background: var(--ctp-surface0) !important;
+      color: var(--ctp-text) !important;
+    }
+
+    .main-content,
+    #mainPrefPane {
+      background-color: var(--ctp-mantle) !important;
+    }
+
+    .identity-color-blue      { --identity-tab-color: #89b4fa !important; --identity-icon-color: #89b4fa !important; }
+    .identity-color-turquoise { --identity-tab-color: #94e2d5 !important; --identity-icon-color: #94e2d5 !important; }
+    .identity-color-green     { --identity-tab-color: #a6e3a1 !important; --identity-icon-color: #a6e3a1 !important; }
+    .identity-color-yellow    { --identity-tab-color: #f9e2af !important; --identity-icon-color: #f9e2af !important; }
+    .identity-color-orange    { --identity-tab-color: #fab387 !important; --identity-icon-color: #fab387 !important; }
+    .identity-color-red       { --identity-tab-color: #f38ba8 !important; --identity-icon-color: #f38ba8 !important; }
+    .identity-color-pink      { --identity-tab-color: #f5c2e7 !important; --identity-icon-color: #f5c2e7 !important; }
+    .identity-color-purple    { --identity-tab-color: #cba6f7 !important; --identity-icon-color: #cba6f7 !important; }
+  }
+
+  @-moz-document url-prefix("about:config") {
+    body,
+    #prefs {
+      background-color: var(--ctp-base) !important;
+      color: var(--ctp-text) !important;
+      font-family: var(--mocha-mono) !important;
+    }
+
+    #about-config-search {
+      background-color: var(--ctp-mantle) !important;
+      color: var(--ctp-text) !important;
+      border: 1px solid var(--ctp-surface1) !important;
+      border-radius: 10px !important;
+    }
+
+    #about-config-search:focus {
+      border-color: var(--mocha-accent) !important;
+      outline: none !important;
+    }
+
+    #prefs tr:nth-child(even) {
+      background-color: rgba(24, 24, 37, 0.55) !important;
+    }
+
+    #prefs tr.has-user-value th {
+      color: var(--mocha-accent) !important;
+    }
+  }
+
+  @-moz-document url-prefix("about:addons") {
+    :root {
+      --zen-dark-color-mix-base: var(--ctp-mantle) !important;
+      --background-color-box: var(--ctp-base) !important;
+    }
+
+    .card {
+      background-color: var(--ctp-mantle) !important;
+      border: 1px solid var(--ctp-surface0) !important;
+    }
+
+    .card:hover {
+      border-color: color-mix(in srgb, var(--mocha-accent) 45%, var(--ctp-surface1)) !important;
+    }
+  }
+
+  @-moz-document url-prefix("about:protections") {
+    :root {
+      --zen-primary-color: var(--ctp-base) !important;
+      --social-color: var(--ctp-mauve) !important;
+      --coockie-color: var(--ctp-sky) !important;
+      --fingerprinter-color: var(--ctp-yellow) !important;
+      --cryptominer-color: var(--ctp-lavender) !important;
+      --tracker-color: var(--ctp-green) !important;
+    }
+
+    .card {
+      background-color: var(--ctp-surface0) !important;
+    }
+  }
+
+  @-moz-document url-prefix("about:privatebrowsing") {
+    body {
+      background-color: var(--ctp-mantle) !important;
+      color: var(--ctp-text) !important;
+    }
+
+    .search-inner-wrapper {
+      background-color: var(--ctp-base) !important;
+      border: 1.5px solid color-mix(in srgb, var(--mocha-accent) 60%, var(--ctp-surface1)) !important;
+      border-radius: 12px !important;
+    }
+
+    .info {
+      background-color: var(--ctp-base) !important;
+      border: 1px solid var(--ctp-surface0) !important;
+      border-radius: 12px !important;
+    }
+  }
+}

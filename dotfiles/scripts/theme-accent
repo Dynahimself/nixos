@@ -17,6 +17,7 @@ apply_accent() {
 import json, os, sys
 cache_dir, name, p, s = sys.argv[1], sys.argv[2], sys.argv[3].lower(), sys.argv[4].lower()
 r, g, b = int(p[0:2], 16), int(p[2:4], 16), int(p[4:6], 16)
+sr, sg, sb = int(s[0:2], 16), int(s[2:4], 16), int(s[4:6], 16)
 
 with open(os.path.join(cache_dir, "accent.json"), "w", encoding="utf-8") as f:
     json.dump({"name": name, "primary": f"#{p}", "secondary": f"#{s}"}, f)
@@ -35,6 +36,19 @@ with open(os.path.join(cache_dir, "accent.rasi"), "w", encoding="utf-8") as f:
 
 with open(os.path.join(cache_dir, "accent-hyprlock.conf"), "w", encoding="utf-8") as f:
     f.write(f"$accent = rgba({p}ff)\n$accentAlt = rgba({s}ff)\n")
+
+with open(os.path.join(cache_dir, "zen-accent.css"), "w", encoding="utf-8") as f:
+    f.write(
+        ":root,\n"
+        ":host(:is(.anonymous-content-host, notification-message)) {\n"
+        f"  --mocha-accent: #{p};\n"
+        f"  --mocha-accent-alt: #{s};\n"
+        f"  --mocha-accent-rgb: {r}, {g}, {b};\n"
+        f"  --mocha-accent-alt-rgb: {sr}, {sg}, {sb};\n"
+        f"  --mocha-accent-soft: rgba({r}, {g}, {b}, 0.22);\n"
+        f"  --mocha-accent-glow: rgba({r}, {g}, {b}, 0.40);\n"
+        "}\n"
+    )
 PY
 
   if [ "$quiet" = "1" ]; then
@@ -143,8 +157,15 @@ PY
 }
 
 if [ "${1:-}" = "--init" ]; then
-  if [ ! -f "${CACHE_DIR}/accent.css" ]; then
-    apply_accent "Mauve" "#cba6f7" "#89b4fa" 1
+  if [ ! -f "${CACHE_DIR}/accent.css" ] || [ ! -f "${CACHE_DIR}/zen-accent.css" ]; then
+    if [ -f "$ACCENT_JSON" ]; then
+      name=$(jq -r '.name // "Mauve"' "$ACCENT_JSON" 2>/dev/null || echo "Mauve")
+      hex=$(jq -r '.primary // "#cba6f7"' "$ACCENT_JSON" 2>/dev/null || echo "#cba6f7")
+      alt=$(jq -r '.secondary // "#89b4fa"' "$ACCENT_JSON" 2>/dev/null || echo "#89b4fa")
+      apply_accent "$name" "$hex" "$alt" 1
+    else
+      apply_accent "Mauve" "#cba6f7" "#89b4fa" 1
+    fi
   fi
   exit 0
 fi
