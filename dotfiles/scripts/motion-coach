@@ -34,7 +34,7 @@ ap.add_argument("--hardtime", action="store_true", help="Print only suggested ha
 args = ap.parse_args()
 
 if not os.path.exists(LOG):
-    print(f"No sessions logged yet at {LOG}. Code in Neovim and run again!")
+    print(f"No sessions logged at {LOG}.")
     sys.exit(0)
 
 sessions = []
@@ -81,7 +81,7 @@ if args.hardtime:
     sys.exit(0)
 
 print(f"=== Motion Coach ({len(sessions)} sessions | {tot_m} motions) ===\n")
-print("Top Personal Bad Habits:")
+print("Habits:")
 if not pats:
     print("  (none yet)")
 for idx, (k, cnt) in enumerate(pats.most_common(12), 1):
@@ -92,7 +92,7 @@ print("\nKey-Repeat Streaks:")
 for k, (c3, c5, mx) in sorted(streaks.items(), key=lambda kv: -kv[1][0])[:10]:
     print(f"  {k:<8} 3+: {c3:3d}x   5+: {c5:3d}x   max: {mx}")
 
-print("\nPower Motions:")
+print("\nMotion Counts:")
 for k, cnt in goods.most_common():
     print(f"  {k:<18} {cnt:4d}x")
 

@@ -1,7 +1,6 @@
 { pkgs }:
 {
   plugins = {
-    # Gitsigns with Colemak-DH hunk workflow
     gitsigns = {
       enable = true;
       settings = {
@@ -39,7 +38,6 @@
       };
     };
 
-    # Diffview (full git diffs, merge conflicts & file history) — Colemak-DH
     diffview = {
       enable = true;
       settings = {
@@ -60,7 +58,6 @@
       };
     };
 
-    # Neotest (C#/.NET, Python, Go, Rust)
     neotest = {
       enable = true;
       adapters = {
@@ -80,7 +77,6 @@
       };
     };
 
-    # Overseer async task runner (dotnet, gcc, nix, cargo)
     overseer = {
       enable = true;
       settings.task_list = {
@@ -96,7 +92,6 @@
       };
     };
 
-    # DAP (.NET 10 netcoredbg + Go delve) + auto-opening DAP-UI
     dap = {
       enable = true;
       signs = {
@@ -137,7 +132,6 @@
   };
 
   extraConfigLua = ''
-    -- Auto-open/close DAP UI cleanly on debug sessions
     pcall(function()
       local dap, dapui = require("dap"), require("dapui")
       dap.listeners.after.event_initialized["dyna_dapui"] = function() dapui.open() end

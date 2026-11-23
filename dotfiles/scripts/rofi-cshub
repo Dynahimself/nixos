@@ -2,13 +2,13 @@
 set -euo pipefail
 
 snap="$HOME/.cache/cshub/waybar-snapshot.json"
-mesg="Offline-first CS Hub  ·  Tailscale merge enabled"
+mesg="CS Hub"
 if [ -f "$snap" ]; then
   mesg=$(jq -r '
     "Open: " + ((.open_items | length) | tostring) +
     "  ·  Overdue: " + ((.overdue_count // 0) | tostring) +
     "  ·  Cards due: " + ((.due_terms // 0) | tostring) +
-    "  ·  " + (if .online then "Pi synced ✓" else "Offline (" + ((.dirty_count // 0) | tostring) + " queued)" end)
+    "  ·  " + (if .online then "Synced" else "Offline (" + ((.dirty_count // 0) | tostring) + " queued)" end)
   ' "$snap" 2>/dev/null || echo "$mesg")
 fi
 
@@ -18,7 +18,7 @@ choice=$(printf '%s\n' \
   "  Add Task / Todo" \
   "  Mark Item Done…" \
   "󰑴  Capture Flashcard Term (SUPER+SHIFT+T)" \
-  "📓  Quick Journal Note (SUPER+N)" \
+  "󰂺  Quick Journal Note (SUPER+N)" \
   "󰔟  Log Study Session (minutes)" \
   "  Open CS Hub Terminal Dashboard (cshub)" \
   "  Open CS Hub Color Calendar (cshub cal)" \
@@ -68,18 +68,18 @@ case "$choice" in
   *"Add Task"*) add_via_rofi "task" "Task" ;;
   *"Mark Item Done"*)
     if [ ! -f "$snap" ]; then
-      notify-send "CS Hub" "No cached items yet"
+      notify-send "CS Hub" "No items"
       exit 0
     fi
     list=$(jq -r '.open_items[] | "\(.short_id)  [\(.kind|ascii_upcase)]  \(.title)  (\(.course // "-") · \(.due_date // "no date"))"' "$snap" 2>/dev/null || true)
     if [ -z "$list" ]; then
-      notify-send "CS Hub" "All items are already completed!"
+      notify-send "CS Hub" "No open items"
       exit 0
     fi
     pick=$(printf '%s\n' "$list" | rofi -dmenu -i -p " Mark Done" || true)
     [ -z "$pick" ] && exit 0
     sid="${pick%% *}"
-    cshub done "$sid" >/dev/null 2>&1 && notify-send "CS Hub ✓" "Marked $sid done!" ;;
+    cshub done "$sid" >/dev/null 2>&1 && notify-send "CS Hub" "Marked $sid done" ;;
   *"Capture Flashcard"*) cshub-term-capture ;;
   *"Quick Journal"*) quick-note ;;
   *"Log Study Session"*)

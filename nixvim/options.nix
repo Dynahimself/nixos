@@ -157,13 +157,13 @@
       pattern = [ "*" ];
       callback.__raw = "function() vim.hl.on_yank({ timeout = 160 }) end";
     }
-    # Auto-resize splits on terminal resize
+    # Equalize splits on resize
     {
       event = [ "VimResized" ];
       pattern = [ "*" ];
       callback.__raw = "function() local cur = vim.fn.tabpagenr(); vim.cmd('tabdo wincmd ='); vim.cmd('tabnext ' .. cur) end";
     }
-    # Restore last cursor position when reopening a file
+    # Restore cursor position
     {
       event = [ "BufReadPost" ];
       pattern = [ "*" ];
@@ -177,7 +177,7 @@
         end
       '';
     }
-    # Close auxiliary panels quickly with q
+    # Close help/qf panels with q
     {
       event = [ "FileType" ];
       pattern = [ "help" "qf" "man" "lspinfo" "checkhealth" "notify" "neotest-output" "neotest-output-panel" "neotest-summary" ];

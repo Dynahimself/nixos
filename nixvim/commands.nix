@@ -1,14 +1,13 @@
 { pkgs }:
 {
   extraConfigLua = ''
-    -- Custom native Neovim 0.12 fold text with line count badge
+    -- Fold text with line count
     function _G.DynaFoldText()
       local line = vim.fn.getline(vim.v.foldstart)
       local count = vim.v.foldend - vim.v.foldstart + 1
       return line .. string.format("   󰁂 %d lines ", count)
     end
 
-    -- :Crun — Compile & run single-file C99 (K&R / CS:APP) in Snacks floating terminal
     vim.api.nvim_create_user_command("Crun", function()
       local src = vim.fn.expand("%:p")
       local bin = vim.fn.expand("%:p:r")
@@ -20,7 +19,6 @@
       Snacks.terminal.open({ "bash", "-lc", cmd }, { win = { style = "float", border = "rounded", width = 0.8, height = 0.7 } })
     end, { desc = "Compile & run C99 (gcc)" })
 
-    -- :Csrun — Run .NET 10 project or single file in floating terminal
     vim.api.nvim_create_user_command("Csrun", function()
       local file = vim.fn.expand("%:p")
       vim.cmd("write")
@@ -35,7 +33,6 @@
       )
     end, { desc = "Run .NET project or file" })
 
-    -- :Cstest — Run dotnet test in floating terminal
     vim.api.nvim_create_user_command("Cstest", function()
       vim.cmd("write")
       local srcdir = vim.fn.expand("%:p:h")
@@ -47,7 +44,6 @@
       )
     end, { desc = "Run dotnet test" })
 
-    -- :CSdebug — Async-clean build & launch netcoredbg (populates Quickfix on build failure)
     vim.api.nvim_create_user_command("CSdebug", function()
       local file = vim.fn.expand("%:p")
       if file == "" then
@@ -96,7 +92,7 @@
         vim.schedule(function()
           local out = (res.stdout or "") .. "\n" .. (res.stderr or "")
           if res.code ~= 0 then
-            vim.notify("CSdebug: build FAILED — check Quickfix", vim.log.levels.ERROR)
+            vim.notify("CSdebug: build failed (see quickfix)", vim.log.levels.ERROR)
             vim.fn.setqflist({}, " ", { title = "CSdebug Build Errors", lines = vim.split(out, "\n") })
             vim.cmd("Trouble qflist open")
             return
@@ -127,7 +123,6 @@
       end)
     end, { desc = "Async build & debug .NET (project or loose file)" })
 
-    -- :SmartPreview — Dispatches TypstPreviewToggle or MarkdownPreviewToggle by filetype
     vim.api.nvim_create_user_command("SmartPreview", function()
       local ft = vim.bo.filetype
       if ft == "typst" then
@@ -139,7 +134,6 @@
       end
     end, { desc = "Smart live preview for Markdown/Typst" })
 
-    -- :CshubTerm — Offline-first term capture via cshub CLI (merges with Pi over Tailscale)
     vim.api.nvim_create_user_command("CshubTerm", function()
       local default_term = vim.fn.expand("<cword>")
       vim.ui.input({ prompt = "󰑴 CS Hub Term: ", default = default_term }, function(term)
@@ -154,7 +148,7 @@
             vim.system(cmd, { text = true }, function(res)
               vim.schedule(function()
                 if res.code == 0 then
-                  vim.notify("CS Hub Term saved (synced/queued): " .. term, vim.log.levels.INFO)
+                  vim.notify("CS Hub term saved: " .. term, vim.log.levels.INFO)
                 else
                   vim.notify("CS Hub error: " .. (res.stderr or ""), vim.log.levels.ERROR)
                 end
@@ -163,9 +157,8 @@
           end)
         end)
       end)
-    end, { desc = "Capture flashcard term (offline-first CS Hub)" })
+    end, { desc = "Add CS Hub term" })
 
-    -- :CshubAdd — Quick-add exam/homework/task from Neovim (offline-first)
     vim.api.nvim_create_user_command("CshubAdd", function()
       vim.ui.select({ "exam", "homework", "deadline", "task" }, { prompt = "CS Hub Kind:" }, function(kind)
         if not kind then return end
@@ -193,9 +186,8 @@
           end)
         end)
       end)
-    end, { desc = "Add exam/homework/task to CS Hub (offline-first)" })
+    end, { desc = "Add CS Hub item" })
 
-    -- :CshubDash — Open CS Hub terminal dashboard in Snacks float
     vim.api.nvim_create_user_command("CshubDash", function()
       Snacks.terminal.open(
         { "bash", "-lc", "cshub dash; echo; cshub cal; echo; read -rp '[Press Enter to close]'" },
@@ -203,7 +195,7 @@
       )
     end, { desc = "Open CS Hub Dashboard & Calendar" })
 
-    -- HTML '!' CEGEP template (triggers only at empty line start)
+    -- HTML '!' template (empty line start only)
     vim.api.nvim_create_autocmd("FileType", {
       pattern = "html",
       callback = function()
@@ -251,11 +243,11 @@
       end,
     })
 
-    -- Discord Rich Presence (guarded so SSH/WSL/no-Discord never errors)
+    -- Guarded Discord Rich Presence
     pcall(function()
       require("presence").setup({
         auto_update = true,
-        neovim_image_text = "The One True Text Editor",
+        neovim_image_text = "Neovim",
         main_image = "neovim",
         client_id = "793271441293967371",
         debounce_timeout = 10,
@@ -264,7 +256,7 @@
       })
     end)
 
-    -- vim-dadbod-ui connections
+    -- dadbod-ui connections
     vim.g.db_ui_use_nerd_fonts = 1
     vim.g.db_ui_show_database_icon = 1
     vim.g.dbs = {

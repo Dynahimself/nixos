@@ -1,16 +1,12 @@
--- =====================================================================
--- Dyna's Catppuccin Mocha Hyprland 0.57.2 Modular Lua Desktop
--- =====================================================================
 local home = os.getenv("HOME") or "/home/dyna"
 package.path = home .. "/.config/hypr/lua/?.lua;" .. package.path
 
--- Ensure fresh module load on hyprctl reload
+-- Reload Lua modules on hyprctl reload
 for _, mod in ipairs({ "theme", "monitors", "look", "rules", "automation", "submaps", "binds" }) do
     package.loaded[mod] = nil
 end
 
 -------------------------------
----- ENVIRONMENT VARIABLES ----
 -------------------------------
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
@@ -28,7 +24,6 @@ hl.env("APPIMAGELAUNCHER_DISABLE", "1")
 hl.env("OZONE_PLATFORM", "wayland")
 
 -------------------
----- AUTOSTART ----
 -------------------
 hl.on("hyprland.start", function()
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE")
@@ -44,7 +39,6 @@ hl.on("hyprland.start", function()
 end)
 
 -------------------
----- MODULES   ----
 -------------------
 require("theme").load_accent()
 require("monitors").setup()

@@ -1,11 +1,10 @@
--- Keybindings (preserves all existing muscle memory + adds Colemak-DH, submaps, scratchpads & power tools)
 local auto = require("automation")
 local M = {}
 
 function M.setup()
     local mainMod = "SUPER"
 
-    -- Core workflow actions
+    -- Core
     hl.bind(mainMod .. " + RETURN",        hl.dsp.exec_cmd("ghostty"),                                                     { desc = "Open Terminal (Ghostty)" })
     hl.bind(mainMod .. " + Q",             hl.dsp.window.close(),                                                          { desc = "Close Active Window" })
     hl.bind(mainMod .. " + M",             hl.dsp.exit(),                                                                  { desc = "Exit Hyprland Session" })
@@ -24,21 +23,21 @@ function M.setup()
     hl.bind(mainMod .. " + G",             function() auto.toggle_colemak() end,                                           { desc = "Toggle QWERTY / Colemak-DH" })
     hl.bind("Print",                       hl.dsp.exec_cmd("hyprshot -m region"),                                          { desc = "Screenshot Region" })
 
-    -- Modal submaps (Colemak-DH native)
+    -- Submaps
     hl.bind(mainMod .. " + R",             hl.dsp.submap("resize"),                                                        { desc = "Enter Resize Mode (Submap)" })
     hl.bind(mainMod .. " + SHIFT + G",     hl.dsp.submap("group"),                                                         { desc = "Enter Group/Tab Mode (Submap)" })
     hl.bind(mainMod .. " + Z",             hl.dsp.submap("layout"),                                                        { desc = "Enter Layout/Zoom Mode (Submap)" })
     hl.bind(mainMod .. " + bracketleft",   hl.dsp.group.prev(),                                                            { desc = "Previous Group Tab" })
     hl.bind(mainMod .. " + bracketright",  hl.dsp.group.next(),                                                            { desc = "Next Group Tab" })
 
-    -- Smooth compositor zoom
+    -- Zoom
     hl.bind(mainMod .. " + equal",         function() auto.zoom_delta(0.35) end,                                           { repeating = true, desc = "Zoom In (Compositor)" })
     hl.bind(mainMod .. " + minus",         function() auto.zoom_delta(-0.35) end,                                          { repeating = true, desc = "Zoom Out (Compositor)" })
     hl.bind(mainMod .. " + BackSpace",     function() auto.zoom_reset() end,                                               { desc = "Reset Zoom (Compositor)" })
 
-    -- Fleet, Workbench, System & QoL hubs
+    -- Menus
     hl.bind(mainMod .. " + A",             hl.dsp.exec_cmd("rofi-fleet"),                                                  { desc = "Fleet & Homelab Menu" })
-    hl.bind(mainMod .. " + D",             hl.dsp.exec_cmd("rofi-workbench"),                                              { desc = "Desktop Workbench & Project Hub" })
+    hl.bind(mainMod .. " + D",             hl.dsp.exec_cmd("rofi-workbench"),                                              { desc = "Workbench & Project Hub" })
     hl.bind(mainMod .. " + SHIFT + D",     hl.dsp.exec_cmd("rofi-cshub"),                                                  { desc = "CS Hub Menu (Exams / HW / Tasks)" })
     hl.bind(mainMod .. " + I",             hl.dsp.exec_cmd("rofi-system"),                                                 { desc = "System Control Center" })
     hl.bind(mainMod .. " + O",             hl.dsp.exec_cmd("rofi-audio"),                                                  { desc = "Audio & Mic Switcher" })
@@ -59,14 +58,14 @@ function M.setup()
     hl.bind(mainMod .. " + F1",            hl.dsp.exec_cmd("study-mode"),                                                  { desc = "Toggle Study Mode" })
     hl.bind(mainMod .. " + F2",            hl.dsp.exec_cmd("game-mode"),                                                   { desc = "Toggle Gaming Mode" })
 
-    -- Scratchpad workspaces
+    -- Scratchpads
     hl.bind(mainMod .. " + S",             hl.dsp.workspace.toggle_special("scratchpad"),                                  { desc = "Toggle Scratchpad Terminal" })
     hl.bind(mainMod .. " + ALT + S",       hl.dsp.window.move({ workspace = "special:scratchpad" }),                       { desc = "Send Window to Scratchpad" })
     hl.bind(mainMod .. " + ALT + N",       hl.dsp.workspace.toggle_special("notes"),                                       { desc = "Toggle Notes Scratchpad (Nvim)" })
     hl.bind(mainMod .. " + ALT + B",       hl.dsp.workspace.toggle_special("monitor"),                                     { desc = "Toggle System Monitor Scratchpad" })
     hl.bind(mainMod .. " + ALT + M",       hl.dsp.workspace.toggle_special("music"),                                       { desc = "Toggle Music Scratchpad" })
 
-    -- Focus, Window Move & Resize (Arrow keys + Colemak-DH SUPER+CTRL+n/e/i/o)
+    -- Focus, Move & Resize
     hl.bind(mainMod .. " + left",          hl.dsp.focus({ direction = "left" }),                                           { desc = "Focus Left" })
     hl.bind(mainMod .. " + right",         hl.dsp.focus({ direction = "right" }),                                          { desc = "Focus Right" })
     hl.bind(mainMod .. " + up",            hl.dsp.focus({ direction = "up" }),                                             { desc = "Focus Up" })
@@ -77,7 +76,7 @@ function M.setup()
     hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.window.move({ direction = "up" }),                                       { desc = "Move Window Up" })
     hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.move({ direction = "down" }),                                     { desc = "Move Window Down" })
 
-    -- Colemak-DH home-row focus & move (SUPER + CTRL + n/e/i/o)
+    -- Colemak-DH Focus & Move
     hl.bind(mainMod .. " + CTRL + n",         hl.dsp.focus({ direction = "left" }),                                        { desc = "Focus Left (Colemak)" })
     hl.bind(mainMod .. " + CTRL + e",         hl.dsp.focus({ direction = "down" }),                                        { desc = "Focus Down (Colemak)" })
     hl.bind(mainMod .. " + CTRL + i",         hl.dsp.focus({ direction = "up" }),                                          { desc = "Focus Up (Colemak)" })
@@ -96,7 +95,7 @@ function M.setup()
     hl.bind(mainMod .. " + period",         hl.dsp.workspace.swap_monitors({ monitor1 = "DP-3", monitor2 = "HDMI-A-1" }),  { desc = "Swap Monitors (DP-3 <-> HDMI-A-1)" })
     hl.bind(mainMod .. " + SHIFT + period", function() auto.throw_to_other_monitor() end,                                  { desc = "Throw Window to Other Monitor" })
 
-    -- Workspaces 1..10: switch, move, silent move
+    -- Workspaces
     for i = 1, 10 do
         local key = i % 10
         hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }),                      { desc = "Workspace " .. i })
@@ -104,13 +103,13 @@ function M.setup()
         hl.bind(mainMod .. " + ALT + " .. key,   hl.dsp.window.move({ workspace = i, silent = true }), { desc = "Silently Move Window to WS " .. i })
     end
 
-    -- Mouse workspace scroll + drag/resize
+    -- Mouse
     hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { desc = "Next Workspace (Scroll)" })
     hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }), { desc = "Prev Workspace (Scroll)" })
     hl.bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   { mouse = true, desc = "Drag Window" })
     hl.bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), { mouse = true, desc = "Resize Window" })
 
-    -- Hardware / media keys
+    -- Media / Hardware
     hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("sh -c 'command -v swayosd-client >/dev/null && swayosd-client --output-volume raise || wpctl set-volume -l 1.4 @DEFAULT_AUDIO_SINK@ 5%+'"), { locked = true, repeating = true, desc = "Volume Up" })
     hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("sh -c 'command -v swayosd-client >/dev/null && swayosd-client --output-volume lower || wpctl set-volume -l 1.4 @DEFAULT_AUDIO_SINK@ 5%-'"), { locked = true, repeating = true, desc = "Volume Down" })
     hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("sh -c 'command -v swayosd-client >/dev/null && swayosd-client --brightness raise || brightnessctl set 10%+'"), { locked = true, repeating = true, desc = "Brightness Up" })

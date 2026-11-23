@@ -25,14 +25,13 @@ let
   );
 in
 {
-  # Full Catppuccin Mocha + Colemak-DH terminal workbench for NixOS-WSL (no GUI bloat)
 
   home.username = "dyna";
   home.homeDirectory = "/home/dyna";
   home.stateVersion = "25.11";
   home.sessionPath = [ "$HOME/.local/bin" ];
 
-  # Nixvim without Hyprland Wayland stubs (saves huge closure on headless WSL)
+  # Disable Hyprland LSP stubs on WSL
   dyna.nixvim = {
     enable = true;
     hyprStubs = false;
@@ -98,14 +97,14 @@ in
       fi
       export PATH="$HOME/.local/bin:$PATH"
 
-      # Jump to Windows home (WSL)
+      # cd to Windows user directory
       win() {
         cd /mnt/c/Users/$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r') 2>/dev/null \
           || cd /mnt/c/Users/Olivi 2>/dev/null \
           || echo "Windows drive not mounted"
       }
 
-      # Jump to latest CEGEP homework folder (WSL or Windows side)
+      # cd to latest TP directory
       tp() {
         local latest
         latest=$(ls -1dt "$HOME/cswipp"/TP* "$HOME/cswip/Aoop/homeworks"/TP* /mnt/c/Users/Olivi/cswip/TP* 2>/dev/null | head -n1)
@@ -127,7 +126,7 @@ in
       csa = "cshub agenda";
       csc = "cshub cal";
       csd = "cshub dash";
-      # WSL: ALWAYS pin flake #wsl so plain nixos-rebuild never builds wrong host
+      # Pin #wsl flake target
       rebuild = "sudo nixos-rebuild switch --flake /etc/nixos#wsl";
       nr = "nh os switch /etc/nixos -H wsl";
     };

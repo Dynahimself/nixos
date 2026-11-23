@@ -48,7 +48,7 @@ items+=(
   "󰢮  RX 9070 XT GPU Dashboard (amdgpu_top)"
   "  System Process Monitor (btop)"
   "󰆼  DBeaver SQL Workbench"
-  "📓  Open Quick Notes in Neovim"
+  "󰂺  Open Quick Notes in Neovim"
   "󰑴  Capture Term to CS Hub (SUPER+SHIFT+T)"
   "󰊢  Lazygit on /etc/nixos ${nix_badge}"
 )

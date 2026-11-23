@@ -1,16 +1,13 @@
 { config, pkgs, ... }:
 
 {
-  # GUI / Desktop / Gaming — shared by desktop + laptop, NOT WSL
 
-  # Catppuccin
   catppuccin.enable = true;
   catppuccin.autoEnable = true;
   catppuccin.sddm.enable = true;
   catppuccin.sddm.flavor = "mocha";
   catppuccin.cursors.enable = true;
 
-  # Enable OpenGL
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
@@ -29,27 +26,20 @@
   networking.networkmanager.enable = true;
   networking.networkmanager.wifi.backend = "wpa_supplicant";
 
-  # Enable X11
   services.xserver.enable = true;
 
-  # Display Manager - SDDM with session selection at login
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = false;
   services.displayManager.sddm.settings.General.InputMethod = "";
 
-  # KDE Plasma as fallback session
   services.desktopManager.plasma6.enable = true;
-  # plasma6 pulls in power-profiles-daemon by default, which conflicts with
-  # services.tlp in hardware/laptop.nix (charge threshold is TLP-only):
+  # Disable power-profiles-daemon (conflicts with TLP on laptop)
   services.power-profiles-daemon.enable = false;
 
-  # bspwm - primary tiling WM
   services.xserver.windowManager.bspwm.enable = true;
 
-  #Hyprland
   programs.hyprland.enable = true;
 
-  # xdg-portal for screen sharing, file pickers, etc.
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
@@ -73,11 +63,9 @@
   hardware.openrazer.enable = true;
   hardware.openrazer.users = [ "dyna" ];
 
-  # Sound with pipewire
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
 
-  # Bluetooth
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   services.blueman.enable = true;

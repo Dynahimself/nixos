@@ -1,10 +1,7 @@
--- Compositor layer rules (glassmorphism + animations), window rules & scratchpads
 local M = {}
 
 function M.setup()
-    ---------------------------------------
-    ---- LAYER RULES (GLASS & ANIMS)   ----
-    ---------------------------------------
+    -- Layer rules
     hl.layer_rule({
         name         = "waybar-glass",
         match        = { namespace = "^waybar$" },
@@ -60,9 +57,7 @@ function M.setup()
         no_anim = true,
     })
 
-    ---------------------------------------
-    ---- SPECIAL SCRATCHPAD WORKSPACES ----
-    ---------------------------------------
+    -- Scratchpads
     hl.workspace_rule({
         workspace        = "special:scratchpad",
         on_created_empty = "ghostty",
@@ -83,9 +78,7 @@ function M.setup()
         on_created_empty = "spotify",
     })
 
-    ---------------------------------------
-    ---- WINDOW RULES                  ----
-    ---------------------------------------
+    -- Window rules
     hl.window_rule({
         name           = "suppress-maximize-events",
         match          = { class = ".*" },
@@ -105,7 +98,7 @@ function M.setup()
         no_focus = true,
     })
 
-    -- Steam & games
+    -- Steam
     hl.window_rule({ name = "steam-tile",          match = { class = "^(steam)$" }, tile = true })
     hl.window_rule({ name = "steam-friends-float", match = { class = "^(steam)$", title = "^(Friends List)$" }, float = true, size = "420 720" })
     hl.window_rule({ name = "steam-news-float",    match = { class = "^(steam)$", title = "^(.*- News.*)$" }, float = true })
@@ -115,7 +108,7 @@ function M.setup()
     hl.window_rule({ name = "study-ws4",  match = { class = "^(anki|org\\.pwmt\\.zathura|sioyek)$" }, workspace = 4 })
     hl.window_rule({ name = "social-ws5", match = { class = "^(discord|vesktop|Spotify)$" }, workspace = 5 })
 
-    -- Picture-in-Picture: pinned bottom-right, aspect locked, opaque
+    -- PiP
     hl.window_rule({
         name              = "pip-float-pin",
         match             = { title = "^(Picture-in-Picture|Picture in picture)$" },
@@ -127,7 +120,7 @@ function M.setup()
         opacity           = "1.0 override 1.0 override",
     })
 
-    -- Keep media/video viewers crisp & opaque
+    -- Media
     hl.window_rule({
         name         = "mpv-opaque",
         match        = { class = "^(mpv)$" },
@@ -135,7 +128,7 @@ function M.setup()
         idle_inhibit = "focus",
     })
 
-    -- File / confirmation dialogs
+    -- Dialogs
     hl.window_rule({
         name   = "floating-dialogs",
         match  = { title = "^(Open File|Save File|Save As|Confirm|File Operation Progress|Choose Files|Select a File).*$" },
@@ -143,7 +136,7 @@ function M.setup()
         center = true,
     })
 
-    -- Floating utility popups
+    -- Floating utilities
     hl.window_rule({
         name   = "floating-utils",
         match  = { class = "^(org\\.pulseaudio\\.pavucontrol|pavucontrol|\\.blueman-manager-wrapped|blueman-manager|nm-connection-editor|com\\.gabm\\.satty|org\\.kde\\.polkit-kde-authentication-agent-1|hyprland-share-picker|xdg-desktop-portal-gtk)$" },

@@ -1,16 +1,7 @@
 { pkgs }:
 {
   extraConfigLua = ''
-    -- =====================================================================
-    -- Dyna's Colemak-DH Motion Coach (Privacy-Safe Habit Logger -> Hardtime)
-    -- =====================================================================
-    -- ONLY observes Normal, Visual, and Operator-pending modes on real file
-    -- buffers. NEVER logs Insert, Command-line, Replace, or Terminal text.
-    -- Saves 1 compact JSON summary per session to:
-    --   ~/.local/share/nvim/motion-coach/sessions.jsonl
-    -- Commands: :MotionReport [N] (<leader>um), :MotionLogToggle,
-    --           :MotionLogFlush, :MotionLogArchive
-    -- =====================================================================
+    -- Logs Normal/Visual/Operator motion counts per session to ~/.local/share/nvim/motion-coach/sessions.jsonl
     do
       local M = {}
       local data_dir = vim.fn.stdpath("data") .. "/motion-coach"
@@ -89,7 +80,6 @@
         if not typed or typed == "" then return nil end
         local k = vim.fn.keytrans(typed)
         if not k or k == "" then return nil end
-        -- Skip internal/plug/focus/mouse-release noise
         if k:match("^<Plug>") or k:match("Focus") or k:match("Release") or k:match("Drag") or k:match("Cursor") then
           return nil
         end
@@ -131,7 +121,6 @@
       vim.on_key(function(_, typed)
         if not enabled then return end
         local mode = vim.api.nvim_get_mode().mode
-        -- STRICT PRIVACY GUARD: ONLY Normal, Visual, and Operator-pending modes
         if not (mode == "n" or mode == "v" or mode == "V" or mode == "\22" or mode:sub(1, 2) == "no") then
           flush_streak()
           recent = {}
@@ -151,14 +140,12 @@
         state.total_motions = state.total_motions + 1
         if ft ~= "" then inc(state.filetypes, ft) end
 
-        -- Track arrow keys & mouse clicks
         if k == "<Up>" or k == "<Down>" or k == "<Left>" or k == "<Right>" then
           inc(state.patterns, "arrow_keys")
         elseif k:match("Mouse") or k:match("ScrollWheel") then
           inc(state.patterns, "mouse_usage")
         end
 
-        -- Track count prefixes & good Vim habits
         if k:match("^[1-9]$") or (pending_count and k == "0") then
           pending_count = true
           flush_streak()
@@ -180,7 +167,6 @@
           inc(state.good_habits, "text_object")
         end
 
-        -- Streak tracking
         if streak_keys[k] then
           if k == last_key then
             run_len = run_len + 1
@@ -193,7 +179,6 @@
           flush_streak()
         end
 
-        -- Rolling window for pattern + raw n-gram discovery (exclude <Esc>, leader, long sequences)
         if k == "<Esc>" or k == "<Space>" or k == "<CR>" then
           recent = {}
           return
@@ -204,7 +189,6 @@
 
         check_patterns()
 
-        -- Record short readable 2-grams & 3-grams of pure single-char motions
         local n = #recent
         if n >= 2 and #recent[n] == 1 and #recent[n - 1] == 1 then
           local bg = recent[n - 1] .. recent[n]
@@ -255,7 +239,7 @@
         if not f then return false end
         f:write(line .. "\n")
         f:close()
-        -- Reset counters after flush so :MotionLogFlush + VimLeavePre never double-count
+        -- Reset counters to prevent double-counting on VimLeavePre
         state = {
           total_motions = 0, filetypes = {}, streaks = {},
           patterns = {}, good_habits = {}, bigrams = {}, trigrams = {},
@@ -301,7 +285,6 @@
           end
           f:close()
         end
-        -- Include current live session preview if it has motions
         if state.total_motions > 0 then
           table.insert(sessions, {
             ts = "LIVE (current session)",
@@ -315,7 +298,7 @@
         end
 
         if #sessions == 0 then
-          return vim.notify("Motion Coach: no sessions logged yet — code normally and check back!", vim.log.levels.INFO)
+          return vim.notify("Motion Coach: no sessions logged", vim.log.levels.INFO)
         end
 
         if limit > 0 and #sessions > limit then
@@ -342,13 +325,13 @@
         end
 
         local lines = {
-          "# Dyna's Colemak-DH Motion Coach Report",
+          "# Motion Report",
           "",
           string.format("- **Sessions analyzed:** %d   |   **Total motions:** %d   |   **Bad-habit hits:** %d   |   **Power motions:** %d",
             #sessions, tot_m, tot_bad, tot_good),
           string.format("- **Log file:** `%s`", log_file),
           "",
-          "## Top Personal Bad Habits (Ranked)",
+          "## Habit Counts",
         }
 
         local pat_arr = {}
@@ -356,7 +339,7 @@
         table.sort(pat_arr, function(a, b) return a.v > b.v end)
 
         if #pat_arr == 0 then
-          table.insert(lines, "_No bad habits recorded yet — clean vimming!_")
+          table.insert(lines, "_No bad habits recorded._")
         else
           for idx, item in ipairs(pat_arr) do
             local meta = ADVICE[item.k] or { label = item.k, tip = "" }
@@ -366,12 +349,12 @@
         end
 
         table.insert(lines, "")
-        table.insert(lines, "## Longest Key-Repeat Streaks")
+        table.insert(lines, "## Repeat Streaks")
         local st_arr = {}
         for k, v in pairs(streak_sum) do table.insert(st_arr, { k = k, v = v }) end
         table.sort(st_arr, function(a, b) return a.v.c3 > b.v.c3 end)
         if #st_arr == 0 then
-          table.insert(lines, "_No 3+ repeat streaks logged yet._")
+          table.insert(lines, "_None._")
         else
           for _, it in ipairs(st_arr) do
             table.insert(lines, string.format("- `%s`: **%dx** (3+ streak), **%dx** (5+ streak), max streak **%d**",
@@ -380,12 +363,12 @@
         end
 
         table.insert(lines, "")
-        table.insert(lines, "## Power-Motion Telemetry (Higher = Better)")
+        table.insert(lines, "## Motion Counts")
         local g_arr = {}
         for k, v in pairs(good_sum) do table.insert(g_arr, { k = k, v = v }) end
         table.sort(g_arr, function(a, b) return a.v > b.v end)
         if #g_arr == 0 then
-          table.insert(lines, "_None yet._")
+          table.insert(lines, "_None._")
         else
           for _, it in ipairs(g_arr) do
             table.insert(lines, string.format("- `%s`: **%d**", it.k, it.v))
@@ -393,7 +376,7 @@
         end
 
         table.insert(lines, "")
-        table.insert(lines, "## Top Unclassified Recurring Sequences (Spot New Quirks)")
+        table.insert(lines, "## Unclassified 3-Grams")
         local tg_arr = {}
         for k, v in pairs(tg_sum) do table.insert(tg_arr, { k = k, v = v }) end
         table.sort(tg_arr, function(a, b) return a.v > b.v end)
@@ -403,10 +386,10 @@
           table.insert(lines, string.format("- `%s`: %dx", it.k, it.v))
           shown = shown + 1
         end
-        if shown == 0 then table.insert(lines, "_Need more sessions for 3-gram discovery._") end
+        if shown == 0 then table.insert(lines, "_None._") end
 
         table.insert(lines, "")
-        table.insert(lines, "## Suggested `hardtime.nvim` Hints (Ready for `nixvim/coding.nix`)")
+        table.insert(lines, "## Suggested `hardtime.nvim` Hints")
         table.insert(lines, "```lua")
         local added = 0
         for _, item in ipairs(pat_arr) do
@@ -417,7 +400,7 @@
           end
         end
         if added == 0 then
-          table.insert(lines, "  -- Keep coding for a few sessions to generate personalized hints!")
+          table.insert(lines, "  -- Insufficient session data")
         end
         table.insert(lines, "```")
 

@@ -1,6 +1,3 @@
--- Dyna's lightweight native Windows Neovim config (Colemak-DH + Catppuccin Mocha palette)
--- Mirrors Nixvim muscle memory for quick Windows-side edits with zero external plugin overhead.
-
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
@@ -26,7 +23,6 @@ opt.updatetime = 200
 opt.timeoutlen = 300
 opt.wrap = false
 
--- Catppuccin Mocha built-in highlight skin (zero plugin dependency)
 vim.cmd("highlight clear")
 vim.o.background = "dark"
 local hl = function(g, opts) vim.api.nvim_set_hl(0, g, opts) end
@@ -54,7 +50,7 @@ hl("DiagnosticInfo",  { fg = "#89b4fa" })
 hl("DiagnosticHint",  { fg = "#94e2d5" })
 
 local map = vim.keymap.set
--- Directional Colemak-DH (n/e/i/o = h/j/k/l)
+-- Directional
 map({ "n", "x", "o" }, "n", "h", { desc = "Left" })
 map({ "n", "x" },      "e", "gj", { desc = "Down" })
 map("o",               "e", "j", { desc = "Down" })

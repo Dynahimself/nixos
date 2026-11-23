@@ -1,7 +1,6 @@
 { ... }:
 
 {
-  # Colemak-DH (n=left, e=down, i=up, o=right) across terminal & reader apps
 
   programs.yazi.keymap.mgr.prepend_keymap = [
     { on = "n"; run = "leave"; desc = "Go back to parent directory"; }

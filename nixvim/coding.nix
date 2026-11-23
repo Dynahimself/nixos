@@ -1,7 +1,6 @@
 { pkgs }:
 {
   plugins = {
-    # Blink-CMP — Rounded bordered menu, auto-docs, signature help, ghost text, Lazydev & SQL Dadbod sources
     blink-cmp = {
       enable = true;
       settings = {
@@ -63,10 +62,9 @@
 
     luasnip = {
       enable = true;
-      fromVscode = [ { } ]; # Loads friendly-snippets automatically
+      fromVscode = [ { } ];
     };
 
-    # Treesitter + Colemak-DH Textobjects (lf/af, lc/ac, la/aa, ]f/[f, ]c/[c)
     treesitter = {
       enable = true;
       settings = {
@@ -111,7 +109,6 @@
 
     ts-autotag.enable = true;
 
-    # mini.* — Colemak-DH `l` inner text-objects + `gs` surround + pairs + icons + hipatterns
     mini = {
       enable = true;
       modules = {
@@ -143,14 +140,13 @@
       };
     };
 
-    # Oil — Edit filesystem as a Neovim buffer (Colemak-DH n=parent, o=open)
     oil = {
       enable = true;
       settings = {
-        default_file_explorer = false; # Keep Snacks explorer for <leader>e; Oil on `-`
+        default_file_explorer = false; # Keep Snacks on <leader>e; Oil on -
         delete_to_trash = true;
         skip_confirm_for_simple_edits = true;
-        win_options.signcolumn = "yes:2"; # Space for oil-git-status
+        win_options.signcolumn = "yes:2";
         view_options.show_hidden = true;
         float = {
           padding = 3;
@@ -178,7 +174,6 @@
     };
     oil-git-status.enable = true;
 
-    # Harpoon 2 — Instant home-row project file pinning
     harpoon = {
       enable = true;
       settings.settings = {
@@ -187,7 +182,6 @@
       };
     };
 
-    # Glance — VS Code-style peek definitions/references (Colemak-DH)
     glance = {
       enable = true;
       settings = {
@@ -210,7 +204,6 @@
       };
     };
 
-    # Yanky — Persistent yank ring
     yanky = {
       enable = true;
       settings = {
@@ -219,10 +212,8 @@
       };
     };
 
-    # Dial — Smart increment/decrement (configured in extraConfigLua below)
     dial.enable = true;
 
-    # TreeSJ — One-key split/join blocks & args
     treesj = {
       enable = true;
       settings = {
@@ -231,7 +222,6 @@
       };
     };
 
-    # Neogen — XML C# docs, JSDoc, LuaDoc, Python docstrings
     neogen = {
       enable = true;
       settings = {
@@ -240,7 +230,6 @@
       };
     };
 
-    # Treesitter Refactoring & UndoTree
     refactoring.enable = true;
     undotree = {
       enable = true;
@@ -250,13 +239,11 @@
       };
     };
 
-    # Flash with Colemak-DH home-row jump labels
     flash = {
       enable = true;
       settings.labels = "arstgmneioqwfpbjluyzxcdvkh";
     };
 
-    # Trouble with Colemak-DH navigation
     trouble = {
       enable = true;
       settings.keys = {
@@ -267,7 +254,6 @@
       };
     };
 
-    # Aerial (symbol outline) with Colemak-DH navigation
     aerial = {
       enable = true;
       settings.keymaps = {
@@ -293,10 +279,9 @@
   };
 
   extraConfigLua = ''
-    -- Mock nvim-web-devicons via mini.icons
+    -- Alias mini.icons as nvim-web-devicons
     pcall(function() require("mini.icons").mock_nvim_web_devicons() end)
 
-    -- Dial smart augends (C#, Nix, JS/TS, Lua, dates, semver, hex)
     pcall(function()
       local augend = require("dial.augend")
       require("dial.config").augends:register_group({
@@ -318,7 +303,7 @@
       })
     end)
 
-    -- Hardtime — Colemak-DH native (disabled in all auxiliary UI panels)
+    -- Hardtime
     pcall(function()
       require("hardtime").setup({
         disabled_filetypes = {

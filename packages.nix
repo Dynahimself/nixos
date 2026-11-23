@@ -1,14 +1,9 @@
-# System packages — split from configuration.nix for organization.
-# Imported via configuration.nix: imports = [ ./packages.nix ];
 { pkgs, ... }:
 
 {
   nixpkgs.config.permittedInsecurePackages = [ "ventoy-full-qt" ];
 
   environment.systemPackages = with pkgs; [
-    # =====================================================
-    # Core CLI
-    # =====================================================
     wget
     curl
     tree
@@ -28,9 +23,6 @@
     nix-output-monitor
     nixfmt
 
-    # =====================================================
-    # System utilities
-    # =====================================================
     btop
     duf
     dust
@@ -47,25 +39,16 @@
     busybox
     openldap
 
-    # =====================================================
-    # Shell
-    # =====================================================
     zsh
     oh-my-zsh
     starship
     zellij
 
-    # =====================================================
-    # Networking / VPN
-    # =====================================================
     tailscale
     cloudflared
     proton-vpn
     wireguard-tools
 
-    # =====================================================
-    # Git / Dev tools
-    # =====================================================
     gh
     lazygit
     lazydocker
@@ -74,15 +57,9 @@
     github-copilot-cli
     copilot-language-server
 
-    # =====================================================
-    # AI / LLM CLI
-    # =====================================================
     aichat
     mods
 
-    # =====================================================
-    # Hyprland ecosystem
-    # =====================================================
     hyprland
     hyprpaper
     hyprlock
@@ -96,9 +73,6 @@
     wireplumber
     brightnessctl
 
-    # =====================================================
-    # bspwm stack
-    # =====================================================
     (rofi.override { plugins = [ rofi-calc ]; })
     libqalculate
     libnotify
@@ -126,9 +100,6 @@
     polkit_gnome
     jq
 
-    # =====================================================
-    # Desktop apps
-    # =====================================================
     discord
     gimp
     dbeaver-bin
@@ -140,9 +111,6 @@
     lutris
     vscode
 
-    # =====================================================
-    # Hardware tools
-    # =====================================================
     blueman
     razergenie
     piper
@@ -150,33 +118,18 @@
     keymapp
     polychromatic
 
-    # =====================================================
-    # Audio
-    # =====================================================
     pavucontrol
 
-    # =====================================================
-    # Theming
-    # =====================================================
     catppuccin-cursors.mochaDark
 
-    # =====================================================
-    # Activity tracking
-    # =====================================================
-    # activitywatch # disabled 2026-10-27: aw-core 0.5.17 needs peewee<4, nixpkgs now ships 4.4.0 — re-enable once nixpkgs patches aw
+    # activitywatch: broken in nixpkgs (peewee>=4)
     # activitywatch
     python313Packages.influxdb-client
 
-    # =====================================================
-    # Gaming
-    # =====================================================
     wineWow64Packages.yabridge
     hydralauncher
     winetricks
 
-    # =====================================================
-    # Neovim — LSP servers
-    # =====================================================
     gcc
     clang-tools
     gopls
@@ -186,15 +139,9 @@
     typescript-language-server
     vscode-langservers-extracted
 
-    # =====================================================
-    # Neovim — Debug adapters
-    # =====================================================
     delve
     netcoredbg
 
-    # =====================================================
-    # Neovim — Test runners / Language runtimes
-    # =====================================================
     go
     zig
     dotnet-sdk_10
@@ -203,9 +150,6 @@
     luajitPackages.luarocks
     temurin-bin-25
 
-    # =====================================================
-    # Neovim — CLI tools (shelled out to by plugins)
-    # =====================================================
     ripgrep
     fd
     cmake
@@ -213,11 +157,8 @@
     rustc
     nodejs
     scrcpy
-    android-tools # adb for scrcpy
+    android-tools
 
-    # =====================================================
-    # Languages / Misc
-    # =====================================================
     lua
     python311
     typst
@@ -231,22 +172,14 @@
     kdePackages.kdenlive
     mpv
 
-    # =====================================================
-    # Kernel packages
-    # =====================================================
     linuxKernel.packages.linux_zen.system76
 
-    # =====================================================
-    # Screenshots / capture
-    # =====================================================
     snipaste
 
-    #AMD
     amdgpu_top
     corectrl
     vulkan-tools
 
-    #Office suite
     libreoffice-qt
     hunspellDicts.en-us
     hunspellDicts.fr-moderne

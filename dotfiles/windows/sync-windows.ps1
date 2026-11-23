@@ -1,4 +1,4 @@
-# Sync Dyna's Windows laptop configs from /etc/nixos/dotfiles/windows (run from Windows PowerShell)
+# Sync Windows configs from /etc/nixos/dotfiles/windows
 param(
     [switch]$BackupOnly
 )

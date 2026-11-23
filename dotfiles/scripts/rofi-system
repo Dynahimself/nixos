@@ -34,7 +34,7 @@ choice=$(printf '%s\n' \
   "󰌌  Keyboard Layout ${st_kb} (SUPER+G)" \
   "󰍽  Focus-Follows-Mouse ${st_ffm}" \
   "󰑓  Reload Hyprland & Waybar" \
-  "󰌌  Command Palette & Keybinds (SUPER+/)" | rofi -dmenu -i -p "⚙ System" -mesg "Accent: ${cur_acc}  ·  KB: ${st_kb}  ·  Study: ${st_study}  ·  Game: ${st_game}" || true)
+  "󰌌  Command Palette & Keybinds (SUPER+/)" | rofi -dmenu -i -p "󰒓 System" -mesg "Accent: ${cur_acc}  ·  KB: ${st_kb}  ·  Study: ${st_study}  ·  Game: ${st_game}" || true)
 
 [ -z "$choice" ] && exit 0
 case "$choice" in

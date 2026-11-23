@@ -78,9 +78,9 @@ elif open_items or due_terms:
         parts.append(f"{due_terms} due")
     text = "󰑴 " + " · ".join(parts)
 else:
-    text = "󰑴 Clear ✓"
+    text = "󰑴 0 due"
 
-lines = [f"<span color='#cba6f7'><b>CS Student Hub</b></span>  <span color='#a6adc8'>🔥{streak}d · {today_min}m today · {due_terms} cards due</span>"]
+lines = [f"<span color='#cba6f7'><b>CS Hub</b></span>  <span color='#a6adc8'>{streak}d streak · {today_min}m today · {due_terms} due</span>"]
 
 if overdue:
     lines.append("")
@@ -104,9 +104,9 @@ if upcoming:
         lines.append(f"  <span color='{kcol.get(k,'#cdd6f4')}'>{ktag.get(k,'ITEM'):<4}</span> {esc(it['title'][:26])}<span color='#b4befe'>{c}</span><span color='#f5c2e7'>{w}</span>  <span color='#a6adc8'>{when}</span>")
 elif not overdue:
     lines.append("")
-    lines.append("<span color='#a6e3a1'>✓ All caught up — no open exams or tasks</span>")
+    lines.append("<span color='#a6e3a1'>No open items</span>")
 
-sync_s = "<span color='#a6e3a1'>● Pi synced</span>" if online else f"<span color='#f9e2af'>⚡ Offline cache ({dirty} queued)</span>"
+sync_s = "<span color='#a6e3a1'>● Online</span>" if online else f"<span color='#f9e2af'>● Offline ({dirty} queued)</span>"
 lines.append("")
 lines.append(f"{sync_s}")
 lines.append("<span color='#6c7086'>Left: Menu · Middle: Terminal Dash · Right: Web UI</span>")

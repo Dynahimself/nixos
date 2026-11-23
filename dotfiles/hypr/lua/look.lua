@@ -1,4 +1,3 @@
--- Visuals, blur, ambient glow, groupbars, snapping, animations & input
 local theme = require("theme")
 local M = {}
 
@@ -159,7 +158,7 @@ function M.setup()
 
     theme.apply_accent(acc.primary, acc.secondary)
 
-    -- Animations & spring curves (tuned for 240Hz / 144Hz buttery feel)
+    -- Animations
     hl.curve("easeOutQuint",   { type = "bezier", points = { {0.23, 1},    {0.32, 1}    } })
     hl.curve("easeInOutCubic", { type = "bezier", points = { {0.65, 0.05}, {0.36, 1}    } })
     hl.curve("linear",         { type = "bezier", points = { {0, 0},       {1, 1}       } })
@@ -184,7 +183,6 @@ function M.setup()
     hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 2.6, bezier = "easeOutQuint", style = "slidevert" })
     hl.animation({ leaf = "zoomFactor",       enabled = true, speed = 6.0, bezier = "easeOutQuint" })
 
-    -- Laptop touchpad 3-finger horizontal workspace swipe
     hl.gesture({
         fingers   = 3,
         direction = "horizontal",

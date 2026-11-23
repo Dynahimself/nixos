@@ -46,7 +46,7 @@
         vtsls.enable = true;
         pyright.enable = true;
         bashls.enable = true;
-        tinymist.enable = true; # Typst LSP (pairs with typst-preview-nvim)
+        tinymist.enable = true;
         lua_ls = {
           enable = true;
           settings.Lua = {
@@ -66,7 +66,6 @@
       };
     };
 
-    # Roslyn LS (C# 14 / .NET 10) with full analyzers, decompilation & inlay hints
     roslyn = {
       enable = true;
       settings = {
@@ -100,7 +99,7 @@
     };
     jdtls.enable = true;
 
-    # Formatting — preserves Dyna's exact C# K&R same-line brace pipeline + adds Nix/Lua/Bash
+    # Formatters (C# runs csharpier then clang-format K&R)
     conform-nvim = {
       enable = true;
       settings = {

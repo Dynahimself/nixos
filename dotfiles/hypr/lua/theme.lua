@@ -1,4 +1,3 @@
--- Catppuccin Mocha dynamic theme engine (zero git-dirty accent persistence)
 local M = {}
 
 M.palette = {

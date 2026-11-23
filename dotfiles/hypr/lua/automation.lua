@@ -1,9 +1,3 @@
--- Live Hyprland 0.57.2 Lua Automation Engine:
---   * Smart Gaps / Smart Borders (single-window focus maximizes screen real estate)
---   * Submap live border & ambient glow shift + native HUD toast
---   * Screenshare Privacy Guard (auto-DND + red cue + Waybar badge)
---   * Urgent window toast notifications
---   * Native Colemak-DH / QWERTY toggle, compositor zoom, float-center-70%, opaque toggle & monitor throw
 local theme = require("theme")
 local M = {}
 
@@ -36,7 +30,7 @@ local function is_game_or_study_mode()
     return file_exists("/tmp/dyna-game-mode") or file_exists("/tmp/dyna-study-mode")
 end
 
--- Pure Lua Colemak-DH / QWERTY toggle (instant, zero subshell)
+-- Toggle Colemak-DH / QWERTY
 function M.toggle_colemak()
     local cur = hl.get_config("input.kb_variant") or ""
     if cur == "colemak_dh" then
@@ -58,7 +52,7 @@ function M.toggle_colemak()
     end
 end
 
--- Smart gaps: when focused workspace has exactly 1 tiled window, tighten gaps for clean focus
+-- Reduce gaps on single-window workspaces
 function M.refresh_smart_gaps()
     if not state.smart_gaps_enabled or is_game_or_study_mode() then
         return
@@ -108,7 +102,6 @@ function M.toggle_smart_gaps()
     })
 end
 
--- Smooth compositor zoom (ideal for inspecting UIs, dense PDFs, or showing code)
 function M.zoom_delta(delta)
     state.zoom_level = math.max(1.0, math.min(4.0, state.zoom_level + delta))
     hl.config({ cursor = { zoom_factor = state.zoom_level } })
@@ -119,7 +112,7 @@ function M.zoom_reset()
     hl.config({ cursor = { zoom_factor = 1.0 } })
 end
 
--- Float, resize to a crisp 70% of current monitor, and center
+-- Float and center window at 70% monitor size
 function M.float_center_focus()
     local w = hl.get_active_window()
     local m = hl.get_active_monitor()
@@ -133,12 +126,10 @@ function M.float_center_focus()
     hl.dispatch(hl.dsp.window.center())
 end
 
--- Toggle forced full opacity on active window
 function M.toggle_opaque()
     hl.dispatch(hl.dsp.window.set_prop({ prop = "opaque", action = "toggle" }))
 end
 
--- Throw active window to the other monitor & focus it
 function M.throw_to_other_monitor()
     local monitors = hl.get_monitors() or {}
     if #monitors < 2 then return end
@@ -152,7 +143,6 @@ function M.throw_to_other_monitor()
     end
 end
 
--- Cycle tiled layout: dwindle -> master -> scrolling -> dwindle
 function M.cycle_layout(target)
     local order = { "dwindle", "master", "scrolling" }
     local next_l = target
@@ -175,7 +165,7 @@ function M.cycle_layout(target)
 end
 
 function M.setup()
-    -- Submap visual feedback (border + glow color shift + live native HUD toast)
+    -- Submap border override and HUD hint
     local submap_meta = {
         resize = {
             primary = P.peach, secondary = P.yellow,
@@ -214,7 +204,7 @@ function M.setup()
         end
     end)
 
-    -- Screenshare Privacy Guard: auto-DND + red border cue + Waybar badge
+    -- Screenshare DND guard
     hl.on("screenshare.state", function(active)
         local is_on = (active == true or active == 1)
         if is_on == state.screenshare_active then return end
@@ -224,7 +214,7 @@ function M.setup()
             theme.set_border_override(P.red, P.maroon)
             hl.exec_cmd("sh -c 'swaync-client -dn >/dev/null 2>&1 || true; pkill -RTMIN+9 waybar 2>/dev/null || true'")
             hl.notification.create({
-                text      = "Screenshare ACTIVE — Notifications muted (DND)",
+                text      = "Screenshare active: DND enabled",
                 timeout   = 3000,
                 color     = "rgba(" .. P.red .. "ee)",
                 font_size = 13,
@@ -237,7 +227,7 @@ function M.setup()
                 hl.exec_cmd("sh -c 'pkill -RTMIN+9 waybar 2>/dev/null || true'")
             end
             hl.notification.create({
-                text      = "Screenshare ended — Privacy guard cleared",
+                text      = "Screenshare ended: DND disabled",
                 timeout   = 2000,
                 color     = "rgba(" .. P.green .. "ee)",
                 font_size = 13,
@@ -245,7 +235,7 @@ function M.setup()
         end
     end)
 
-    -- Urgent window subtle alert (great on dual monitor)
+    -- Urgent window alert
     hl.on("window.urgent", function(win)
         if not win then return end
         local cls = win.class or "Window"
@@ -258,7 +248,6 @@ function M.setup()
         })
     end)
 
-    -- Smart gaps triggers
     hl.on("window.open",              function() M.refresh_smart_gaps() end)
     hl.on("window.close",             function() M.refresh_smart_gaps() end)
     hl.on("window.move_to_workspace", function() M.refresh_smart_gaps() end)

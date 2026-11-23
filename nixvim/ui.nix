@@ -1,7 +1,6 @@
 { pkgs }:
 {
   plugins = {
-    # Bespoke Catppuccin Mocha Powerline Bubble Lualine
     lualine = {
       enable = true;
       settings = {
@@ -112,7 +111,6 @@
       };
     };
 
-    # Polished Bufferline with Diagnostics + Snacks Explorer offset
     bufferline = {
       enable = true;
       settings.options = {
@@ -141,7 +139,6 @@
       };
     };
 
-    # IDE Breadcrumbs Winbar (clickable + fuzzy pick with <leader>;)
     dropbar = {
       enable = true;
       settings = {
@@ -164,7 +161,6 @@
       };
     };
 
-    # Modern Multi-line Inline Diagnostics (replaces ugly built-in virtual text)
     tiny-inline-diagnostic = {
       enable = true;
       settings = {
@@ -196,7 +192,6 @@
       };
     };
 
-    # Noice (rounded command palette + clean LSP doc borders + noise filtering)
     noice = {
       enable = true;
       settings = {
@@ -232,7 +227,6 @@
       };
     };
 
-    # Sticky function/class context header when deep in long files
     treesitter-context = {
       enable = true;
       settings = {
@@ -244,7 +238,6 @@
 
     rainbow-delimiters.enable = true;
 
-    # Live inline color swatches for CSS / Hyprland / Nix / Waybar editing
     highlight-colors = {
       enable = true;
       settings = {
@@ -259,10 +252,8 @@
       };
     };
 
-    # Editable, context-rich modern quickfix
     quicker.enable = true;
 
-    # Snacks FULL SUITE: Dashboard, Picker, Explorer, Smooth Scroll, Animated Indent, Words, Zen, Dim, Scratch, Image, Notifier
     snacks = {
       enable = true;
       settings = {
@@ -296,7 +287,7 @@
         };
         dim.enabled = true;
         scratch.enabled = true;
-        image.enabled = true; # Renders images inline inside Ghostty (Kitty graphics protocol)
+        image.enabled = true;
         picker = {
           enabled = true;
           sources.files.exclude = [ "bin" "obj" "*.bak-*" ".git" ];

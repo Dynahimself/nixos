@@ -35,7 +35,6 @@
         "ctrl+plus=increase_font_size:1"
         "ctrl+minus=decrease_font_size:1"
         "ctrl+0=reset_font_size"
-        # Colemak-DH split management (n/e/i/o)
         "alt+shift+v=new_split:right"
         "alt+shift+s=new_split:down"
         "ctrl+shift+z=toggle_split_zoom"

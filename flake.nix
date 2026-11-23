@@ -42,13 +42,11 @@
     let
       system = "x86_64-linux";
 
-      # Defining common modules to avoid repetition
       commonModules = [
         ./configuration.nix
         catppuccin.nixosModules.catppuccin
         home-manager.nixosModules.home-manager
         {
-          # Apply the Neovim Nightly Overlay
           nixpkgs.overlays = [ neovim-nightly-overlay.overlays.default ];
 
           home-manager = {
@@ -67,7 +65,6 @@
             };
           };
 
-          # Install Zen Browser via the flake package
           environment.systemPackages = [
             zen-browser.packages.${system}.default
           ];
@@ -121,7 +118,6 @@
           ];
         };
 
-        # headless servers — minimal profiles, no commonModules (no GUI/home-manager)
         nas = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = { inherit inputs; };

@@ -1,8 +1,7 @@
--- Monitors & persistent workspace allocation (desktop dual-monitor + laptop fallback)
 local M = {}
 
 function M.setup()
-    -- Desktop primary: AOC Q27G4ZMN 2560x1440@240Hz (10-bit, HDR-capable, VRR fullscreen)
+    -- Primary: AOC Q27G4ZMN 2560x1440@240Hz
     hl.monitor({
         output        = "DP-3",
         mode          = "2560x1440@240",
@@ -15,7 +14,7 @@ function M.setup()
         vrr           = 2,
     })
 
-    -- Desktop secondary: ASUS VG249 1920x1080@144Hz (VRR fullscreen)
+    -- Secondary: ASUS VG249 1920x1080@144Hz
     hl.monitor({
         output   = "HDMI-A-1",
         mode     = "1920x1080@144",
@@ -24,7 +23,7 @@ function M.setup()
         vrr      = 2,
     })
 
-    -- Laptop internal display
+    -- Laptop display
     hl.monitor({
         output   = "eDP-1",
         mode     = "1920x1080@144",
@@ -32,7 +31,7 @@ function M.setup()
         scale    = 1,
     })
 
-    -- Fallback for external/unrecognized monitors
+    -- External fallback
     hl.monitor({
         output   = "",
         mode     = "highrr",
@@ -40,7 +39,7 @@ function M.setup()
         scale    = "auto",
     })
 
-    -- Pin WS 1-5 to DP-3 and WS 6-10 to HDMI-A-1 when desktop dual monitors are attached
+    -- Pin WS 1-5 to DP-3, WS 6-10 to HDMI-A-1
     local monitors = hl.get_monitors() or {}
     local has_dp3, has_hdmi = false, false
     for _, m in ipairs(monitors) do

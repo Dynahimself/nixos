@@ -1,9 +1,8 @@
--- Colemak-DH native modal submaps (Resize, Group/Tabs, Layout/Zoom)
 local auto = require("automation")
 local M = {}
 
 function M.setup()
-    -- 1. RESIZE SUBMAP (SUPER + R)
+    -- Resize (SUPER + R)
     hl.define_submap("resize", function()
         hl.bind("n",           hl.dsp.window.resize({ x = -45, y = 0 }),   { repeating = true, desc = "Resize Narrower" })
         hl.bind("o",           hl.dsp.window.resize({ x = 45,  y = 0 }),   { repeating = true, desc = "Resize Wider" })
@@ -29,7 +28,7 @@ function M.setup()
         hl.bind("SUPER + R",   hl.dsp.submap("reset"), { desc = "Exit Resize Mode" })
     end)
 
-    -- 2. GROUP / TABBED STACK SUBMAP (SUPER + SHIFT + G)
+    -- Group (SUPER + SHIFT + G)
     hl.define_submap("group", function()
         hl.bind("t",                 hl.dsp.group.toggle(),              { desc = "Toggle Window Group" })
         hl.bind("n",                 hl.dsp.group.prev(),                { desc = "Previous Group Tab" })
@@ -46,7 +45,7 @@ function M.setup()
         hl.bind("SUPER + SHIFT + G", hl.dsp.submap("reset"),             { desc = "Exit Group Mode" })
     end)
 
-    -- 3. LAYOUT & FOCUS SUBMAP (SUPER + Z)
+    -- Layout (SUPER + Z)
     hl.define_submap("layout", function()
         hl.bind("d",         function() auto.cycle_layout("dwindle");   hl.dispatch(hl.dsp.submap("reset")) end, { desc = "Dwindle Layout" })
         hl.bind("m",         function() auto.cycle_layout("master");    hl.dispatch(hl.dsp.submap("reset")) end, { desc = "Master Layout" })

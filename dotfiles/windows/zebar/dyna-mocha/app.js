@@ -33,7 +33,6 @@ function openUrl(url) {
   zebar.shellExec('cmd', ['/c', 'start', '', url]).catch(() => {});
 }
 
-// --- Pomodoro & Clock State ---
 let showSeconds = false;
 let pomoState = 'idle'; // idle | running | paused | done
 let pomoRemaining = 25 * 60;
@@ -52,7 +51,7 @@ function formatClock() {
   }
   if (pomoState === 'done') {
     el('clock-icon').textContent = '✓';
-    el('clock-text').textContent = 'Pomo Done!';
+    el('clock-text').textContent = '25:00 done';
     el('clock-pill').classList.remove('pomo-run');
     el('clock-pill').classList.add('pomo-done');
     return;
@@ -132,7 +131,6 @@ el('clock-pill').addEventListener('auxclick', (e) => {
   }
 });
 
-// --- App Icon Helper ---
 function getAppIcon(proc = '', title = '') {
   const p = proc.toLowerCase();
   const t = title.toLowerCase();
@@ -158,7 +156,6 @@ function cleanWindowTitle(proc = '', title = '') {
     .trim();
 }
 
-// --- Render GlazeWM ---
 function renderGlaze(g) {
   if (!g) return;
 
@@ -179,7 +176,6 @@ function renderGlaze(g) {
   tileBtn.title = `Tiling: ${g.tilingDirection} (click to flip)`;
   tileBtn.onclick = () => g.runCommand('toggle-tiling-direction');
 
-  // Mode / Pause badge
   const modePill = el('mode-pill');
   if (g.isPaused) {
     modePill.className = 'island mode-pill paused';
@@ -196,7 +192,6 @@ function renderGlaze(g) {
     modePill.className = 'island mode-pill hidden';
   }
 
-  // Focused window title
   const fc = g.focusedContainer;
   const winPill = el('win-pill');
   if (fc && fc.type === 'window' && (fc.title || fc.processName)) {
@@ -209,7 +204,6 @@ function renderGlaze(g) {
   }
 }
 
-// --- Render Media ---
 function renderMedia(m) {
   const pill = el('media-pill');
   const sess = m?.currentSession;
@@ -237,7 +231,6 @@ function renderMedia(m) {
   };
 }
 
-// --- Render Telemetry (CPU / RAM / Audio / Network / Battery) ---
 function renderTelemetry(out) {
   if (out.cpu) {
     const pct = Math.round(out.cpu.usage);
@@ -325,7 +318,6 @@ function renderTelemetry(out) {
   }
 }
 
-// --- Live Fleet & CS Hub Polling (with offline localStorage fallback) ---
 function renderFleetAndHub(data, isLive) {
   const fleetPill = el('fleet-pill');
   const dotsWrap = el('fleet-dots');
@@ -342,7 +334,6 @@ function renderFleetAndHub(data, isLive) {
     return;
   }
 
-  // Fleet dots: Pi, NAS, Desktop
   const nodes = data.nodes || [];
   const wanted = [
     { key: 'Raspberry', short: 'Pi' },
@@ -363,7 +354,6 @@ function renderFleetAndHub(data, isLive) {
   const clipLine = data.clip?.preview ? `\nClip [${data.clip.source || '?'}]: ${data.clip.preview}` : '';
   fleetPill.title = `${tipLines.join(' · ')}\nPi RAM: ${data.pi_mem || '?'} · Backup: ${data.backup || '?'}${clipLine}\nClick to open Fleet Startpage`;
 
-  // CS Hub pill
   const hub = data.cshub;
   if (!hub) {
     hubPill.className = 'island pill cshub-pill offline';
@@ -390,7 +380,7 @@ function renderFleetAndHub(data, isLive) {
   const dueTerms = Number(hub.due_count || 0);
 
   let cls = 'island pill cshub-pill';
-  let text = 'Clear ✓';
+  let text = 'Clear';
 
   if (overdue.length > 0) {
     cls += ' urgent';
@@ -412,14 +402,14 @@ function renderFleetAndHub(data, isLive) {
     text = parts.join(' · ');
   } else {
     cls += ' clear';
-    text = 'Clear ✓';
+    text = 'Clear';
   }
-  if (!isLive) text += ' ⚡';
+  if (!isLive) text += ' (cache)';
 
   hubPill.className = cls;
   hubText.textContent = text;
   const hTip = [
-    `CS Student Hub (${isLive ? 'Pi synced' : 'offline cache'})`,
+    `CS Hub (${isLive ? 'online' : 'cache'})`,
     `Streak: ${hub.streak || 0}d · Today: ${hub.today_minutes || 0}m · Due cards: ${dueTerms}`,
   ];
   for (const it of items.slice(0, 5)) {
@@ -451,12 +441,10 @@ async function pollFleet() {
   }
 }
 
-// Click handlers for Fleet & CS Hub
 el('btn-home').addEventListener('click', () => openUrl('http://100.68.54.112:8210'));
 el('fleet-pill').addEventListener('click', () => openUrl('http://100.68.54.112:8210'));
 el('cshub-pill').addEventListener('click', () => openUrl('http://100.68.54.112:8200'));
 
-// Provider updates
 providers.onOutput(() => {
   const out = providers.outputMap;
   renderGlaze(out.glazewm);

@@ -1,7 +1,6 @@
 { config, pkgs, ... }:
 
 {
-  # Core system settings shared by all hosts (GUI-free)
 
   time.timeZone = "America/New_York";
 
@@ -28,7 +27,6 @@
   };
   nixpkgs.config.allowUnfree = true;
 
-  # User account
   users.users.dyna = {
     isNormalUser = true;
     description = "Dyna";
@@ -38,7 +36,7 @@
 
   programs.zsh.enable = true;
 
-  #OpenLDAP quick fix
+  # Skip openldap tests
   nixpkgs.overlays = [
     (final: prev: {
       openldap = prev.openldap.overrideAttrs (oldAttrs: {
@@ -54,7 +52,6 @@
   };
   nix.optimise.automatic = true;
 
-  # LanguageTool local server
   services.languagetool = {
     enable = true;
     port = 8081;

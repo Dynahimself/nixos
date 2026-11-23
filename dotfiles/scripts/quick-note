@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-raw=$(rofi -dmenu -p "📓 Note (win:/fossil:/blocker:)" || true)
+raw=$(rofi -dmenu -p "󰂺 Note (win:/fossil:/blocker:)" || true)
 [ -z "${raw// /}" ] && exit 0
 
 kind="note"

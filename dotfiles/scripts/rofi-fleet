@@ -55,7 +55,7 @@ menu_items+=(
   "󰏗  Push Current System to NAS Nix Cache"
 )
 
-choice=$(printf '%s\n' "${menu_items[@]}" | rofi -dmenu -i -p "⚡ Fleet" -mesg "$mesg" || true)
+choice=$(printf '%s\n' "${menu_items[@]}" | rofi -dmenu -i -p "󰒍 Fleet" -mesg "$mesg" || true)
 [ -z "$choice" ] && exit 0
 
 case "$choice" in

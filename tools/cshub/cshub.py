@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-cshub — Dyna's offline-first CLI & sync engine for Pi CS Student Hub (:8200).
+cshub — CLI and local cache for Pi CS Hub (:8200).
 
 Half-dependent on Tailscale:
   * Every read/write hits the local SQLite cache (~/.local/share/cshub/cache.db) first.
@@ -26,8 +26,6 @@ import urllib.error
 import urllib.request
 import uuid
 
-# ---------------- Config & Paths ----------------
-
 PI_URL = os.environ.get("CSHUB_URL", "http://100.68.54.112:8200").rstrip("/")
 DATA_DIR = os.path.expanduser(os.environ.get("CSHUB_DATA_DIR", "~/.local/share/cshub"))
 CACHE_DIR = os.path.expanduser(os.environ.get("CSHUB_CACHE_DIR", "~/.cache/cshub"))
@@ -38,10 +36,8 @@ SNAPSHOT_PATH = os.path.join(CACHE_DIR, "waybar-snapshot.json")
 # Catppuccin Mocha ANSI 24-bit palette
 USE_COLOR = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
 
-
 def _fg(r, g, b):
     return f"\033[38;2;{r};{g};{b}m" if USE_COLOR else ""
-
 
 RESET = "\033[0m" if USE_COLOR else ""
 BOLD = "\033[1m" if USE_COLOR else ""
@@ -183,18 +179,14 @@ CREATE TABLE IF NOT EXISTS log_entries (
 );
 """
 
-
 def utc_now():
     return dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
 
 def local_now():
     return dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-
 def today_iso():
     return dt.date.today().isoformat()
-
 
 def parse_date(raw):
     """Parse flexible date specs: today, tmr, +3d, +2w, fri, 11-28, 2026-12-04."""
@@ -234,7 +226,6 @@ def parse_date(raw):
         return dt.date(int(m.group(1)), int(m.group(2)), int(m.group(3))).isoformat()
     raise ValueError(f"Unrecognized date '{raw}'. Try: today, tmr, +3d, fri, 12-04, or 2026-12-04")
 
-
 def days_until(iso_date):
     if not iso_date:
         return None
@@ -243,7 +234,6 @@ def days_until(iso_date):
         return (d - dt.date.today()).days
     except Exception:
         return None
-
 
 def fmt_countdown(iso_date, due_time=""):
     delta = days_until(iso_date)
@@ -261,9 +251,6 @@ def fmt_countdown(iso_date, due_time=""):
     if delta <= 7:
         return f"{C['blue']}in {delta}d ({iso_date[5:]}{t_s}){RESET}"
     return f"{C['sub']}in {delta}d ({iso_date[5:]}{t_s}){RESET}"
-
-
-# ---------------- Database & Locking ----------------
 
 class HubDB:
     def __init__(self):
@@ -386,13 +373,9 @@ class HubDB:
         os.replace(tmp, SNAPSHOT_PATH)
         return snap
 
-
 def poke_waybar():
     for sig in ("-RTMIN+8", "-RTMIN+10"):
         subprocess.run(["pkill", sig, "waybar"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
-
-
-# ---------------- Bidirectional LWW Sync Engine ----------------
 
 def sync_with_pi(db: HubDB, timeout=2.2):
     """Push dirty local rows and merge Pi snapshot using deterministic UTC LWW."""
@@ -484,7 +467,6 @@ def sync_with_pi(db: HubDB, timeout=2.2):
         "server_stats": data.get("stats") or {},
     }
 
-
 def check_deadline_notifications(db: HubDB):
     """Fire SwayNC notifications for exams/deadlines at 24h & today thresholds (deduped)."""
     if not shutil.which("notify-send"):
@@ -529,9 +511,6 @@ def check_deadline_notifications(db: HubDB):
         notified = {k: v for k, v in notified.items() if k.rsplit(":", 1)[-1] >= cutoff}
         db.set_meta("notified_json", json.dumps(notified))
 
-
-# ---------------- Item Lookup Helper ----------------
-
 def resolve_item(db: HubDB, query, include_done=True):
     q = query.strip()
     cond = "COALESCE(deleted_at,'')=''"
@@ -556,9 +535,6 @@ def resolve_item(db: HubDB, query, include_done=True):
     print(f"{C['red']}No item found matching '{q}'.{RESET}")
     sys.exit(1)
 
-
-# ---------------- Rendering Helpers ----------------
-
 def print_item_row(r):
     sid = r["uid"][:4]
     klabel, kcol, kicon = KIND_META.get(r["kind"], ("ITEM", "blue", "•"))
@@ -573,18 +549,14 @@ def print_item_row(r):
     due_s = f"{C['dim']}{r['due_date'] or 'done'}{RESET}" if done else fmt_countdown(r["due_date"], r["due_time"])
     print(f"  {box} {C['dim']}{sid}{RESET}  {C[kcol]}{BOLD}{kicon} {klabel:<4}{RESET}  {title_s}{course}{weight}{prio}   {due_s}")
 
-
 def print_sync_footer(res, db: HubDB):
     dirty = db.dirty_count()
     if res and res.get("online"):
         extra = f" · ↑{res.get('pushed',0)} ↓{res.get('pulled',0)}" if (res.get("pushed") or res.get("pulled")) else ""
-        print(f"{C['dim']}  ⚡ synced with Pi{extra}{RESET}")
+        print(f"{C['dim']}  synced{extra}{RESET}")
     else:
         q = f" ({dirty} queued)" if dirty else ""
-        print(f"{C['yellow']}  ⚡ offline cache{q} — will merge automatically when Pi is reachable{RESET}")
-
-
-# ---------------- CLI Commands ----------------
+        print(f"{C['yellow']}  offline{q}{RESET}")
 
 def cmd_dash(args):
     with HubDB() as db:
@@ -624,8 +596,7 @@ def cmd_dash(args):
                 print_item_row(r)
 
         if not open_items:
-            print(f"\n  {C['green']}✓ All clear — no open exams, homework, or tasks!{RESET}")
-            print(f"  {C['dim']}Try: cshub exam \"Final Aoop\" 12-10 -c Aoop -w 30  |  cshub hw \"TP03\" +4d -c Aoop{RESET}")
+            print(f"\n  {C['green']}No open items.{RESET}")
 
         snap = db.export_snapshot()
         print(f"\n{C['dim']}{'─' * 66}{RESET}")
@@ -637,7 +608,6 @@ def cmd_dash(args):
         )
         print_sync_footer(res, db)
         print()
-
 
 def cmd_add_item(args, forced_kind=None):
     kind = forced_kind or args.kind
@@ -663,7 +633,6 @@ def cmd_add_item(args, forced_kind=None):
         print(f"{C['green']}Added:{RESET}")
         print_item_row(row)
         print_sync_footer(res, db)
-
 
 def cmd_ls(args):
     with HubDB() as db:
@@ -694,7 +663,6 @@ def cmd_ls(args):
         for r in rows:
             print_item_row(r)
 
-
 def cmd_agenda(args):
     horizon = dt.date.today() + dt.timedelta(days=args.days)
     with HubDB() as db:
@@ -719,7 +687,6 @@ def cmd_agenda(args):
                 print(f"\n  {BOLD}{C['blue']}{d.strftime('%a %b %d')}{RESET}  {fmt_countdown(cur_day)}")
             print_item_row(r)
         print()
-
 
 def cmd_cal(args):
     today = dt.date.today()
@@ -783,7 +750,6 @@ def cmd_cal(args):
                 print(f"  {C[kcol]}● {iso[5:]} {klbl:<4}{RESET} {e['title']}{C['sub']}{course}{wt}{RESET}  {fmt_countdown(iso, e.get('due_time',''))}")
     print()
 
-
 def cmd_set_status(args, status):
     with HubDB() as db:
         row = resolve_item(db, args.id, include_done=(status != "done"))
@@ -800,7 +766,6 @@ def cmd_set_status(args, status):
         updated = db.con.execute("SELECT * FROM items WHERE uid=?", (row["uid"],)).fetchone()
         print_item_row(updated)
         print_sync_footer(res, db)
-
 
 def cmd_edit(args):
     with HubDB() as db:
@@ -835,7 +800,6 @@ def cmd_edit(args):
         print_item_row(updated)
         print_sync_footer(res, db)
 
-
 def cmd_rm(args):
     with HubDB() as db:
         row = resolve_item(db, args.id, include_done=True)
@@ -850,7 +814,6 @@ def cmd_rm(args):
         res = sync_with_pi(db, timeout=1.5) if not args.offline else None
         print(f"{C['red']}Deleted:{RESET} {row['title']} ({row['uid'][:4]})")
         print_sync_footer(res, db)
-
 
 def cmd_history(args):
     with HubDB() as db:
@@ -880,11 +843,10 @@ def cmd_history(args):
                 c = f" [{s['course']}]" if s["course"] else ""
                 print(f"  {C['dim']}{s['day']}{RESET}  {C['green']}{s['minutes']:>3}m{RESET}  {s['topic'] or s['kind']}{C['lavender']}{c}{RESET}")
         if notes:
-            print(f"\n{BOLD}{C['mauve']}📓  JOURNAL ({len(notes)}){RESET}")
+            print(f"\n{BOLD}{C['mauve']}󰂺  JOURNAL ({len(notes)}){RESET}")
             for n in notes:
                 print(f"  {C['dim']}{n['day']}{RESET}  {C['peach']}[{n['kind']}]{RESET} {n['text']}")
         print()
-
 
 def cmd_course(args):
     with HubDB() as db:
@@ -919,7 +881,7 @@ def cmd_course(args):
                 sync_with_pi(db, timeout=1.5)
             rows = db.con.execute("SELECT * FROM courses WHERE COALESCE(deleted_at,'')='' ORDER BY code").fetchall()
             if not rows:
-                print(f"{C['dim']}No courses yet. Add one: cshub course add Aoop \"Object Oriented Programming\"{RESET}")
+                print(f"{C['dim']}No courses.{RESET}")
                 return
             for r in rows:
                 n_open = db.con.execute(
@@ -931,7 +893,6 @@ def cmd_course(args):
                     (r["code"],),
                 ).fetchone()["c"]
                 print(f"  {C['mauve']}{BOLD}{r['code']:<10}{RESET} {r['name']:<32} {C['peach']}{n_open} open{RESET} · {C['blue']}{n_terms} cards{RESET} {C['dim']}{r['teacher']}{RESET}")
-
 
 def cmd_term(args):
     with HubDB() as db:
@@ -960,7 +921,7 @@ def cmd_term(args):
                 params.append(args.course)
             rows = db.con.execute(f"SELECT * FROM terms WHERE {' AND '.join(where)} ORDER BY updated_at DESC", params).fetchall()
             if not rows:
-                print(f"{C['dim']}No terms yet. Add one: cshub term add \"RAII\" \"Resource Acquisition Is Initialization\" -c C++{RESET}")
+                print(f"{C['dim']}No terms.{RESET}")
                 return
             today = today_iso()
             for r in rows:
@@ -968,7 +929,6 @@ def cmd_term(args):
                 badge = f"{C['peach']}DUE{RESET}" if due else f"{C['green']}{r['next_due']}{RESET}"
                 c = f" {C['lavender']}[{r['course']}]{RESET}" if r["course"] else ""
                 print(f"  {C['dim']}{r['uid'][:4]}{RESET} {BOLD}{r['term']}{RESET}{c} ({badge}) — {C['sub']}{r['definition'][:70]}{RESET}")
-
 
 def cmd_drill(args):
     with HubDB() as db:
@@ -982,9 +942,9 @@ def cmd_drill(args):
             params.append(args.course)
         queue = db.con.execute(f"SELECT * FROM terms WHERE {' AND '.join(where)} ORDER BY reviews ASC", params).fetchall()
         if not queue:
-            print(f"{C['green']}✓ No flashcards due right now!{RESET}")
+            print(f"{C['green']}No flashcards due.{RESET}")
             return
-        print(f"\n{BOLD}{C['mauve']}󰑴  OFFLINE-CAPABLE SM-2 DRILL ({len(queue)} due){RESET}  {C['dim']}(q to quit){RESET}\n")
+        print(f"\n{BOLD}{C['mauve']}󰑴  SM-2 DRILL ({len(queue)} due){RESET}  {C['dim']}(q to quit){RESET}\n")
         done = 0
         for idx, card in enumerate(queue, 1):
             c = f" [{card['course']}]" if card["course"] else ""
@@ -1040,7 +1000,6 @@ def cmd_drill(args):
         if done > 0:
             print_sync_footer(res, db)
 
-
 def cmd_note(args):
     now = utc_now()
     uid = str(uuid.uuid4())
@@ -1054,7 +1013,6 @@ def cmd_note(args):
         res = sync_with_pi(db, timeout=1.5) if not args.offline else None
         print(f"{C['green']}Logged [{args.kind}]:{RESET} {args.text.strip()}")
         print_sync_footer(res, db)
-
 
 def cmd_study(args):
     if args.minutes <= 0:
@@ -1075,7 +1033,6 @@ def cmd_study(args):
         print(f"{C['green']}Logged {args.minutes}m {args.kind}{RESET}" + (f" [{args.course}]" if args.course else ""))
         print_sync_footer(res, db)
 
-
 def cmd_sync(args):
     with HubDB() as db:
         res = sync_with_pi(db, timeout=3.0)
@@ -1085,10 +1042,9 @@ def cmd_sync(args):
             return
         if res["online"]:
             reset_s = " (new server epoch — pruned stale clean rows)" if res.get("epoch_reset") else ""
-            print(f"{C['green']}✓ Synced with Pi{RESET} — pushed {res['pushed']}, pulled {res['pulled']}{reset_s}")
+            print(f"{C['green']}Synced:{RESET} pushed {res['pushed']}, pulled {res['pulled']}{reset_s}")
         else:
-            print(f"{C['yellow']}⚡ Pi unreachable ({PI_URL}){RESET} — {db.dirty_count()} change(s) safely queued locally")
-
+            print(f"{C['yellow']}Offline ({PI_URL}):{RESET} {db.dirty_count()} queued")
 
 def cmd_status(args):
     with HubDB() as db:
@@ -1105,17 +1061,13 @@ def cmd_status(args):
         print(f"  Cache DB    : {DB_PATH}")
         print(f"  Waybar JSON : {SNAPSHOT_PATH}\n")
 
-
 def cmd_json(args):
     with HubDB() as db:
         snap = db.export_snapshot()
     print(json.dumps(snap, ensure_ascii=False))
 
-
-# ---------------- Argument Parser ----------------
-
 def build_parser():
-    p = argparse.ArgumentParser(prog="cshub", description="Dyna's offline-first CLI for Pi CS Student Hub")
+    p = argparse.ArgumentParser(prog="cshub", description="CLI for Pi CS Hub")
     p.add_argument("--offline", action="store_true", help="Skip Pi network sync for this command")
     sub = p.add_subparsers(dest="cmd")
 
@@ -1184,7 +1136,7 @@ def build_parser():
     c_add.add_argument("--color", default="#cba6f7")
     c_sub.add_parser("rm").add_argument("code")
 
-    sp_term = sub.add_parser("term", aliases=["terms"], help="Manage flashcards (offline-first)")
+    sp_term = sub.add_parser("term", aliases=["terms"], help="Manage flashcards")
     t_sub = sp_term.add_subparsers(dest="action")
     t_ls = t_sub.add_parser("ls")
     t_ls.add_argument("-c", "--course", default="")
@@ -1218,7 +1170,6 @@ def build_parser():
     sub.add_parser("status", help="Show sync & cache diagnostics")
     sub.add_parser("json", help="Print Waybar/DE JSON snapshot")
     return p
-
 
 def main():
     parser = build_parser()
@@ -1281,7 +1232,6 @@ def main():
     except ValueError as e:
         print(f"{C['red']}Error:{RESET} {e}", file=sys.stderr)
         sys.exit(2)
-
 
 if __name__ == "__main__":
     main()

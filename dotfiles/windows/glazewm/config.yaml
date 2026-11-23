@@ -1,19 +1,14 @@
-# GlazeWM v3.9.1 — Dyna's Catppuccin Mocha + Colemak-DH (Hyprland parity)
-# SUPER (Windows key / CapsLock via PowerToys KBM) is mapped to F24.
-# All WM chords use F24 + Colemak-DH (n=left, e=down, i=up, o=right) alongside arrow keys.
+# F24 = Windows/CapsLock via PowerToys KBM
 
 general:
-  # Automatically focus windows underneath the cursor.
   focus_follows_cursor: true
 
-  # Toggle back to previous workspace when focusing the current workspace.
   toggle_workspace_on_refocus: true
 
   cursor_jump:
     enabled: true
     trigger: "window_focus"
 
-  # Use native Windows cloaking to avoid taskbar flicker on workspace switch.
   hide_method: "cloak"
   show_all_in_taskbar: false
 
@@ -66,7 +61,7 @@ workspaces:
   - name: "10"
 
 binding_modes:
-  # Resize mode (F24+R) — Colemak-DH (n/e/i/o) or Arrow keys; Shift for big steps
+  # Resize mode (F24+R)
   - name: "resize"
     display_name: "RESIZE"
     keybindings:
@@ -90,7 +85,6 @@ binding_modes:
         bindings: ["escape", "enter", "f24+r"]
 
 window_rules:
-  # Ignore bars, overlays, PowerToys popups, snipping & PiP
   - commands: ["ignore"]
     match:
       - window_process: { equals: "zebar" }
@@ -110,7 +104,6 @@ window_rules:
       - window_process: { equals: "Lively" }
         window_class: { regex: "HwndWrapper.*" }
 
-  # Utility & dialog windows float cleanly centered
   - commands: ["set-floating"]
     match:
       - window_process: { equals: "Taskmgr" }
@@ -121,7 +114,7 @@ window_rules:
         window_class: { equals: "#32770" }
 
 keybindings:
-  # --- Focus (Colemak-DH n/e/i/o + Arrows) ---
+  # Focus
   - commands: ["focus --direction left"]
     bindings: ["f24+n", "f24+left"]
   - commands: ["focus --direction down"]
@@ -131,7 +124,7 @@ keybindings:
   - commands: ["focus --direction right"]
     bindings: ["f24+o", "f24+right"]
 
-  # --- Move window (Shift + Colemak-DH n/e/i/o + Arrows) ---
+  # Move window
   - commands: ["move --direction left"]
     bindings: ["f24+shift+n", "f24+shift+left"]
   - commands: ["move --direction down"]
@@ -141,7 +134,7 @@ keybindings:
   - commands: ["move --direction right"]
     bindings: ["f24+shift+o", "f24+shift+right"]
 
-  # --- Workspace cycling (Ctrl + n/o or Ctrl + Left/Right, Tab = recent) ---
+  # Workspace cycling
   - commands: ["focus --prev-active-workspace"]
     bindings: ["f24+ctrl+n", "f24+ctrl+left"]
   - commands: ["focus --next-active-workspace"]
@@ -149,7 +142,7 @@ keybindings:
   - commands: ["focus --recent-workspace"]
     bindings: ["f24+tab"]
 
-  # --- Window state & layout ---
+  # Window state
   - commands: ["close"]
     bindings: ["f24+q"]
   - commands: ["toggle-floating"]
@@ -163,7 +156,7 @@ keybindings:
   - commands: ["toggle-minimized"]
     bindings: ["f24+alt+m"]
 
-  # --- Modes & WM lifecycle ---
+  # Modes
   - commands: ["wm-enable-binding-mode --name resize"]
     bindings: ["f24+r"]
   - commands: ["wm-toggle-pause"]
@@ -175,7 +168,7 @@ keybindings:
   - commands: ["wm-exit"]
     bindings: ["f24+m"]
 
-  # --- App launchers (Hyprland parity) ---
+  # Launchers
   - commands: ["shell-exec wt"]
     bindings: ["f24+enter"]
   - commands: ["shell-exec C:\\Program Files\\Zen Browser\\zen.exe"]
@@ -187,7 +180,7 @@ keybindings:
   - commands: ["shell-exec cmd /c taskkill /F /IM zebar.exe & start \"\" \"C:\\Program Files\\glzr.io\\Zebar\\zebar.exe\""]
     bindings: ["f24+shift+b"]
 
-  # --- Focus workspace 1..10 ---
+  # Focus workspace 1..10
   - commands: ["focus --workspace 1"]
     bindings: ["f24+1"]
   - commands: ["focus --workspace 2"]
@@ -209,7 +202,7 @@ keybindings:
   - commands: ["focus --workspace 10"]
     bindings: ["f24+0"]
 
-  # --- Move window to workspace 1..10 & follow ---
+  # Move window to workspace 1..10
   - commands: ["move --workspace 1", "focus --workspace 1"]
     bindings: ["f24+shift+1"]
   - commands: ["move --workspace 2", "focus --workspace 2"]
@@ -231,7 +224,7 @@ keybindings:
   - commands: ["move --workspace 10", "focus --workspace 10"]
     bindings: ["f24+shift+0"]
 
-  # --- Move window silently to workspace 1..10 ---
+  # Move window silently to workspace 1..10
   - commands: ["move --workspace 1"]
     bindings: ["f24+alt+1"]
   - commands: ["move --workspace 2"]

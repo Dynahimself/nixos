@@ -13,7 +13,6 @@ in
     ./home/scripts.nix
   ];
 
-  # Nixvim editor (Colemak-DH workbench)
   dyna.nixvim.enable = true;
   programs.neovim.enable = false;
 

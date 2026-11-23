@@ -1,15 +1,10 @@
-﻿# Dyna's Catppuccin Mocha PowerShell Profile (laptop-win)
-# Clean, fast, zero-bloat bridge to NixOS-WSL, CS Hub, Fleet, and GlazeWM/Zebar.
-
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
-# Starship prompt
 if (Get-Command starship -ErrorAction SilentlyContinue) {
     Invoke-Expression (& starship init powershell)
 }
 
-# PSReadLine — Catppuccin Mocha syntax colors & history prediction
 if (Get-Module -ListAvailable -Name PSReadLine) {
     Import-Module PSReadLine -ErrorAction SilentlyContinue
     try {
@@ -35,14 +30,12 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
     Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 }
 
-# --- CS Hub CLI (shares WSL's offline-first SQLite cache & Tailscale sync) ---
 function cshub { wsl -d NixOS -u dyna -- python3 /etc/nixos/tools/cshub/cshub.py @args }
 function csh   { cshub @args }
 function csa   { cshub agenda @args }
 function csc   { cshub cal @args }
 function csd   { cshub dash @args }
 
-# --- Fleet & Homelab helpers ---
 function fleet {
     try {
         $st = Invoke-RestMethod -Uri 'http://100.68.54.112:8210/api/status' -TimeoutSec 3
@@ -81,7 +74,6 @@ function pi      { ssh raspberrypi @args }
 function nas     { ssh nas @args }
 function desktop { ssh desktop @args }
 
-# --- Cross-Fleet Shared Clipboard (Desktop <-> Laptop <-> Win <-> Phone via Pi :8210) ---
 function clip-push {
     param([string]$Text)
     if (-not $Text) { $Text = Get-Clipboard -Raw }
@@ -110,7 +102,6 @@ function clip-pull {
     }
 }
 
-# --- WM / Bar / WSL shortcuts ---
 function wm-reload {
     glazewm command wm-reload-config
 }
@@ -166,7 +157,6 @@ function wm-keys {
 "@ -ForegroundColor Gray
 }
 
-# --- Ergonomic short aliases ---
 Set-Alias -Name v -Value nvim -ErrorAction SilentlyContinue
 function ll { Get-ChildItem -Force @args | Format-Table Mode, LastWriteTime, Length, Name -AutoSize }
 function which($name) { (Get-Command $name -ErrorAction SilentlyContinue).Source }

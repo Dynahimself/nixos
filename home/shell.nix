@@ -7,20 +7,20 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     initContent = ''
-      # Only show fastfetch on top-level interactive shells (not inside nvim :term or quick popups)
+      # Run fastfetch in top-level interactive shells only
       if [[ -o interactive ]] && [[ -z "''${NVIM:-}" ]] && [[ "''${SHLVL:-1}" -le 2 ]] && [[ -t 1 ]]; then
         fastfetch
       fi
       export PATH="$HOME/.local/bin:$PATH"
 
-      # Jump to Windows home (WSL)
+      # cd to Windows user directory
       win() {
         cd /mnt/c/Users/$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r') 2>/dev/null \
           || cd /mnt/c/Users/*/ 2>/dev/null \
           || echo "Not in WSL or Windows drive not mounted"
       }
 
-      # Jump to latest CEGEP homework folder (desktop or laptop)
+      # cd to latest TP directory
       tp() {
         local latest
         latest=$(ls -1dt "$HOME/cswip/Aoop/homeworks"/TP* "$HOME/neoCS"/*/TP* "$HOME/neoCS"/TP* 2>/dev/null | head -n1)

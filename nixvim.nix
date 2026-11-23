@@ -1,15 +1,9 @@
-# =====================================================================
-# Nixvim — Dyna's Colemak-DH Catppuccin Mocha Neovim 0.12 Workbench
-# =====================================================================
-# Modularized under ./nixvim/{options,keymaps,ui,coding,lsp,git-debug,commands,motion-coach}.nix
-# Activation: `dyna.nixvim.enable = true` in home.nix / home-wsl.nix.
-# =====================================================================
 { config, lib, pkgs, ... }:
 
 let
   cfg = config.dyna.nixvim;
 
-  # Pass 2 of C# formatting: attach K&R same-line braces after csharpier.
+  # Attach K&R braces after csharpier
   csBraceAttach = pkgs.writeShellScriptBin "cs-brace-attach" ''
     set -euo pipefail
     exec ${pkgs.clang-tools}/bin/clang-format \
@@ -17,7 +11,7 @@ let
       --style='{BasedOnStyle: LLVM, IndentWidth: 4, BreakBeforeBraces: Attach, ColumnLimit: 100, BreakBeforeBinaryOperators: All, AlignOperands: Align, FixNamespaceComments: false, AccessModifierOffset: -4, IndentCaseLabels: false, AllowShortFunctionsOnASingleLine: None, AllowShortIfStatementsOnASingleLine: false, Language: CSharp}'
   '';
 
-  # Wrapper for Roslyn LS: strips --daemon-mode (nvim 0.12's lsp/roslyn.lua passes it).
+  # Strip --daemon-mode flag passed by nvim 0.12
   roslynWrapper = pkgs.writeShellScriptBin "roslyn-language-server" ''
     args=()
     for a in "$@"; do
@@ -29,11 +23,11 @@ let
 in
 {
   options.dyna.nixvim = {
-    enable = lib.mkEnableOption "Nixvim editor (Colemak-DH workbench)";
+    enable = lib.mkEnableOption "Nixvim editor";
     hyprStubs = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Include Hyprland Lua LSP stubs (disable on headless WSL to avoid pulling Wayland/Hyprland)";
+      description = "Include Hyprland Lua LSP stubs";
     };
   };
 
