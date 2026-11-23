@@ -57,7 +57,7 @@ function fleet {
         }
         Write-Host ""
     } catch {
-        Write-Host "Fleet API unreachable (100.68.54.112:8210) — check Tailscale." -ForegroundColor Yellow
+        Write-Host "Fleet API unreachable (100.68.54.112:8210) - check Tailscale." -ForegroundColor Yellow
     }
 }
 
@@ -131,7 +131,7 @@ function tp {
 function wm-keys {
     Write-Host @"
 
-  GlazeWM (F24 = Super/CapsLock via PowerToys) — Colemak-DH
+  GlazeWM (F24 = Super/CapsLock via PowerToys) - Colemak-DH
   ---------------------------------------------------------
   F24 + n/e/i/o (or Arrows)     Focus left/down/up/right
   F24 + Shift + n/e/i/o         Move window
