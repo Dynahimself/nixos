@@ -14,6 +14,7 @@ configuration {
     me-accept-entry:      "MousePrimary";
     kb-row-down:          "Down,Control+e,Control+j";
     kb-row-up:            "Up,Control+i,Control+k";
+    kb-move-end:          "";
     kb-remove-to-eol:     "";
     kb-accept-entry:      "Return,KP_Enter";
     kb-mode-next:         "Shift+Right,Control+Tab";
