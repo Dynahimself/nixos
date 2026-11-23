@@ -46,7 +46,8 @@
 
   powerManagement.enable = true;
   # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = [ "modesetting" "nvidia" ];
+  services.xserver.videoDrivers = [ "nvidia" ];
+  services.displayManager.sddm.wayland.enable = lib.mkForce true;
 
   # NVIDIA Optimus Setup
   hardware.nvidia = {
