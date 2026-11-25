@@ -3,8 +3,8 @@ local M = {}
 
 local P = theme.palette
 local state = {
-    smart_gaps_enabled = true,
-    smart_gaps_active  = false,
+    smart_gaps_enabled = false,
+    smart_gaps_rule    = nil,
     zoom_level         = 1.0,
     submap_notif       = nil,
     screenshare_active = false,
@@ -24,10 +24,6 @@ local function write_flag(path, active)
     else
         os.remove(path)
     end
-end
-
-local function is_game_or_study_mode()
-    return file_exists("/tmp/dyna-game-mode") or file_exists("/tmp/dyna-study-mode")
 end
 
 -- Toggle Colemak-DH / QWERTY
@@ -52,47 +48,10 @@ function M.toggle_colemak()
     end
 end
 
--- Reduce gaps on single-window workspaces
-function M.refresh_smart_gaps()
-    if not state.smart_gaps_enabled or is_game_or_study_mode() then
-        return
-    end
-    local ws = hl.get_active_workspace()
-    if not ws or ws.special then return end
-    local wins = hl.get_workspace_windows(ws.id) or {}
-    local tiled = 0
-    for _, w in ipairs(wins) do
-        if w.mapped and not w.floating and not w.hidden then
-            tiled = tiled + 1
-        end
-    end
-    local want_single = (tiled == 1)
-    if want_single ~= state.smart_gaps_active then
-        state.smart_gaps_active = want_single
-        if want_single then
-            hl.config({
-                general    = { gaps_in = 3, gaps_out = 6 },
-                decoration = { rounding = 10 },
-            })
-        else
-            hl.config({
-                general    = { gaps_in = 5, gaps_out = 10 },
-                decoration = { rounding = 12 },
-            })
-        end
-    end
-end
-
 function M.toggle_smart_gaps()
     state.smart_gaps_enabled = not state.smart_gaps_enabled
-    if not state.smart_gaps_enabled then
-        state.smart_gaps_active = false
-        hl.config({
-            general    = { gaps_in = 5, gaps_out = 10 },
-            decoration = { rounding = 12 },
-        })
-    else
-        M.refresh_smart_gaps()
+    if state.smart_gaps_rule then
+        state.smart_gaps_rule:set_enabled(state.smart_gaps_enabled)
     end
     hl.notification.create({
         text      = "Smart Gaps: " .. (state.smart_gaps_enabled and "ON" or "OFF"),
@@ -248,11 +207,13 @@ function M.setup()
         })
     end)
 
-    hl.on("window.open",              function() M.refresh_smart_gaps() end)
-    hl.on("window.close",             function() M.refresh_smart_gaps() end)
-    hl.on("window.move_to_workspace", function() M.refresh_smart_gaps() end)
-    hl.on("workspace.active",         function() M.refresh_smart_gaps() end)
-    hl.on("monitor.focused",          function() M.refresh_smart_gaps() end)
+    -- Native per-workspace smart gaps (off by default; toggle with SUPER+Z -> g)
+    state.smart_gaps_rule = hl.workspace_rule({
+        workspace = "w[tv1]",
+        gaps_in   = 3,
+        gaps_out  = 6,
+        enabled   = state.smart_gaps_enabled,
+    })
 end
 
 return M

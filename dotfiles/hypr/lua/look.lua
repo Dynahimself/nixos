@@ -115,7 +115,7 @@ function M.setup()
             inactive_timeout       = 5,
             no_break_fs_vrr        = 2,
             enable_hyprcursor      = true,
-            warp_on_monitor_change = 1,
+            warp_on_monitor_change = 0,
         },
 
         render = {
@@ -164,7 +164,7 @@ function M.setup()
     hl.curve("linear",         { type = "bezier", points = { {0, 0},       {1, 1}       } })
     hl.curve("almostLinear",   { type = "bezier", points = { {0.5, 0.5},   {0.75, 1}    } })
     hl.curve("quick",          { type = "bezier", points = { {0.15, 0},    {0.1, 1}     } })
-    hl.curve("snappy",         { type = "spring", mass = 1, stiffness = 320, damping = 28 })
+    hl.curve("snappy",         { type = "spring", mass = 1, stiffness = 320, damping = 35 })
 
     hl.animation({ leaf = "global",           enabled = true, speed = 10,  bezier = "default" })
     hl.animation({ leaf = "border",           enabled = true, speed = 5.0, bezier = "easeOutQuint" })

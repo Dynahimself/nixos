@@ -74,7 +74,7 @@ user_pref("media.videocontrols.picture-in-picture.video-toggle.enabled", false);
 // === 240Hz / 144Hz GPU, WebRender, VA-API & Smoothfox Physics ===
 user_pref("gfx.webrender.all", true);
 user_pref("gfx.webrender.precache-shaders", true);
-user_pref("gfx.webrender.compositor", true);
+user_pref("gfx.webrender.compositor", false);
 user_pref("gfx.canvas.accelerated.cache-items", 4096);
 user_pref("gfx.canvas.accelerated.cache-size", 512);
 user_pref("gfx.content.skia-font-cache-size", 20);
@@ -85,17 +85,17 @@ user_pref("media.av1.enabled", true);
 user_pref("media.rdd-ffmpeg.enabled", true);
 
 user_pref("general.smoothScroll", true);
-user_pref("general.smoothScroll.msdPhysics.enabled", true);
-user_pref("general.smoothScroll.msdPhysics.continuousMotionMaxDeltaMS", 12);
-user_pref("general.smoothScroll.msdPhysics.motionBeginSpringConstant", 600);
-user_pref("general.smoothScroll.msdPhysics.regularSpringConstant", 650);
-user_pref("general.smoothScroll.msdPhysics.slowdownMinDeltaMS", 25);
-user_pref("general.smoothScroll.msdPhysics.slowdownMinDeltaRatio", "2.0");
-user_pref("general.smoothScroll.msdPhysics.slowdownSpringConstant", 250);
-user_pref("general.smoothScroll.currentVelocityWeighting", "1.0");
-user_pref("general.smoothScroll.stopDecelerationWeighting", "1.0");
-user_pref("mousewheel.default.delta_multiplier_y", 260);
-user_pref("apz.overscroll.enabled", true);
+user_pref("general.smoothScroll.msdPhysics.enabled", false);
+user_pref("general.smoothScroll.msdPhysics.continuousMotionMaxDeltaMS", 120);
+user_pref("general.smoothScroll.msdPhysics.motionBeginSpringConstant", 1250);
+user_pref("general.smoothScroll.msdPhysics.regularSpringConstant", 1000);
+user_pref("general.smoothScroll.msdPhysics.slowdownMinDeltaMS", 12);
+user_pref("general.smoothScroll.msdPhysics.slowdownMinDeltaRatio", "1.3");
+user_pref("general.smoothScroll.msdPhysics.slowdownSpringConstant", 2000);
+user_pref("general.smoothScroll.currentVelocityWeighting", "0.25");
+user_pref("general.smoothScroll.stopDecelerationWeighting", "0.4");
+user_pref("mousewheel.default.delta_multiplier_y", 100);
+user_pref("apz.overscroll.enabled", false);
 
 // === Fastfox Network & Memory Hygiene ===
 user_pref("browser.cache.jsbc_compression_level", 3);

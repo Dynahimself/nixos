@@ -1,5 +1,17 @@
 local M = {}
 
+local function drm_connected(name)
+    for card = 0, 3 do
+        local f = io.open("/sys/class/drm/card" .. card .. "-" .. name .. "/status", "r")
+        if f then
+            local status = (f:read("*l") or ""):gsub("%s+", "")
+            f:close()
+            if status == "connected" then return true end
+        end
+    end
+    return false
+end
+
 function M.setup()
     -- Primary: AOC Q27G4ZMN 2560x1440@240Hz
     hl.monitor({
@@ -40,9 +52,9 @@ function M.setup()
     })
 
     -- Pin WS 1-5 to DP-3, WS 6-10 to HDMI-A-1
-    local monitors = hl.get_monitors() or {}
-    local has_dp3, has_hdmi = false, false
-    for _, m in ipairs(monitors) do
+    local has_dp3  = drm_connected("DP-3")
+    local has_hdmi = drm_connected("HDMI-A-1")
+    for _, m in ipairs(hl.get_monitors() or {}) do
         if m.name == "DP-3" then has_dp3 = true end
         if m.name == "HDMI-A-1" then has_hdmi = true end
     end
