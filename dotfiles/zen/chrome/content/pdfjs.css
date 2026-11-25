@@ -1,4 +1,4 @@
-/* Catppuccin Mocha PDF.js viewer chrome (leaves rendered PDF pages untouched) */
+/* Catppuccin Mocha PDF.js viewer (paired with pdfjs.forcePageColors in user.js) */
 @media (prefers-color-scheme: dark) {
   @-moz-document regexp("^.*\\.pdf(\\?.*|#.*)?$"), url-prefix("resource://pdf.js/") {
     :root {
@@ -15,6 +15,7 @@
       --toggled-btn-bg-color: var(--mocha-accent-soft) !important;
       --toggled-btn-color: var(--mocha-accent) !important;
       --toolbar-border-color: var(--ctp-surface0) !important;
+      --page-bg-color: var(--ctp-base) !important;
     }
 
     #outerContainer,
@@ -38,6 +39,15 @@
       color: var(--ctp-text) !important;
       border-color: var(--ctp-surface1) !important;
       font-family: var(--mocha-mono) !important;
+    }
+
+    .pdfViewer {
+      --page-bg-color: var(--ctp-base) !important;
+    }
+
+    .pdfViewer .page,
+    .pdfViewer .page .canvasWrapper {
+      background-color: var(--ctp-base) !important;
     }
   }
 }
