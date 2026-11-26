@@ -1,0 +1,42 @@
+{ pkgs, ... }:
+
+{
+  environment.systemPackages = with pkgs; [
+    wget
+    curl
+    tree
+    unzip
+    tldr
+    zip
+    fastfetch
+    unrar
+    parted
+    ntfs3g
+    gnumake
+    appimage-run
+    usbimager
+    nix-output-monitor
+    nixfmt
+    btop
+    duf
+    dust
+    sd
+    delta
+    fx
+    glow
+    eza
+    zoxide
+    broot
+    fzf
+    pay-respects
+    busybox
+    openldap
+    nh
+    nvd
+    jq
+    xclip
+    xdg-utils
+    imagemagick
+    cava
+  ];
+}

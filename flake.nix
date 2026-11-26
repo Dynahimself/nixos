@@ -43,7 +43,7 @@
       system = "x86_64-linux";
 
       commonModules = [
-        ./configuration.nix
+        ./system
         catppuccin.nixosModules.catppuccin
         home-manager.nixosModules.home-manager
         {
@@ -56,27 +56,15 @@
             extraSpecialArgs = { inherit inputs; };
             users.dyna = {
               imports = [
-                ./home.nix
-                ./nixvim.nix
+                ./home
+                ./nixvim
                 nixvim.homeModules.nixvim
                 catppuccin.homeModules.catppuccin
                 spicetify-nix.homeManagerModules.default
               ];
             };
           };
-
         }
-        (
-          { pkgs, ... }:
-          {
-            environment.systemPackages = [
-              (pkgs.wrapFirefox zen-browser.packages.${system}.zen-browser-unwrapped {
-                pname = "zen-browser";
-                extraPolicies = import ./modules/zen-policies.nix;
-              })
-            ];
-          }
-        )
       ];
     in
     {
@@ -85,8 +73,7 @@
           inherit system;
           specialArgs = { inherit inputs; };
           modules = commonModules ++ [
-            ./hardware/laptop.nix
-            ./hardware/laptop-hardware-configuration.nix
+            ./hosts/laptop
           ];
         };
 
@@ -94,8 +81,7 @@
           inherit system;
           specialArgs = { inherit inputs; };
           modules = commonModules ++ [
-            ./hardware/desktop.nix
-            ./hardware/desktop-hardware-configuration.nix
+            ./hosts/desktop
           ];
         };
 
@@ -103,7 +89,7 @@
           inherit system;
           specialArgs = { inherit inputs; };
           modules = [
-            ./wsl.nix
+            ./hosts/wsl
             nixos-wsl.nixosModules.default
             home-manager.nixosModules.home-manager
             {
@@ -114,8 +100,8 @@
                 extraSpecialArgs = { inherit inputs; };
                 users.dyna = {
                   imports = [
-                    ./home-wsl.nix
-                    ./nixvim.nix
+                    ./home/wsl.nix
+                    ./nixvim
                     nixvim.homeModules.nixvim
                     catppuccin.homeModules.catppuccin
                   ];
@@ -129,13 +115,13 @@
         nas = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = { inherit inputs; };
-          modules = [ ./hardware/nas.nix ];
+          modules = [ ./hosts/nas ];
         };
 
         pi = nixpkgs.lib.nixosSystem {
           system = "aarch64-linux";
           specialArgs = { inherit inputs; };
-          modules = [ ./hardware/pi.nix ];
+          modules = [ ./hosts/pi ];
         };
       };
     };

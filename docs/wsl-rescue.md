@@ -46,4 +46,4 @@ class of breakage cannot strand you again.
 ## Never do this
 
 - `nixos-rebuild switch` WITHOUT `--flake .#wsl` — builds the wrong config.
-  Use the `rebuild` alias from home-wsl.nix.
+  Use the `rebuild` alias from home/programs/zsh/wsl.nix.
