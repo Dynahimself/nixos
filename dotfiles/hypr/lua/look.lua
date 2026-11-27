@@ -1,7 +1,16 @@
 local theme = require("theme")
 local M = {}
 
+local function is_laptop()
+    local f = io.open("/proc/sys/kernel/hostname", "r")
+    if not f then return false end
+    local h = (f:read("*l") or ""):gsub("%s+", "")
+    f:close()
+    return h == "laptop"
+end
+
 function M.setup()
+    local laptop = is_laptop()
     local P = theme.palette
     local acc = theme.load_accent()
 
@@ -113,13 +122,13 @@ function M.setup()
 
         cursor = {
             inactive_timeout       = 5,
-            no_break_fs_vrr        = 2,
+            no_break_fs_vrr        = laptop and 0 or 2,
             enable_hyprcursor      = true,
             warp_on_monitor_change = 0,
         },
 
         render = {
-            direct_scanout = 2,
+            direct_scanout = laptop and 0 or 2,
             cm_enabled     = true,
         },
 
@@ -129,7 +138,7 @@ function M.setup()
             disable_splash_rendering = true,
             key_press_enables_dpms   = true,
             mouse_move_enables_dpms  = true,
-            vrr                      = 2,
+            vrr                      = laptop and 0 or 2,
             enable_swallow           = true,
             swallow_regex            = "^(ghostty|com\\.mitchellh\\.ghostty)$",
             focus_on_activate        = false,
