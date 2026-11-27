@@ -1,53 +1,99 @@
-/* Catppuccin Mocha PDF.js viewer (paired with pdfjs.forcePageColors in user.js) */
+/* Catppuccin Mocha PDF.js viewer + crisp sRGB Mocha page rendering */
 @media (prefers-color-scheme: dark) {
-  @-moz-document regexp("^.*\\.pdf(\\?.*|#.*)?$"), url-prefix("resource://pdf.js/") {
-    :root {
-      --main-color: var(--ctp-text) !important;
-      --body-bg-color: var(--ctp-crust) !important;
-      --toolbar-bg-color: var(--ctp-mantle) !important;
-      --sidebar-bg-color: var(--ctp-mantle) !important;
-      --doorhanger-bg-color: var(--ctp-base) !important;
-      --doorhanger-border-color: var(--ctp-surface1) !important;
-      --field-bg-color: var(--ctp-base) !important;
-      --field-color: var(--ctp-text) !important;
-      --field-border-color: var(--ctp-surface1) !important;
-      --button-hover-color: var(--ctp-surface0) !important;
-      --toggled-btn-bg-color: var(--mocha-accent-soft) !important;
-      --toggled-btn-color: var(--mocha-accent) !important;
-      --toolbar-border-color: var(--ctp-surface0) !important;
-      --page-bg-color: var(--ctp-base) !important;
+  html[mozdisallowselectionprint] {
+    --main-color: var(--ctp-text) !important;
+    --body-bg-color: var(--ctp-crust) !important;
+    --toolbar-bg-color: var(--ctp-mantle) !important;
+    --sidebar-bg-color: var(--ctp-mantle) !important;
+    --doorhanger-bg-color: var(--ctp-base) !important;
+    --doorhanger-border-color: var(--ctp-surface1) !important;
+    --field-bg-color: var(--ctp-base) !important;
+    --field-color: var(--ctp-text) !important;
+    --field-border-color: var(--ctp-surface1) !important;
+    --button-hover-color: var(--ctp-surface0) !important;
+    --toggled-btn-bg-color: var(--mocha-accent-soft) !important;
+    --toggled-btn-color: var(--mocha-accent) !important;
+    --toolbar-border-color: var(--ctp-surface0) !important;
+    --page-bg-color: var(--ctp-base) !important;
+  }
+
+  html[mozdisallowselectionprint] #outerContainer,
+  html[mozdisallowselectionprint] #viewerContainer {
+    background-color: var(--ctp-crust) !important;
+    scrollbar-color: var(--ctp-surface1) transparent;
+    scrollbar-width: thin;
+  }
+
+  html[mozdisallowselectionprint] #toolbarContainer,
+  html[mozdisallowselectionprint] #secondaryToolbar,
+  html[mozdisallowselectionprint] #sidebarContent {
+    background-color: var(--ctp-mantle) !important;
+    border-color: var(--ctp-surface0) !important;
+  }
+
+  html[mozdisallowselectionprint] #pageNumber,
+  html[mozdisallowselectionprint] #scaleSelect,
+  html[mozdisallowselectionprint] #findInput {
+    background-color: var(--ctp-base) !important;
+    color: var(--ctp-text) !important;
+    border-color: var(--ctp-surface1) !important;
+    font-family: var(--mocha-mono) !important;
+  }
+
+  html[mozdisallowselectionprint] .pdfViewer {
+    --page-bg-color: var(--ctp-base) !important;
+  }
+
+  /*
+   * Linear sRGB mapping: white -> #1e1e2e (Mocha Base), black -> #cdd6f4 (Mocha Text).
+   * Preserves native Skia font anti-aliasing and color hues without PDF.js's HCM gamma bloat.
+   * Math: screen(#c6d0f2, #1e1e2e) = #cdd6f4; screen(#000000, #1e1e2e) = #1e1e2e.
+   */
+  html[mozdisallowselectionprint] .pdfViewer .page {
+    background-color: var(--ctp-base) !important;
+    isolation: isolate;
+  }
+
+  html[mozdisallowselectionprint] .pdfViewer .page .canvasWrapper {
+    position: relative;
+    isolation: isolate;
+    background-color: transparent !important;
+    mix-blend-mode: screen;
+  }
+
+  html[mozdisallowselectionprint] .pdfViewer .page .canvasWrapper > canvas {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  html[mozdisallowselectionprint] .pdfViewer .page .canvasWrapper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #c6d0f2;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  html[mozdisallowselectionprint] .thumbnailImage {
+    filter: invert(1) hue-rotate(180deg) brightness(0.9);
+  }
+
+  /* Native Catppuccin PDFs (filenames starting with "puccin"): keep viewer dark, skip page invert */
+  @-moz-document regexp("^.*/[pP][uU][cC][cC][iI][nN][^/]*\\.[pP][dD][fF](\\?.*|#.*)?$") {
+    html[mozdisallowselectionprint] .pdfViewer .page .canvasWrapper {
+      mix-blend-mode: normal !important;
     }
 
-    #outerContainer,
-    #viewerContainer {
-      background-color: var(--ctp-crust) !important;
-      scrollbar-color: var(--ctp-surface1) transparent;
-      scrollbar-width: thin;
+    html[mozdisallowselectionprint] .pdfViewer .page .canvasWrapper > canvas {
+      filter: none !important;
     }
 
-    #toolbarContainer,
-    #secondaryToolbar,
-    #sidebarContent {
-      background-color: var(--ctp-mantle) !important;
-      border-color: var(--ctp-surface0) !important;
+    html[mozdisallowselectionprint] .pdfViewer .page .canvasWrapper::after {
+      display: none !important;
     }
 
-    #pageNumber,
-    #scaleSelect,
-    #findInput {
-      background-color: var(--ctp-base) !important;
-      color: var(--ctp-text) !important;
-      border-color: var(--ctp-surface1) !important;
-      font-family: var(--mocha-mono) !important;
-    }
-
-    .pdfViewer {
-      --page-bg-color: var(--ctp-base) !important;
-    }
-
-    .pdfViewer .page,
-    .pdfViewer .page .canvasWrapper {
-      background-color: var(--ctp-base) !important;
+    html[mozdisallowselectionprint] .thumbnailImage {
+      filter: none !important;
     }
   }
 }

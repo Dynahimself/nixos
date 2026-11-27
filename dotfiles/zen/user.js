@@ -153,8 +153,8 @@ user_pref("devtools.chrome.enabled", true);
 user_pref("devtools.debugger.remote-enabled", true);
 
 // === PDF.js Catppuccin Mocha ===
-user_pref("pdfjs.forcePageColors", true);
-user_pref("pdfjs.pageColorsBackground", "#1e1e2e");
-user_pref("pdfjs.pageColorsForeground", "#cdd6f4");
+// Keep native forcePageColors OFF (its HCM filter applies linear-gamma transfer that bloats font anti-aliasing);
+// page colors are handled in sRGB via chrome/content/pdfjs.css instead.
+user_pref("pdfjs.forcePageColors", false);
 user_pref("pdfjs.viewerCssTheme", 2);
 user_pref("pdfjs.highlightEditorColors", "yellow=#f9e2af,green=#a6e3a1,blue=#89b4fa,pink=#f5c2e7,red=#f38ba8,yellow_HCM=#f9e2af,green_HCM=#a6e3a1,blue_HCM=#89b4fa,pink_HCM=#f5c2e7,red_HCM=#f38ba8");
